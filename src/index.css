@@ -1,0 +1,189 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 220 15% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 15% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 15% 10%;
+
+    --primary: 215 100% 40%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 10% 96%;
+    --secondary-foreground: 220 15% 10%;
+
+    --muted: 220 10% 96%;
+    --muted-foreground: 220 10% 45%;
+
+    --accent: 160 100% 50%;
+    --accent-foreground: 220 15% 10%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 15% 90%;
+    --input: 220 15% 90%;
+    --ring: 215 100% 40%;
+
+    --radius: 1rem;
+
+    /* Futuristic MedGuard Colors */
+    --cyber-blue: 215 100% 40%;
+    --neon-green: 160 100% 50%;
+    --neon-cyan: 190 100% 50%;
+    --neon-yellow: 48 100% 50%;
+    --glass-bg: 220 20% 98%;
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(215 100% 40%), hsl(190 100% 50%));
+    --gradient-accent: linear-gradient(135deg, hsl(160 100% 50%), hsl(190 100% 50%));
+    --gradient-glow: radial-gradient(circle at 50% 50%, hsl(215 100% 40% / 0.2), transparent 70%);
+    
+    /* Shadows & Glows */
+    --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+    --shadow-glow-blue: 0 0 40px hsl(215 100% 40% / 0.3);
+    --shadow-glow-green: 0 0 40px hsl(160 100% 50% / 0.3);
+    --shadow-neon: 0 0 20px hsl(160 100% 50% / 0.5), 0 0 40px hsl(160 100% 50% / 0.3);
+    
+    /* Animations */
+    --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  .dark {
+    --background: 220 20% 8%;
+    --foreground: 0 0% 98%;
+
+    --card: 220 20% 12%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 220 20% 12%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 215 100% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 20% 16%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 220 20% 16%;
+    --muted-foreground: 220 10% 60%;
+
+    --accent: 160 100% 50%;
+    --accent-foreground: 220 20% 8%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 20% 20%;
+    --input: 220 20% 20%;
+    --ring: 215 100% 50%;
+
+    --glass-bg: 220 20% 12%;
+    
+    --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+    --shadow-glow-blue: 0 0 60px hsl(215 100% 50% / 0.4);
+    --shadow-glow-green: 0 0 60px hsl(160 100% 50% / 0.4);
+    --shadow-neon: 0 0 30px hsl(160 100% 50% / 0.6), 0 0 60px hsl(160 100% 50% / 0.4);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  .glass-panel {
+    @apply backdrop-blur-xl bg-white/70 dark:bg-white/5 rounded-2xl border border-white/20 shadow-[0_8px_32px_0_rgba(31,38,135,0.15)];
+  }
+  
+  .glass-panel-strong {
+    @apply backdrop-blur-2xl bg-white/80 dark:bg-white/10 rounded-2xl border border-white/30 shadow-[0_8px_32px_0_rgba(31,38,135,0.25)];
+  }
+  
+  .neon-glow-blue {
+    box-shadow: 0 0 40px hsl(215 100% 40% / 0.3), 0 0 80px hsl(215 100% 40% / 0.2);
+  }
+  
+  .neon-glow-green {
+    box-shadow: 0 0 40px hsl(160 100% 50% / 0.4), 0 0 80px hsl(160 100% 50% / 0.2);
+  }
+  
+  .floating-3d {
+    transform: translateZ(0);
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .holographic-text {
+    background: linear-gradient(135deg, hsl(215 100% 40%), hsl(160 100% 50%), hsl(190 100% 50%));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .hover-lift {
+    @apply transition-all duration-300;
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  }
+}
+
+@layer utilities {
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px) rotateX(0deg) rotateY(0deg);
+    }
+    50% {
+      transform: translateY(-20px) rotateX(5deg) rotateY(5deg);
+    }
+  }
+  
+  @keyframes pulse-glow {
+    0%, 100% {
+      box-shadow: 0 0 20px hsl(160 100% 50% / 0.4), 0 0 40px hsl(160 100% 50% / 0.2);
+    }
+    50% {
+      box-shadow: 0 0 40px hsl(160 100% 50% / 0.6), 0 0 80px hsl(160 100% 50% / 0.4);
+    }
+  }
+  
+  @keyframes shimmer {
+    0% {
+      background-position: -1000px 0;
+    }
+    100% {
+      background-position: 1000px 0;
+    }
+  }
+  
+  .animate-pulse-glow {
+    animation: pulse-glow 3s ease-in-out infinite;
+  }
+  
+  .animate-shimmer {
+    animation: shimmer 3s linear infinite;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    background-size: 1000px 100%;
+  }
+}
