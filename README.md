@@ -63,7 +63,7 @@ medguard-ai/
 ## 💻 Getting Started
 
 
-1️⃣ Clone the repository
+ 1️⃣ Clone the repository
 ```bash
 git clone https://github.com/Reddy-02/medguard-ai.git
 cd medguard-ai
