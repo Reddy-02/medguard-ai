@@ -54,10 +54,7 @@ User
 ├─> Multilingual TTS (Coqui / Open-Source)
 └─> UI Display (Tablet info, usage guide, feedback)
 
-yaml
-Copy code
 
-*Optional: Insert a diagram image of architecture here for portfolio impact.*
 
 ---
 
@@ -79,15 +76,14 @@ medguard-ai/
 ├─ .gitignore
 └─ README.md
 
-yaml
-Copy code
+
 
 ---
 
 ## 💻 Getting Started
 
 ### 1️⃣ Clone the repository
-```bash
+
 git clone https://github.com/Reddy-02/medguard-ai.git
 cd medguard-ai
 2️⃣ Install dependencies
