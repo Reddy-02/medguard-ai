@@ -441,7 +441,7 @@ export const TabletChecker = () => {
             </h1>
             <p className="text-xl text-muted-foreground">
               Upload an image or enter tablet details for instant AI verification
-              ⚠️ MedGuard AI is for informational purposes only.
+              MedGuard AI is for informational purposes only.
               Always consult a licensed doctor or pharmacist before medication use.
             </p>
           </motion.div>
