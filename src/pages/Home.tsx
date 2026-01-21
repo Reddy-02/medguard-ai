@@ -63,6 +63,8 @@ export const Home = () => {
               <p className="text-xl text-muted-foreground leading-relaxed">
                 Verify medicine authenticity instantly with cutting-edge AI technology. 
                 Protect yourself from counterfeit drugs with our advanced verification system.
+                ⚠️ MedGuard AI is for informational purposes only.
+                Always consult a licensed doctor or pharmacist before medication use.
               </p>
 
               <motion.div
