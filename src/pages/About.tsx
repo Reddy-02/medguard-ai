@@ -107,9 +107,9 @@ export const About = () => {
             <h2 className="text-3xl font-bold mb-8 text-center holographic-text">Our Impact</h2>
             <div className="grid md:grid-cols-3 gap-8">
               {[
-                { number: "10M+", label: "Verifications" },
+                { number: "100+", label: "Verifications" },
                 { number: "99.9%", label: "Accuracy" },
-                { number: "150+", label: "Countries" }
+                { number: "Indian", label: "Based" }
               ].map((stat, index) => (
                 <motion.div
                   key={index}
