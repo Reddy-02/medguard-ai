@@ -48,6 +48,8 @@ export const About = () => {
               MedGuard AI is committed to eliminating counterfeit medicines through cutting-edge artificial intelligence. 
               We believe everyone deserves access to authentic, safe medications. Our platform leverages advanced 
               machine learning to provide instant, accurate medicine verification, protecting millions of people worldwide.
+              MedGuard AI is for informational purposes only.
+              Always consult a licensed doctor or pharmacist before medication use.
             </p>
           </motion.div>
 
