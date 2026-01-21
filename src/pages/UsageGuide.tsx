@@ -72,6 +72,8 @@ export const UsageGuide = () => {
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Follow these simple steps to verify your medicine authenticity
+              MedGuard AI is for informational purposes only.
+              Always consult a licensed doctor or pharmacist before medication use.
             </p>
           </motion.div>
 
