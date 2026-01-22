@@ -179,7 +179,7 @@ export const Home = () => {
               {
                 icon: Globe2,
                 title: "Multi-language",
-                description: "Support for 50+ languages with text-to-speech capabilities"
+                description: "Support for 6 languages with text-to-speech capabilities"
               },
               {
                 icon: CheckCircle2,
