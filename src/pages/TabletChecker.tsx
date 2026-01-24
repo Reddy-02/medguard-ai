@@ -129,15 +129,19 @@ export const TabletChecker = () => {
       let foundMedicine = null;
 
       if (searchTerm.length >= 3) {
-        for (const [key, medicine] of Object.entries(medicineDatabase)) {
+        // Prevent empty string from matching everything
+        if (searchTerm.length >= 3) {
+         for (const [key, medicine] of Object.entries(medicineDatabase)) {
           if (
-            key.includes(searchTerm) ||
-            medicine.name.toLowerCase().includes(searchTerm)
-          ) {
-            foundMedicine = medicine;
-            break;
-          }
-        }
+           key.includes(searchTerm) ||
+           medicine.name.toLowerCase().includes(searchTerm)
+           ) {
+           foundMedicine = medicine;
+           break;
+    }
+  }
+}
+
       }
 
       if (foundMedicine) {
