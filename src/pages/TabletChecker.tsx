@@ -326,3 +326,13 @@ const medicineDatabase: Record<string, any> = {
 
   // 🔴 Dataset continues in same format for remaining medicines
 };
+import { useState } from "react";
+
+export const TabletChecker = () => {
+  return (
+    <div className="min-h-screen pt-24 pb-16">
+      {/* YOUR EXISTING UI CODE GOES HERE */}
+    </div>
+  );
+};
+
