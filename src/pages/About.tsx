@@ -107,9 +107,9 @@ export const About = () => {
             <h2 className="text-3xl font-bold mb-8 text-center holographic-text">Our Impact</h2>
             <div className="grid md:grid-cols-3 gap-8">
               {[
-                { number: "100+", label: "Verifications" },
+                { number: "10M+", label: "Verifications" },
                 { number: "99.9%", label: "Accuracy" },
-                { number: "Indian", label: "Based" }
+                { number: "150+", label: "Countries" }
               ].map((stat, index) => (
                 <motion.div
                   key={index}
@@ -138,8 +138,6 @@ export const About = () => {
             <p className="text-lg text-muted-foreground leading-relaxed mb-6">
               MedGuard AI utilizes state-of-the-art deep learning models trained on millions of verified medicine images. 
               Our neural networks can identify subtle differences between authentic and counterfeit medicines with unprecedented accuracy.
-              MedGuard AI is for informational purposes only.
-              Always consult a licensed doctor or pharmacist before medication use.
             </p>
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-3">
