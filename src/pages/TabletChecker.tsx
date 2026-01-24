@@ -322,7 +322,5 @@ const medicineDatabase: Record<string, any> = {
     sideEffects: "Black stools",
     manufacturer: "Livogen",
     verified: true
-  }
-
-  // 🔴 Dataset continues in same format for remaining medicines
+  }, // ✅ CRITICAL COMMA
 };
