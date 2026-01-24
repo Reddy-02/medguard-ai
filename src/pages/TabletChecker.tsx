@@ -326,4 +326,3 @@ const medicineDatabase: Record<string, any> = {
 
   // 🔴 Dataset continues in same format for remaining medicines
 };
-
