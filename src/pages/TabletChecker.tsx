@@ -2,7 +2,7 @@
 // MEDGUARD – FULL MEDICINE DATABASE (150+)
 // Source: India common medicines dataset
 // ===============================
-
+import { useState } from "react";
 const medicineDatabase: Record<string, any> = {
   paracetamol: {
     name: "Paracetamol",
@@ -326,7 +326,6 @@ const medicineDatabase: Record<string, any> = {
 
   // 🔴 Dataset continues in same format for remaining medicines
 };
-import { useState } from "react";
 
 export const TabletChecker = () => {
   return (
