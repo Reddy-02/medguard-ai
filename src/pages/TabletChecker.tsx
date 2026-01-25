@@ -21,9 +21,13 @@ const MEDICINE_DB: Record<string, Medicine> = {
       "Avoid alcohol consumption",
       "Not recommended with other paracetamol-containing products",
       "Consult doctor if symptoms persist",
+      "Not suitable for patients with liver conditions",
+      "Keep out of reach of children",
+      "Store in a cool, dry place",
+      "Check expiry date before consumption",
     ],
     sideEffects:
-      "Rare: Allergic reactions, liver damage (overdose), skin rash",
+      "Rare: Allergic reactions, liver damage (overdose), skin rash, nausea, stomach pain",
   },
 };
 
@@ -43,9 +47,17 @@ export default function TabletChecker() {
     <div className="container max-w-5xl pt-24 pb-16 space-y-10">
       {/* ===== HEADING ===== */}
       <div className="text-center">
-        <h1 className="text-4xl font-bold text-black">
-          <span className="text-blue-600">Tablet</span>{" "}
-          <span className="text-green-500">Verification</span>
+        <h1 className="text-5xl font-bold text-black mb-4">
+          <span 
+            className="bg-gradient-to-r from-blue-600 to-green-500 bg-clip-text text-transparent"
+            style={{
+              backgroundImage: "linear-gradient(to right, #2563eb, #10b981)",
+              WebkitBackgroundClip: "text",
+              backgroundClip: "text",
+            }}
+          >
+            Tablet Verification
+          </span>
         </h1>
         <p className="mt-2 text-gray-500">
           Upload an image or enter tablet details for instant AI verification
@@ -94,7 +106,10 @@ export default function TabletChecker() {
 
           <button
             onClick={() => setVerified(!!medicine)}
-            className="w-full py-3 rounded-xl text-white font-semibold bg-gradient-to-r from-blue-600 to-green-500"
+            className="w-full py-3 rounded-xl text-white font-semibold bg-gradient-to-r from-blue-600 to-green-500 hover:from-blue-700 hover:to-green-600 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+            style={{
+              backgroundImage: "linear-gradient(to right, #2563eb, #10b981)",
+            }}
           >
             Verify Tablet
           </button>
@@ -113,22 +128,83 @@ export default function TabletChecker() {
             </p>
           </div>
 
-          {/* ===== GRID GLOBE ===== */}
+          {/* ===== ENHANCED GRID GLOBE ===== */}
           <div className="bg-white rounded-2xl shadow-lg p-10 flex justify-center">
-            <div style={{ width: 260, height: 260 }}>
+            <div style={{ width: 300, height: 300 }}>
               <svg viewBox="0 0 200 200" width="100%" height="100%">
-                <circle cx="100" cy="100" r="90" fill="none" stroke="#9BE6C4" strokeWidth="0.8" />
-                <g stroke="#9BE6C4" strokeWidth="0.5">
-                  <ellipse cx="100" cy="100" rx="90" ry="70" fill="none" />
-                  <ellipse cx="100" cy="100" rx="90" ry="50" fill="none" />
-                  <ellipse cx="100" cy="100" rx="90" ry="30" fill="none" />
-                  <ellipse cx="100" cy="100" rx="70" ry="90" fill="none" />
-                  <ellipse cx="100" cy="100" rx="50" ry="90" fill="none" />
-                  <ellipse cx="100" cy="100" rx="30" ry="90" fill="none" />
+                {/* Background circle */}
+                <circle cx="100" cy="100" r="95" fill="#f8fafc" stroke="#e2e8f0" strokeWidth="0.5" />
+                
+                {/* Longitude lines (vertical ellipses) - Increased density */}
+                <g stroke="#9BE6C4" strokeWidth="0.3" fill="none">
+                  {/* Inner circles for grid effect */}
+                  {[10, 20, 30, 40, 50, 60, 70, 80, 90].map((r) => (
+                    <circle key={`inner-${r}`} cx="100" cy="100" r={r} />
+                  ))}
+                  
+                  {/* Longitude lines - more lines */}
+                  {Array.from({ length: 24 }).map((_, i) => {
+                    const angle = (i * 15 * Math.PI) / 180;
+                    const rx = 90;
+                    const ry = 45;
+                    return (
+                      <path
+                        key={`long-${i}`}
+                        d={`
+                          M ${100 + rx * Math.cos(angle)} ${100 + ry * Math.sin(angle)}
+                          A ${rx} ${ry} 0 0 1 ${100 - rx * Math.cos(angle)} ${100 - ry * Math.sin(angle)}
+                          M ${100 + rx * Math.cos(angle)} ${100 + ry * Math.sin(angle)}
+                          A ${rx} ${ry} 0 0 0 ${100 - rx * Math.cos(angle)} ${100 - ry * Math.sin(angle)}
+                        `}
+                      />
+                    );
+                  })}
+                  
+                  {/* Latitude lines (horizontal circles) - more lines */}
+                  {Array.from({ length: 9 }).map((_, i) => {
+                    const r = (i + 1) * 10;
+                    return (
+                      <ellipse
+                        key={`lat-${i}`}
+                        cx="100"
+                        cy="100"
+                        rx={r}
+                        ry={r * 0.5}
+                      />
+                    );
+                  })}
+                  
+                  {/* Additional diagonal grid lines */}
+                  <g stroke="#c6f6d5" strokeWidth="0.2">
+                    {Array.from({ length: 12 }).map((_, i) => {
+                      const angle = (i * 30 * Math.PI) / 180;
+                      return (
+                        <line
+                          key={`diag-${i}`}
+                          x1={100 + 90 * Math.cos(angle)}
+                          y1={100 + 45 * Math.sin(angle)}
+                          x2={100 - 90 * Math.cos(angle)}
+                          y2={100 - 45 * Math.sin(angle)}
+                        />
+                      );
+                    })}
+                  </g>
                 </g>
-                <circle cx="100" cy="100" r="45" fill="none" stroke="#6AD7A6" strokeWidth="4" />
-                <text x="100" y="105" textAnchor="middle" fontSize="12" fontWeight="600" fill="#6AD7A6">
+                
+                {/* Main verification circle */}
+                <circle cx="100" cy="100" r="45" fill="none" stroke="#10b981" strokeWidth="3" />
+                <circle cx="100" cy="100" r="48" fill="none" stroke="#3b82f6" strokeWidth="1" strokeDasharray="2,2" />
+                
+                {/* Animated rings for effect */}
+                <circle cx="100" cy="100" r="52" fill="none" stroke="#10b981" strokeWidth="1" opacity="0.5">
+                  <animate attributeName="r" values="52;55;52" dur="4s" repeatCount="indefinite" />
+                </circle>
+                
+                <text x="100" y="100" textAnchor="middle" fontSize="14" fontWeight="700" fill="#10b981">
                   VERIFIED
+                </text>
+                <text x="100" y="120" textAnchor="middle" fontSize="10" fontWeight="500" fill="#3b82f6">
+                  Authentic
                 </text>
               </svg>
             </div>
@@ -165,14 +241,29 @@ export default function TabletChecker() {
             </div>
           </div>
 
-          {/* ===== PRECAUTIONS ===== */}
+          {/* ===== PRECAUTIONS WITH DUAL GRADIENT ===== */}
           <div className="bg-white rounded-2xl shadow-lg p-6">
-            <h3 className="font-bold text-black mb-3">Precautions</h3>
-            <ul className="space-y-2">
+            <h3 className="font-bold text-black mb-4">Precautions</h3>
+            <ul className="space-y-3">
               {medicine.precautions.map((p, i) => (
-                <li key={i} className="flex items-center gap-2">
-                  <span className="h-2 w-2 rounded-full bg-green-500" />
-                  {p}
+                <li key={i} className="flex items-center gap-3">
+                  <span 
+                    className="h-3 w-3 rounded-full"
+                    style={{
+                      background: `linear-gradient(135deg, #3b82f6, #10b981)`,
+                    }}
+                  />
+                  <span 
+                    className="font-medium"
+                    style={{
+                      background: `linear-gradient(to right, #3b82f6, #10b981)`,
+                      WebkitBackgroundClip: "text",
+                      backgroundClip: "text",
+                      color: "transparent",
+                    }}
+                  >
+                    {p}
+                  </span>
                 </li>
               ))}
             </ul>
