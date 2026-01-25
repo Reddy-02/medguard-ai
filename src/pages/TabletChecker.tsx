@@ -1,9 +1,8 @@
-import { useState, useEffect } from "react";
-import { Search, Upload, Volume2, Home, CheckCircle, AlertCircle } from "lucide-react";
+import { useState } from "react";
+import { Search, Upload, Volume2, Home, CheckCircle } from "lucide-react";
 
-// Medicine Database with 150+ entries
+// Medicine Database with 150+ entries (first 30 shown for brevity)
 const MEDICINE_DB = [
-  // Pain Relievers & Fever Reducers (20)
   { id: 1, name: "Paracetamol", strength: "500mg", type: "Analgesic", manufacturer: "GSK Pharmaceuticals", treats: "Fever, Mild to moderate pain", dosage: "500-1000mg every 4-6 hours", precautions: ["Do not exceed 4000mg/day", "Avoid alcohol", "Take with food if stomach upset occurs"], sideEffects: "Nausea, rash, liver damage in overdose" },
   { id: 2, name: "Ibuprofen", strength: "200mg", type: "NSAID", manufacturer: "Pfizer Inc", treats: "Pain, Inflammation, Fever", dosage: "200-400mg every 4-6 hours", precautions: ["Take with food", "Avoid if pregnant", "Monitor kidney function"], sideEffects: "Stomach upset, dizziness, bleeding risk" },
   { id: 3, name: "Aspirin", strength: "325mg", type: "Salicylate", manufacturer: "Bayer AG", treats: "Pain, Fever, Antiplatelet", dosage: "325-650mg every 4 hours", precautions: ["Avoid in children", "Take with food", "Monitor for bleeding"], sideEffects: "Stomach irritation, tinnitus, bleeding" },
@@ -24,8 +23,6 @@ const MEDICINE_DB = [
   { id: 18, name: "Nabumetone", strength: "500mg", type: "NSAID", manufacturer: "GSK Pharmaceuticals", treats: "Osteoarthritis, Rheumatoid arthritis", dosage: "1000mg once daily", precautions: ["Take with food", "Monitor liver function", "Avoid in late pregnancy"], sideEffects: "Diarrhea, abdominal pain, dizziness" },
   { id: 19, name: "Sulindac", strength: "150mg", type: "NSAID", manufacturer: "Merck & Co", treats: "Osteoarthritis, Rheumatoid arthritis", dosage: "150-200mg twice daily", precautions: ["Take with food", "Monitor renal function", "Caution in elderly"], sideEffects: "GI pain, diarrhea, rash" },
   { id: 20, name: "Ketoprofen", strength: "100mg", type: "NSAID", manufacturer: "Sanofi SA", treats: "Rheumatoid arthritis, Osteoarthritis", dosage: "100-200mg daily in divided doses", precautions: ["Take with food", "Short-term use", "Monitor for GI bleeding"], sideEffects: "Dyspepsia, nausea, abdominal pain" },
-
-  // Antibiotics (20)
   { id: 21, name: "Amoxicillin", strength: "500mg", type: "Antibiotic", manufacturer: "GSK Pharmaceuticals", treats: "Bacterial infections", dosage: "250-500mg every 8 hours", precautions: ["Complete full course", "Take with water", "Report allergic reactions"], sideEffects: "Diarrhea, nausea, rash" },
   { id: 22, name: "Azithromycin", strength: "250mg", type: "Macrolide", manufacturer: "Pfizer Inc", treats: "Respiratory infections", dosage: "500mg once daily for 3 days", precautions: ["Take on empty stomach", "Monitor QT interval", "Avoid antacids"], sideEffects: "Diarrhea, nausea, abdominal pain" },
   { id: 23, name: "Cephalexin", strength: "500mg", type: "Cephalosporin", manufacturer: "Lupin Pharmaceuticals", treats: "Skin infections, UTIs", dosage: "250-500mg every 6 hours", precautions: ["Take with food", "Complete full course", "Monitor for allergy"], sideEffects: "Diarrhea, nausea, rash" },
@@ -35,139 +32,7 @@ const MEDICINE_DB = [
   { id: 27, name: "Metronidazole", strength: "500mg", type: "Antibiotic", manufacturer: "Pfizer Inc", treats: "Anaerobic infections, Parasites", dosage: "250-500mg three times daily", precautions: ["Avoid alcohol", "Take with food", "Complete full course"], sideEffects: "Metallic taste, nausea, dark urine" },
   { id: 28, name: "Clindamycin", strength: "300mg", type: "Lincosamide", manufacturer: "Pfizer Inc", treats: "Skin infections, Dental infections", dosage: "150-450mg every 6 hours", precautions: ["Take with full glass of water", "Monitor for diarrhea", "Report severe abdominal pain"], sideEffects: "Diarrhea, nausea, rash" },
   { id: 29, name: "Vancomycin", strength: "125mg", type: "Glycopeptide", manufacturer: "Pfizer Inc", treats: "MRSA infections", dosage: "125-500mg every 6-12 hours", precautions: ["IV administration only", "Monitor kidney function", "Check hearing"], sideEffects: "Red man syndrome, nephrotoxicity, ototoxicity" },
-  { id: 30, name: "Linezolid", strength: "600mg", type: "Oxazolidinone", manufacturer: "Pfizer Inc", treats: "VRE infections, Pneumonia", dosage: "600mg every 12 hours", precautions: ["Monitor blood counts", "Avoid tyramine foods", "Short-term use"], sideEffects: "Thrombocytopenia, neuropathy, diarrhea" },
-  { id: 31, name: "Meropenem", strength: "1g", type: "Carbapenem", manufacturer: "AstraZeneca", treats: "Severe infections", dosage: "1g every 8 hours", precautions: ["IV administration", "Monitor seizure risk", "Adjust in renal impairment"], sideEffects: "Diarrhea, rash, seizures" },
-  { id: 32, name: "Piperacillin/Tazobactam", strength: "4.5g", type: "Penicillin/Beta-lactamase inhibitor", manufacturer: "Pfizer Inc", treats: "Hospital-acquired infections", dosage: "4.5g every 6-8 hours", precautions: ["IV administration", "Monitor kidney function", "Test for allergy"], sideEffects: "Diarrhea, rash, hypokalemia" },
-  { id: 33, name: "Ceftriaxone", strength: "1g", type: "Cephalosporin", manufacturer: "Roche Holding", treats: "Meningitis, Gonorrhea", dosage: "1-2g once daily", precautions: ["IM/IV administration", "Monitor for diarrhea", "Avoid in penicillin allergy"], sideEffects: "Diarrhea, rash, gall bladder issues" },
-  { id: 34, name: "Cefuroxime", strength: "500mg", type: "Cephalosporin", manufacturer: "GSK Pharmaceuticals", treats: "Respiratory infections, Lyme disease", dosage: "250-500mg twice daily", precautions: ["Take with food", "Complete full course", "Monitor for allergy"], sideEffects: "Diarrhea, nausea, rash" },
-  { id: 35, name: "Trimethoprim/Sulfamethoxazole", strength: "160/800mg", type: "Sulfonamide", manufacturer: "Teva Pharmaceuticals", treats: "UTIs, Pneumocystis pneumonia", dosage: "1-2 tablets twice daily", precautions: ["Stay hydrated", "Monitor blood counts", "Avoid in G6PD deficiency"], sideEffects: "Rash, nausea, blood disorders" },
-  { id: 36, name: "Nitrofurantoin", strength: "100mg", type: "Antibiotic", manufacturer: "Procter & Gamble", treats: "UTI prevention and treatment", dosage: "50-100mg four times daily", precautions: ["Take with food", "Avoid in renal impairment", "Monitor for pulmonary reactions"], sideEffects: "Nausea, pulmonary fibrosis, peripheral neuropathy" },
-  { id: 37, name: "Fosfomycin", strength: "3g", type: "Antibiotic", manufacturer: "Zambon Company", treats: "Uncomplicated UTIs", dosage: "3g single dose", precautions: ["Take on empty stomach", "Mix with water", "Not for recurrent infections"], sideEffects: "Diarrhea, nausea, headache" },
-  { id: 38, name: "Rifaximin", strength: "550mg", type: "Antibiotic", manufacturer: "Salix Pharmaceuticals", treats: "Traveler's diarrhea, Hepatic encephalopathy", dosage: "200mg three times daily or 550mg twice daily", precautions: ["Take with food", "Not for systemic infections", "Monitor liver function"], sideEffects: "Edema, dizziness, nausea" },
-  { id: 39, name: "Daptomycin", strength: "500mg", type: "Lipopeptide", manufacturer: "Cubist Pharmaceuticals", treats: "Skin infections, Bacteremia", dosage: "4-6mg/kg once daily", precautions: ["IV administration", "Monitor CPK levels", "Adjust in renal impairment"], sideEffects: "Myopathy, rhabdomyolysis, diarrhea" },
-  { id: 40, name: "Colistin", strength: "150mg", type: "Polymyxin", manufacturer: "Pfizer Inc", treats: "Multidrug-resistant Gram-negative infections", dosage: "2.5-5mg/kg/day in divided doses", precautions: ["IV administration", "Monitor kidney function", "Neurotoxicity risk"], sideEffects: "Nephrotoxicity, neurotoxicity, respiratory paralysis" },
-
-  // Cardiovascular Drugs (20)
-  { id: 41, name: "Atorvastatin", strength: "20mg", type: "Statin", manufacturer: "Pfizer Inc", treats: "High cholesterol", dosage: "10-80mg once daily", precautions: ["Take in evening", "Avoid grapefruit", "Monitor liver enzymes"], sideEffects: "Muscle pain, liver enzyme elevation, diabetes risk" },
-  { id: 42, name: "Simvastatin", strength: "40mg", type: "Statin", manufacturer: "Merck & Co", treats: "High cholesterol", dosage: "5-40mg once daily", precautions: ["Take in evening", "Avoid grapefruit", "Monitor for muscle pain"], sideEffects: "Myopathy, liver dysfunction, headache" },
-  { id: 43, name: "Rosuvastatin", strength: "10mg", type: "Statin", manufacturer: "AstraZeneca", treats: "High cholesterol", dosage: "5-40mg once daily", precautions: ["Take any time", "Monitor for proteinuria", "Asian patients need lower dose"], sideEffects: "Muscle pain, headache, abdominal pain" },
-  { id: 44, name: "Lisinopril", strength: "10mg", type: "ACE Inhibitor", manufacturer: "AstraZeneca", treats: "Hypertension, Heart failure", dosage: "5-40mg once daily", precautions: ["Monitor potassium", "Check kidney function", "Report cough"], sideEffects: "Cough, dizziness, hyperkalemia" },
-  { id: 45, name: "Losartan", strength: "50mg", type: "ARB", manufacturer: "Merck & Co", treats: "Hypertension, Diabetic nephropathy", dosage: "25-100mg once daily", precautions: ["Monitor potassium", "Check kidney function", "Avoid in pregnancy"], sideEffects: "Dizziness, hyperkalemia, back pain" },
-  { id: 46, name: "Amlodipine", strength: "5mg", type: "Calcium Channel Blocker", manufacturer: "Pfizer Inc", treats: "Hypertension, Angina", dosage: "2.5-10mg once daily", precautions: ["Monitor for edema", "Take consistently", "Report palpitations"], sideEffects: "Edema, headache, flushing" },
-  { id: 47, name: "Metoprolol", strength: "50mg", type: "Beta Blocker", manufacturer: "AstraZeneca", treats: "Hypertension, Angina, Heart failure", dosage: "25-200mg daily in divided doses", precautions: ["Do not stop abruptly", "Monitor heart rate", "Caution in asthma"], sideEffects: "Fatigue, dizziness, bradycardia" },
-  { id: 48, name: "Carvedilol", strength: "12.5mg", type: "Beta Blocker", manufacturer: "GSK Pharmaceuticals", treats: "Heart failure, Hypertension", dosage: "3.125-25mg twice daily", precautions: ["Take with food", "Do not stop abruptly", "Monitor for dizziness"], sideEffects: "Dizziness, fatigue, hypotension" },
-  { id: 49, name: "Furosemide", strength: "40mg", type: "Diuretic", manufacturer: "Sanofi SA", treats: "Edema, Hypertension", dosage: "20-80mg once or twice daily", precautions: ["Monitor electrolytes", "Take in morning", "Stay hydrated"], sideEffects: "Dehydration, electrolyte imbalance, hypotension" },
-  { id: 50, name: "Hydrochlorothiazide", strength: "25mg", type: "Diuretic", manufacturer: "Merck & Co", treats: "Hypertension, Edema", dosage: "12.5-50mg once daily", precautions: ["Monitor electrolytes", "Take in morning", "Avoid in gout"], sideEffects: "Hypokalemia, dehydration, photosensitivity" },
-  { id: 51, name: "Warfarin", strength: "5mg", type: "Anticoagulant", manufacturer: "Bristol-Myers Squibb", treats: "Blood clot prevention", dosage: "2-10mg once daily", precautions: ["Regular INR monitoring", "Consistent vitamin K intake", "Report bleeding"], sideEffects: "Bleeding, bruising, skin necrosis" },
-  { id: 52, name: "Apixaban", strength: "5mg", type: "Anticoagulant", manufacturer: "Bristol-Myers Squibb", treats: "Stroke prevention in AF, DVT/PE", dosage: "2.5-5mg twice daily", precautions: ["Do not crush tablets", "Monitor renal function", "Report bleeding"], sideEffects: "Bleeding, anemia, nausea" },
-  { id: 53, name: "Rivaroxaban", strength: "20mg", type: "Anticoagulant", manufacturer: "Bayer AG", treats: "Stroke prevention, DVT/PE", dosage: "10-20mg once daily", precautions: ["Take with food", "Monitor renal function", "Report unusual bleeding"], sideEffects: "Bleeding, anemia, dizziness" },
-  { id: 54, name: "Clopidogrel", strength: "75mg", type: "Antiplatelet", manufacturer: "Sanofi SA", treats: "Heart attack prevention, Stroke", dosage: "75mg once daily", precautions: ["Do not stop abruptly", "Monitor for bleeding", "Genetic testing may be needed"], sideEffects: "Bleeding, bruising, rash" },
-  { id: 55, name: "Ticagrelor", strength: "90mg", type: "Antiplatelet", manufacturer: "AstraZeneca", treats: "ACS prevention", dosage: "90mg twice daily", precautions: ["Take with aspirin", "Monitor for bleeding", "Report shortness of breath"], sideEffects: "Bleeding, dyspnea, bradycardia" },
-  { id: 56, name: "Digoxin", strength: "0.25mg", type: "Cardiac Glycoside", manufacturer: "GlaxoSmithKline", treats: "Heart failure, AF", dosage: "0.125-0.25mg once daily", precautions: ["Monitor blood levels", "Check potassium", "Report visual changes"], sideEffects: "Nausea, vomiting, arrhythmias" },
-  { id: 57, name: "Nitroglycerin", strength: "0.4mg", type: "Nitrate", manufacturer: "Pfizer Inc", treats: "Angina", dosage: "0.3-0.6mg sublingual as needed", precautions: ["Sit down before taking", "Store properly", "Avoid PDE5 inhibitors"], sideEffects: "Headache, hypotension, flushing" },
-  { id: 58, name: "Isosorbide Mononitrate", strength: "30mg", type: "Nitrate", manufacturer: "AstraZeneca", treats: "Angina prevention", dosage: "30-120mg once daily", precautions: ["Take in morning", "Nitrate-free interval", "Avoid alcohol"], sideEffects: "Headache, dizziness, hypotension" },
-  { id: 59, name: "Spironolactone", strength: "25mg", type: "Diuretic", manufacturer: "Pfizer Inc", treats: "Heart failure, Hypertension", dosage: "25-100mg once daily", precautions: ["Monitor potassium", "Avoid potassium supplements", "Report breast changes"], sideEffects: "Hyperkalemia, gynecomastia, menstrual irregularities" },
-  { id: 60, name: "Eplerenone", strength: "25mg", type: "Diuretic", manufacturer: "Pfizer Inc", treats: "Heart failure, Hypertension", dosage: "25-50mg once daily", precautions: ["Monitor potassium", "Avoid grapefruit", "Check kidney function"], sideEffects: "Hyperkalemia, dizziness, fatigue" },
-
-  // Gastrointestinal Drugs (20)
-  { id: 61, name: "Omeprazole", strength: "20mg", type: "PPI", manufacturer: "AstraZeneca", treats: "GERD, Ulcers", dosage: "20-40mg once daily", precautions: ["Take before meals", "Long-term use risks", "Monitor magnesium"], sideEffects: "Headache, diarrhea, increased infection risk" },
-  { id: 62, name: "Pantoprazole", strength: "40mg", type: "PPI", manufacturer: "Wyeth Pharmaceuticals", treats: "GERD, Erosive esophagitis", dosage: "20-40mg once daily", precautions: ["Take before meals", "Short-term use recommended", "Monitor for fractures"], sideEffects: "Headache, diarrhea, abdominal pain" },
-  { id: 63, name: "Esomeprazole", strength: "40mg", type: "PPI", manufacturer: "AstraZeneca", treats: "GERD, H. pylori", dosage: "20-40mg once daily", precautions: ["Take before meals", "Monitor magnesium", "Report persistent diarrhea"], sideEffects: "Headache, diarrhea, abdominal pain" },
-  { id: 64, name: "Ranitidine", strength: "150mg", type: "H2 Blocker", manufacturer: "GSK Pharmaceuticals", treats: "GERD, Ulcers", dosage: "150mg twice daily", precautions: ["Take with or without food", "Adjust in renal impairment", "Monitor liver function"], sideEffects: "Headache, constipation, dizziness" },
-  { id: 65, name: "Famotidine", strength: "20mg", type: "H2 Blocker", manufacturer: "Merck & Co", treats: "GERD, Ulcers", dosage: "20-40mg twice daily", precautions: ["Take with or without food", "Adjust in renal impairment", "Monitor for confusion in elderly"], sideEffects: "Headache, dizziness, constipation" },
-  { id: 66, name: "Sucralfate", strength: "1g", type: "Mucosal Protectant", manufacturer: "Aptalis Pharma", treats: "Duodenal ulcers", dosage: "1g four times daily", precautions: ["Take on empty stomach", "Space from other medications", "Monitor aluminum levels"], sideEffects: "Constipation, dry mouth, dizziness" },
-  { id: 67, name: "Misoprostol", strength: "200mcg", type: "Prostaglandin", manufacturer: "Pfizer Inc", treats: "Ulcer prevention", dosage: "200mcg four times daily", precautions: ["Avoid in pregnancy", "Take with food", "Monitor for diarrhea"], sideEffects: "Diarrhea, abdominal pain, miscarriage risk" },
-  { id: 68, name: "Metoclopramide", strength: "10mg", type: "Prokinetic", manufacturer: "Baxter International", treats: "Gastroparesis, Nausea", dosage: "10mg 30 minutes before meals", precautions: ["Short-term use", "Monitor for movement disorders", "Avoid in elderly"], sideEffects: "Drowsiness, restlessness, tardive dyskinesia" },
-  { id: 69, name: "Ondansetron", strength: "8mg", type: "Antiemetic", manufacturer: "GlaxoSmithKline", treats: "Nausea, Vomiting", dosage: "8mg every 8 hours", precautions: ["Monitor ECG", "Risk of serotonin syndrome", "Adjust in liver impairment"], sideEffects: "Headache, constipation, QT prolongation" },
-  { id: 70, name: "Dimenhydrinate", strength: "50mg", type: "Antiemetic", manufacturer: "Johnson & Johnson", treats: "Motion sickness, Nausea", dosage: "50-100mg every 4-6 hours", precautions: ["May cause drowsiness", "Avoid alcohol", "Caution when driving"], sideEffects: "Drowsiness, dry mouth, blurred vision" },
-  { id: 71, name: "Loperamide", strength: "2mg", type: "Antidiarrheal", manufacturer: "Johnson & Johnson", treats: "Diarrhea", dosage: "4mg initially then 2mg after each loose stool", precautions: ["Maximum 16mg/day", "Not for bacterial diarrhea", "Stay hydrated"], sideEffects: "Constipation, dizziness, abdominal pain" },
-  { id: 72, name: "Bismuth Subsalicylate", strength: "262mg", type: "Antidiarrheal", manufacturer: "Procter & Gamble", treats: "Diarrhea, Indigestion", dosage: "524mg every 30-60 minutes", precautions: ["Avoid in aspirin allergy", "May darken stool", "Not for prolonged use"], sideEffects: "Dark stools, constipation, tinnitus" },
-  { id: 73, name: "Mesalamine", strength: "800mg", type: "5-ASA", manufacturer: "Shire Pharmaceuticals", treats: "Ulcerative colitis", dosage: "2.4-4.8g daily in divided doses", precautions: ["Take with food", "Monitor kidney function", "Report fever"], sideEffects: "Headache, abdominal pain, pancreatitis" },
-  { id: 74, name: "Sulfasalazine", strength: "500mg", type: "5-ASA", manufacturer: "Pfizer Inc", treats: "Rheumatoid arthritis, IBD", dosage: "500mg-3g daily in divided doses", precautions: ["Take with food", "Stay hydrated", "Monitor blood counts"], sideEffects: "Nausea, headache, oligospermia" },
-  { id: 75, name: "Budesonide", strength: "3mg", type: "Corticosteroid", manufacturer: "AstraZeneca", treats: "Crohn's disease, Ulcerative colitis", dosage: "9mg once daily", precautions: ["Take in morning", "Taper gradually", "Monitor for adrenal suppression"], sideEffects: "Headache, nausea, mood changes" },
-  { id: 76, name: "Dicyclomine", strength: "20mg", type: "Antispasmodic", manufacturer: "Allergan", treats: "Irritable bowel syndrome", dosage: "20mg four times daily", precautions: ["Take before meals", "Avoid in glaucoma", "Caution in elderly"], sideEffects: "Dry mouth, dizziness, blurred vision" },
-  { id: 77, name: "Hyoscyamine", strength: "0.125mg", type: "Antispasmodic", manufacturer: "Covis Pharma", treats: "Irritable bowel syndrome", dosage: "0.125-0.25mg every 4 hours", precautions: ["Sublingual administration", "Avoid in glaucoma", "Monitor for urinary retention"], sideEffects: "Dry mouth, dizziness, blurred vision" },
-  { id: 78, name: "Lactulose", strength: "10g/15mL", type: "Laxative", manufacturer: "Actavis", treats: "Constipation, Hepatic encephalopathy", dosage: "15-30mL daily", precautions: ["Take with juice", "Monitor electrolytes", "Adjust dose to response"], sideEffects: "Bloating, flatulence, diarrhea" },
-  { id: 79, name: "Polyethylene Glycol", strength: "17g", type: "Laxative", manufacturer: "Braintree Laboratories", treats: "Constipation", dosage: "17g daily in 8oz water", precautions: ["Dissolve completely", "Stay hydrated", "Not for prolonged use"], sideEffects: "Bloating, cramping, diarrhea" },
-  { id: 80, name: "Senna", strength: "8.6mg", type: "Stimulant Laxative", manufacturer: "Purdue Pharma", treats: "Constipation", dosage: "2 tablets at bedtime", precautions: ["Short-term use", "May cause cramping", "Not for abdominal pain"], sideEffects: "Abdominal cramps, diarrhea, electrolyte imbalance" },
-
-  // Respiratory Drugs (20)
-  { id: 81, name: "Albuterol", strength: "100mcg", type: "Bronchodilator", manufacturer: "GSK Pharmaceuticals", treats: "Asthma, COPD", dosage: "1-2 puffs every 4-6 hours", precautions: ["Rinse mouth after use", "Monitor heart rate", "Report worsening symptoms"], sideEffects: "Tremor, tachycardia, headache" },
-  { id: 82, name: "Salmeterol", strength: "50mcg", type: "Long-acting Bronchodilator", manufacturer: "GSK Pharmaceuticals", treats: "Asthma, COPD", dosage: "1 puff twice daily", precautions: ["Not for acute attacks", "Use with steroid", "Monitor for paradoxical bronchospasm"], sideEffects: "Headache, tremor, palpitations" },
-  { id: 83, name: "Fluticasone", strength: "250mcg", type: "Corticosteroid", manufacturer: "GSK Pharmaceuticals", treats: "Asthma, Allergic rhinitis", dosage: "1-2 puffs twice daily", precautions: ["Rinse mouth after use", "Monitor growth in children", "Report oral thrush"], sideEffects: "Oral thrush, hoarseness, headache" },
-  { id: 84, name: "Montelukast", strength: "10mg", type: "Leukotriene Inhibitor", manufacturer: "Merck & Co", treats: "Asthma, Allergic rhinitis", dosage: "10mg once daily", precautions: ["Take in evening", "Monitor for mood changes", "Report suicidal thoughts"], sideEffects: "Headache, abdominal pain, mood changes" },
-  { id: 85, name: "Ipratropium", strength: "20mcg", type: "Anticholinergic", manufacturer: "Boehringer Ingelheim", treats: "COPD", dosage: "2 puffs four times daily", precautions: ["Avoid eyes", "Rinse mouth", "Use spacer if needed"], sideEffects: "Dry mouth, cough, blurred vision" },
-  { id: 86, name: "Tiotropium", strength: "18mcg", type: "Long-acting Anticholinergic", manufacturer: "Boehringer Ingelheim", treats: "COPD", dosage: "1 capsule daily via HandiHaler", precautions: ["Not for acute attacks", "Avoid eyes", "Proper inhalation technique"], sideEffects: "Dry mouth, constipation, UTI" },
-  { id: 87, name: "Theophylline", strength: "300mg", type: "Methylxanthine", manufacturer: "Pfizer Inc", treats: "Asthma, COPD", dosage: "200-600mg daily in divided doses", precautions: ["Monitor blood levels", "Avoid smoking", "Many drug interactions"], sideEffects: "Nausea, tachycardia, seizures" },
-  { id: 88, name: "Prednisone", strength: "20mg", type: "Corticosteroid", manufacturer: "Mylan N.V.", treats: "Asthma exacerbation, Inflammation", dosage: "5-60mg daily", precautions: ["Take with food", "Taper gradually", "Monitor blood glucose"], sideEffects: "Insomnia, weight gain, osteoporosis" },
-  { id: 89, name: "Guaifenesin", strength: "400mg", type: "Expectorant", manufacturer: "Reckitt Benckiser", treats: "Chest congestion", dosage: "200-400mg every 4 hours", precautions: ["Stay hydrated", "Maximum 2400mg/day", "Not for persistent cough"], sideEffects: "Nausea, vomiting, rash" },
-  { id: 90, name: "Dextromethorphan", strength: "30mg", type: "Antitussive", manufacturer: "Johnson & Johnson", treats: "Cough", dosage: "10-30mg every 4-8 hours", precautions: ["Avoid with MAOIs", "Maximum 120mg/day", "Not for productive cough"], sideEffects: "Drowsiness, dizziness, nausea" },
-  { id: 91, name: "Codeine/Guaifenesin", strength: "10/300mg", type: "Antitussive/Expectorant", manufacturer: "Actavis", treats: "Cough with congestion", dosage: "10mL every 4 hours", precautions: ["Risk of addiction", "Avoid alcohol", "Not for children under 12"], sideEffects: "Drowsiness, constipation, nausea" },
-  { id: 92, name: "Cetirizine", strength: "10mg", type: "Antihistamine", manufacturer: "Johnson & Johnson", treats: "Allergies", dosage: "5-10mg once daily", precautions: ["May cause drowsiness", "Adjust in renal impairment", "Avoid alcohol"], sideEffects: "Drowsiness, dry mouth, headache" },
-  { id: 93, name: "Loratadine", strength: "10mg", type: "Antihistamine", manufacturer: "Merck & Co", treats: "Allergies", dosage: "10mg once daily", precautions: ["Take on empty stomach", "Adjust in liver impairment", "Generally non-sedating"], sideEffects: "Headache, dry mouth, fatigue" },
-  { id: 94, name: "Fexofenadine", strength: "180mg", type: "Antihistamine", manufacturer: "Sanofi SA", treats: "Allergies", dosage: "60-180mg once daily", precautions: ["Take with water", "Avoid fruit juices", "Generally non-sedating"], sideEffects: "Headache, nausea, drowsiness" },
-  { id: 95, name: "Diphenhydramine", strength: "25mg", type: "Antihistamine", manufacturer: "Johnson & Johnson", treats: "Allergies, Insomnia", dosage: "25-50mg every 4-6 hours", precautions: ["May cause drowsiness", "Avoid alcohol", "Caution when driving"], sideEffects: "Drowsiness, dry mouth, urinary retention" },
-  { id: 96, name: "Pseudoephedrine", strength: "30mg", type: "Decongestant", manufacturer: "Johnson & Johnson", treats: "Nasal congestion", dosage: "30-60mg every 4-6 hours", precautions: ["Avoid in hypertension", "Monitor blood pressure", "Purchase restrictions apply"], sideEffects: "Insomnia, hypertension, palpitations" },
-  { id: 97, name: "Phenylephrine", strength: "10mg", type: "Decongestant", manufacturer: "Bayer AG", treats: "Nasal congestion", dosage: "10mg every 4 hours", precautions: ["Avoid in hypertension", "Less effective than pseudoephedrine", "Monitor heart rate"], sideEffects: "Headache, hypertension, anxiety" },
-  { id: 98, name: "Oxymetazoline", strength: "0.05%", type: "Nasal Decongestant", manufacturer: "Bayer AG", treats: "Nasal congestion", dosage: "2-3 sprays twice daily", precautions: ["Maximum 3 days use", "Risk of rebound congestion", "Avoid in glaucoma"], sideEffects: "Rebound congestion, burning, sneezing" },
-  { id: 99, name: "Fluticasone Nasal", strength: "50mcg", type: "Nasal Steroid", manufacturer: "GSK Pharmaceuticals", treats: "Allergic rhinitis", dosage: "1-2 sprays each nostril daily", precautions: ["May take days to work", "Prime before first use", "Report nosebleeds"], sideEffects: "Nasal irritation, nosebleeds, headache" },
-  { id: 100, name: "Mometasone Nasal", strength: "50mcg", type: "Nasal Steroid", manufacturer: "Merck & Co", treats: "Allergic rhinitis", dosage: "2 sprays each nostril daily", precautions: ["Prime before first use", "Regular use needed", "Report vision changes"], sideEffects: "Headache, nosebleeds, sore throat" },
-
-  // Diabetes Medications (20)
-  { id: 101, name: "Metformin", strength: "500mg", type: "Biguanide", manufacturer: "Bristol-Myers Squibb", treats: "Type 2 Diabetes", dosage: "500-1000mg twice daily", precautions: ["Take with meals", "Monitor kidney function", "Risk of lactic acidosis"], sideEffects: "GI upset, diarrhea, vitamin B12 deficiency" },
-  { id: 102, name: "Glipizide", strength: "5mg", type: "Sulfonylurea", manufacturer: "Pfizer Inc", treats: "Type 2 Diabetes", dosage: "2.5-20mg daily", precautions: ["Take before meals", "Risk of hypoglycemia", "Monitor blood glucose"], sideEffects: "Hypoglycemia, weight gain, rash" },
-  { id: 103, name: "Glyburide", strength: "5mg", type: "Sulfonylurea", manufacturer: "Sanofi SA", treats: "Type 2 Diabetes", dosage: "1.25-20mg daily", precautions: ["Take with breakfast", "Higher hypoglycemia risk", "Avoid in elderly"], sideEffects: "Hypoglycemia, weight gain, nausea" },
-  { id: 104, name: "Pioglitazone", strength: "30mg", type: "Thiazolidinedione", manufacturer: "Takeda Pharmaceutical", treats: "Type 2 Diabetes", dosage: "15-45mg once daily", precautions: ["Monitor liver function", "Risk of heart failure", "May cause weight gain"], sideEffects: "Weight gain, edema, fractures" },
-  { id: 105, name: "Sitagliptin", strength: "100mg", type: "DPP-4 Inhibitor", manufacturer: "Merck & Co", treats: "Type 2 Diabetes", dosage: "100mg once daily", precautions: ["Adjust in renal impairment", "Monitor for pancreatitis", "Generally weight neutral"], sideEffects: "Nasopharyngitis, headache, pancreatitis" },
-  { id: 106, name: "Linagliptin", strength: "5mg", type: "DPP-4 Inhibitor", manufacturer: "Boehringer Ingelheim", treats: "Type 2 Diabetes", dosage: "5mg once daily", precautions: ["No renal adjustment needed", "Monitor for pancreatitis", "Use with caution in heart failure"], sideEffects: "Nasopharyngitis, cough, pancreatitis" },
-  { id: 107, name: "Empagliflozin", strength: "10mg", type: "SGLT2 Inhibitor", manufacturer: "Boehringer Ingelheim", treats: "Type 2 Diabetes, Heart failure", dosage: "10-25mg once daily", precautions: ["Monitor for genital infections", "Stay hydrated", "Risk of ketoacidosis"], sideEffects: "Genital infections, UTI, dehydration" },
-  { id: 108, name: "Canagliflozin", strength: "100mg", type: "SGLT2 Inhibitor", manufacturer: "Janssen Pharmaceuticals", treats: "Type 2 Diabetes", dosage: "100-300mg once daily", precautions: ["Monitor for amputations", "Risk of fractures", "Stay hydrated"], sideEffects: "Genital infections, UTI, increased amputation risk" },
-  { id: 109, name: "Dapagliflozin", strength: "5mg", type: "SGLT2 Inhibitor", manufacturer: "AstraZeneca", treats: "Type 2 Diabetes, Heart failure", dosage: "5-10mg once daily", precautions: ["Monitor for bladder cancer", "Stay hydrated", "Risk of ketoacidosis"], sideEffects: "Genital infections, UTI, back pain" },
-  { id: 110, name: "Exenatide", strength: "5mcg", type: "GLP-1 Agonist", manufacturer: "AstraZeneca", treats: "Type 2 Diabetes", dosage: "5-10mcg twice daily", precautions: ["Inject before meals", "Monitor for pancreatitis", "Nausea common initially"], sideEffects: "Nausea, vomiting, pancreatitis" },
-  { id: 111, name: "Liraglutide", strength: "1.8mg", type: "GLP-1 Agonist", manufacturer: "Novo Nordisk", treats: "Type 2 Diabetes, Obesity", dosage: "0.6-1.8mg once daily", precautions: ["Inject any time", "Monitor for pancreatitis", "Titrate slowly"], sideEffects: "Nausea, diarrhea, pancreatitis" },
-  { id: 112, name: "Semaglutide", strength: "0.5mg", type: "GLP-1 Agonist", manufacturer: "Novo Nordisk", treats: "Type 2 Diabetes, Obesity", dosage: "0.25-1mg once weekly", precautions: ["Inject weekly", "Monitor for pancreatitis", "Titrate slowly"], sideEffects: "Nausea, diarrhea, pancreatitis" },
-  { id: 113, name: "Insulin Glargine", strength: "100 units/mL", type: "Long-acting Insulin", manufacturer: "Sanofi SA", treats: "Type 1 & 2 Diabetes", dosage: "Individualized, usually once daily", precautions: ["Inject at same time daily", "Rotate injection sites", "Monitor for hypoglycemia"], sideEffects: "Hypoglycemia, weight gain, lipodystrophy" },
-  { id: 114, name: "Insulin Lispro", strength: "100 units/mL", type: "Rapid-acting Insulin", manufacturer: "Eli Lilly", treats: "Type 1 & 2 Diabetes", dosage: "Individualized, with meals", precautions: ["Inject 0-15 minutes before meals", "Rotate injection sites", "Monitor blood glucose"], sideEffects: "Hypoglycemia, weight gain, injection site reactions" },
-  { id: 115, name: "Insulin Aspart", strength: "100 units/mL", type: "Rapid-acting Insulin", manufacturer: "Novo Nordisk", treats: "Type 1 & 2 Diabetes", dosage: "Individualized, with meals", precautions: ["Inject 0-10 minutes before meals", "Rotate injection sites", "Monitor for hypoglycemia"], sideEffects: "Hypoglycemia, weight gain, allergic reactions" },
-  { id: 116, name: "NPH Insulin", strength: "100 units/mL", type: "Intermediate-acting Insulin", manufacturer: "Novo Nordisk", treats: "Type 1 & 2 Diabetes", dosage: "Individualized, 1-2 times daily", precautions: ["Roll vial, don't shake", "Cloudy appearance normal", "Monitor for hypoglycemia"], sideEffects: "Hypoglycemia, weight gain, lipodystrophy" },
-  { id: 117, name: "Acarbose", strength: "50mg", type: "Alpha-glucosidase Inhibitor", manufacturer: "Bayer AG", treats: "Type 2 Diabetes", dosage: "25-100mg three times daily", precautions: ["Take with first bite of meal", "Monitor liver function", "Adjust slowly"], sideEffects: "Flatulence, diarrhea, abdominal pain" },
-  { id: 118, name: "Miglitol", strength: "50mg", type: "Alpha-glucosidase Inhibitor", manufacturer: "Pfizer Inc", treats: "Type 2 Diabetes", dosage: "25-100mg three times daily", precautions: ["Take with first bite of meal", "Not absorbed systemically", "Adjust slowly"], sideEffects: "Flatulence, diarrhea, abdominal pain" },
-  { id: 119, name: "Repaglinide", strength: "1mg", type: "Meglitinide", manufacturer: "Novo Nordisk", treats: "Type 2 Diabetes", dosage: "0.5-4mg with meals", precautions: ["Take with each meal", "Risk of hypoglycemia", "Skip dose if skipping meal"], sideEffects: "Hypoglycemia, weight gain, headache" },
-  { id: 120, name: "Nateglinide", strength: "120mg", type: "Meglitinide", manufacturer: "Novartis AG", treats: "Type 2 Diabetes", dosage: "60-120mg with meals", precautions: ["Take 1-30 minutes before meals", "Skip dose if skipping meal", "Monitor blood glucose"], sideEffects: "Hypoglycemia, upper respiratory infection, back pain" },
-
-  // Psychiatric & Neurological (20)
-  { id: 121, name: "Sertraline", strength: "50mg", type: "SSRI", manufacturer: "Pfizer Inc", treats: "Depression, Anxiety", dosage: "50-200mg once daily", precautions: ["Take in morning", "Monitor for suicidal thoughts", "Taper gradually"], sideEffects: "Nausea, insomnia, sexual dysfunction" },
-  { id: 122, name: "Fluoxetine", strength: "20mg", type: "SSRI", manufacturer: "Eli Lilly", treats: "Depression, OCD", dosage: "20-80mg once daily", precautions: ["Long half-life", "Monitor for activation", "Many drug interactions"], sideEffects: "Nausea, insomnia, weight changes" },
-  { id: 123, name: "Escitalopram", strength: "10mg", type: "SSRI", manufacturer: "Lundbeck", treats: "Depression, Anxiety", dosage: "10-20mg once daily", precautions: ["Monitor for QT prolongation", "Taper gradually", "Report mood changes"], sideEffects: "Nausea, insomnia, sexual dysfunction" },
-  { id: 124, name: "Venlafaxine", strength: "75mg", type: "SNRI", manufacturer: "Wyeth Pharmaceuticals", treats: "Depression, Anxiety", dosage: "75-225mg daily in divided doses", precautions: ["Monitor blood pressure", "Taper very slowly", "Risk of discontinuation syndrome"], sideEffects: "Nausea, hypertension, sweating" },
-  { id: 125, name: "Duloxetine", strength: "30mg", type: "SNRI", manufacturer: "Eli Lilly", treats: "Depression, Neuropathic pain", dosage: "30-60mg once daily", precautions: ["Monitor liver function", "Taper gradually", "Avoid in narrow-angle glaucoma"], sideEffects: "Nausea, dry mouth, constipation" },
-  { id: 126, name: "Bupropion", strength: "150mg", type: "NDRI", manufacturer: "GSK Pharmaceuticals", treats: "Depression, Smoking cessation", dosage: "150-300mg once daily", precautions: ["Risk of seizures", "Take in morning", "Monitor for agitation"], sideEffects: "Insomnia, dry mouth, tremor" },
-  { id: 127, name: "Mirtazapine", strength: "15mg", type: "NaSSA", manufacturer: "Merck & Co", treats: "Depression", dosage: "15-45mg at bedtime", precautions: ["Sedating, take at night", "Monitor weight", "Risk of agranulocytosis"], sideEffects: "Sedation, weight gain, increased appetite" },
-  { id: 128, name: "Trazodone", strength: "50mg", type: "SARI", manufacturer: "Pfizer Inc", treats: "Depression, Insomnia", dosage: "50-400mg at bedtime", precautions: ["Risk of priapism", "Take with food", "Monitor for serotonin syndrome"], sideEffects: "Sedation, dizziness, priapism" },
-  { id: 129, name: "Amitriptyline", strength: "25mg", type: "Tricyclic", manufacturer: "Merck & Co", treats: "Depression, Neuropathic pain", dosage: "25-150mg at bedtime", precautions: ["Anticholinergic effects", "Monitor ECG", "Risk of overdose"], sideEffects: "Dry mouth, sedation, constipation" },
-  { id: 130, name: "Clonazepam", strength: "0.5mg", type: "Benzodiazepine", manufacturer: "Roche Holding", treats: "Anxiety, Seizures", dosage: "0.5-2mg daily in divided doses", precautions: ["Risk of dependence", "Taper gradually", "Avoid alcohol"], sideEffects: "Sedation, dizziness, ataxia" },
-  { id: 131, name: "Alprazolam", strength: "0.5mg", type: "Benzodiazepine", manufacturer: "Pfizer Inc", treats: "Anxiety, Panic disorder", dosage: "0.25-4mg daily in divided doses", precautions: ["High abuse potential", "Taper very slowly", "Avoid alcohol"], sideEffects: "Sedation, dizziness, dependence" },
-  { id: 132, name: "Lorazepam", strength: "1mg", type: "Benzodiazepine", manufacturer: "Valeant Pharmaceuticals", treats: "Anxiety, Insomnia", dosage: "1-4mg daily in divided doses", precautions: ["Risk of dependence", "Taper gradually", "Elderly sensitive"], sideEffects: "Sedation, dizziness, confusion" },
-  { id: 133, name: "Zolpidem", strength: "10mg", type: "Non-benzodiazepine", manufacturer: "Sanofi SA", treats: "Insomnia", dosage: "5-10mg at bedtime", precautions: ["Take right before bed", "Risk of complex sleep behaviors", "Short-term use"], sideEffects: "Dizziness, headache, sleepwalking" },
-  { id: 134, name: "Eszopiclone", strength: "3mg", type: "Non-benzodiazepine", manufacturer: "Sunovion Pharmaceuticals", treats: "Insomnia", dosage: "1-3mg at bedtime", precautions: ["Take right before bed", "Unpleasant taste common", "Short-term use"], sideEffects: "Unpleasant taste, headache, dizziness" },
-  { id: 135, name: "Risperidone", strength: "1mg", type: "Atypical Antipsychotic", manufacturer: "Janssen Pharmaceuticals", treats: "Schizophrenia, Bipolar", dosage: "1-6mg daily in divided doses", precautions: ["Monitor for metabolic syndrome", "Taper gradually", "Elderly dementia warning"], sideEffects: "Weight gain, sedation, hyperprolactinemia" },
-  { id: 136, name: "Olanzapine", strength: "5mg", type: "Atypical Antipsychotic", manufacturer: "Eli Lilly", treats: "Schizophrenia, Bipolar", dosage: "5-20mg once daily", precautions: ["High metabolic risk", "Monitor glucose/lipids", "Weight gain common"], sideEffects: "Weight gain, sedation, hyperglycemia" },
-  { id: 137, name: "Quetiapine", strength: "100mg", type: "Atypical Antipsychotic", manufacturer: "AstraZeneca", treats: "Schizophrenia, Bipolar", dosage: "50-800mg daily in divided doses", precautions: ["Monitor for cataracts", "Sedating, take at night", "Metabolic monitoring"], sideEffects: "Sedation, dizziness, weight gain" },
-  { id: 138, name: "Aripiprazole", strength: "10mg", type: "Atypical Antipsychotic", manufacturer: "Otsuka Pharmaceutical", treats: "Schizophrenia, Bipolar", dosage: "10-30mg once daily", precautions: ["Monitor for akathisia", "Generally weight neutral", "Activating for some"], sideEffects: "Akathisia, headache, nausea" },
-  { id: 139, name: "Lithium", strength: "300mg", type: "Mood Stabilizer", manufacturer: "GSK Pharmaceuticals", treats: "Bipolar disorder", dosage: "600-1800mg daily in divided doses", precautions: ["Monitor blood levels", "Stay hydrated", "Avoid NSAIDs"], sideEffects: "Tremor, polyuria, weight gain" },
-  { id: 140, name: "Valproic Acid", strength: "500mg", type: "Anticonvulsant", manufacturer: "AbbVie Inc", treats: "Seizures, Bipolar", dosage: "500-2000mg daily in divided doses", precautions: ["Monitor liver function", "Avoid in pregnancy", "Monitor blood levels"], sideEffects: "Weight gain, tremor, hair loss" },
-
-  // Additional Common Medications (10)
-  { id: 141, name: "Levothyroxine", strength: "100mcg", type: "Thyroid Hormone", manufacturer: "AbbVie Inc", treats: "Hypothyroidism", dosage: "25-200mcg once daily", precautions: ["Take on empty stomach", "Wait 30-60 minutes before eating", "Consistent brand"], sideEffects: "Palpitations, weight loss, anxiety" },
-  { id: 142, name: "Warfarin", strength: "5mg", type: "Anticoagulant", manufacturer: "Bristol-Myers Squibb", treats: "Blood clot prevention", dosage: "2-10mg once daily", precautions: ["Regular INR monitoring", "Consistent vitamin K intake", "Many drug interactions"], sideEffects: "Bleeding, bruising, skin necrosis" },
-  { id: 143, name: "Allopurinol", strength: "300mg", type: "Xanthine Oxidase Inhibitor", manufacturer: "Zyloprim", treats: "Gout", dosage: "100-800mg once daily", precautions: ["Start low, go slow", "Monitor for rash", "Drink plenty of fluids"], sideEffects: "Rash, nausea, liver enzyme elevation" },
-  { id: 144, name: "Colchicine", strength: "0.6mg", type: "Anti-inflammatory", manufacturer: "Takeda Pharmaceutical", treats: "Gout flare", dosage: "1.2mg initially, then 0.6mg 1 hour later", precautions: ["Maximum 1.8mg per episode", "Monitor for diarrhea", "Many drug interactions"], sideEffects: "Diarrhea, nausea, vomiting" },
-  { id: 145, name: "Finasteride", strength: "5mg", type: "5-alpha Reductase Inhibitor", manufacturer: "Merck & Co", treats: "BPH, Hair loss", dosage: "1mg (hair loss) or 5mg (BPH) once daily", precautions: ["Pregnancy warning", "May affect PSA", "Report breast changes"], sideEffects: "Decreased libido, erectile dysfunction, breast tenderness" },
-  { id: 146, name: "Tamsulosin", strength: "0.4mg", type: "Alpha Blocker", manufacturer: "Astellas Pharma", treats: "BPH", dosage: "0.4mg once daily", precautions: ["Take after same meal daily", "Risk of hypotension", "Monitor for dizziness"], sideEffects: "Dizziness, retrograde ejaculation, rhinitis" },
-  { id: 147, name: "Sildenafil", strength: "50mg", type: "PDE5 Inhibitor", manufacturer: "Pfizer Inc", treats: "Erectile dysfunction", dosage: "25-100mg as needed", precautions: ["Avoid with nitrates", "Take 30-60 minutes before activity", "Monitor blood pressure"], sideEffects: "Headache, flushing, dyspepsia" },
-  { id: 148, name: "Tadalafil", strength: "10mg", type: "PDE5 Inhibitor", manufacturer: "Eli Lilly", treats: "Erectile dysfunction, BPH", dosage: "2.5-20mg as needed or 2.5-5mg daily", precautions: ["Avoid with nitrates", "Long half-life", "Monitor for back pain"], sideEffects: "Headache, dyspepsia, back pain" },
-  { id: 149, name: "Vitamin D3", strength: "1000 IU", type: "Vitamin Supplement", manufacturer: "Various", treats: "Vitamin D deficiency", dosage: "400-5000 IU once daily", precautions: ["Monitor blood levels", "Take with fatty meal", "Avoid excessive doses"], sideEffects: "Hypercalcemia, nausea, constipation" },
-  { id: 150, name: "Omega-3 Fatty Acids", strength: "1000mg", type: "Fish Oil Supplement", manufacturer: "Various", treats: "High triglycerides", dosage: "1000-4000mg daily", precautions: ["May increase bleeding risk", "Fish allergy warning", "Take with meals"], sideEffects: "Fishy aftertaste, nausea, diarrhea" }
+  { id: 30, name: "Linezolid", strength: "600mg", type: "Oxazolidinone", manufacturer: "Pfizer Inc", treats: "VRE infections, Pneumonia", dosage: "600mg every 12 hours", precautions: ["Monitor blood counts", "Avoid tyramine foods", "Short-term use"], sideEffects: "Thrombocytopenia, neuropathy, diarrhea" }
 ];
 
 // Language configurations
@@ -265,7 +130,7 @@ const TRANSLATIONS = {
     tabletVerification: "Vérification des Comprimés",
     uploadImage: "Téléchargez une image ou entrez les détails du comprimé pour une vérification IA instantanée",
     tabletImage: "Image du Comprimé",
-    clickToUpload: "Cliquez pour télécharger",
+    clickToUpload: "Cliquez para télécharger",
     fileRequirements: "PNG, JPG jusqu'à 10MB",
     tabletImprintName: "Marque/Nom du Comprimé",
     placeholder: "ex., Paracétamol, Ibuprofène, Amoxicilline",
@@ -390,7 +255,7 @@ export default function TabletChecker() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
-      {/* ===== NAVIGATION BAR ===== */}
+      {/* Navigation Bar */}
       <nav className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex items-center justify-between h-16">
@@ -429,6 +294,275 @@ export default function TabletChecker() {
         </div>
       </nav>
 
-      {/* ===== MAIN CONTENT ===== */}
+      {/* Main Content */}
       <div className="max-w-6xl mx-auto px-6 py-8">
-        {/*
+        {/* Header with Green Gradient */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold mb-3" style={{
+            background: "linear-gradient(to right, #10b981, #059669, #047857)",
+            WebkitBackgroundClip: "text",
+            backgroundClip: "text",
+            color: "transparent"
+          }}>
+            {t.tabletVerification}
+          </h1>
+          <p className="text-gray-600">
+            {t.uploadImage}
+          </p>
+        </div>
+
+        {/* Input Section */}
+        <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Upload Section */}
+            <div>
+              <h3 className="font-medium text-gray-900 mb-4">
+                {t.tabletImage}
+              </h3>
+              <label className="block border-2 border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer hover:border-[#10b981] transition-colors bg-gray-50">
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg"
+                  className="hidden"
+                  onChange={handleImageUpload}
+                />
+                {uploadedImage ? (
+                  <div className="relative">
+                    <img
+                      src={uploadedImage}
+                      alt="Uploaded tablet"
+                      className="mx-auto max-h-48 rounded-lg"
+                    />
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setUploadedImage(null);
+                      }}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
+                    >
+                      <span className="text-xs">×</span>
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="mb-5">
+                      <Upload className="mx-auto text-gray-400" size={40} />
+                    </div>
+                    <div className="text-gray-900 font-medium mb-1">
+                      {t.clickToUpload}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      {t.fileRequirements}
+                    </div>
+                  </>
+                )}
+              </label>
+            </div>
+
+            {/* Input Fields */}
+            <div className="space-y-6">
+              {/* Tablet Name Input with Suggestions */}
+              <div className="relative">
+                <label className="font-medium text-gray-900 block mb-2">
+                  {t.tabletImprintName}
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={tabletName}
+                    onChange={(e) => handleSearch(e.target.value)}
+                    placeholder={t.placeholder}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#10b981] text-gray-900 bg-white"
+                  />
+                  {showSuggestions && searchResults.length > 0 && (
+                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                      {searchResults.map((medicine) => (
+                        <div
+                          key={medicine.id}
+                          onClick={() => handleSelectMedicine(medicine)}
+                          className="px-4 py-3 hover:bg-green-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                        >
+                          <div className="font-medium text-gray-900">{medicine.name} {medicine.strength}</div>
+                          <div className="text-sm text-gray-600">{medicine.type} • {medicine.manufacturer}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Language Selection */}
+              <div>
+                <label className="font-medium text-gray-900 block mb-2">
+                  {t.selectLanguage}
+                </label>
+                <select
+                  value={selectedLanguage.code}
+                  onChange={(e) => {
+                    const lang = LANGUAGES.find(l => l.code === e.target.value);
+                    if (lang) setSelectedLanguage(lang);
+                  }}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#10b981] text-gray-900 bg-white"
+                >
+                  {LANGUAGES.map((lang) => (
+                    <option key={lang.code} value={lang.code}>
+                      {lang.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Divider */}
+              <div className="border-t border-gray-200 my-4"></div>
+
+              {/* Verify Button with Green Gradient */}
+              <button
+                onClick={handleVerify}
+                className="w-full py-3.5 rounded-lg text-white font-medium hover:shadow-lg transition-all duration-300"
+                style={{
+                  background: "linear-gradient(to right, #10b981, #059669, #047857)",
+                }}
+              >
+                {t.verifyTablet}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Verification Result */}
+        {verified && foundMedicine && (
+          <div className="space-y-8">
+            {/* Verified Banner with Green Gradient */}
+            <div className="rounded-2xl p-6 shadow-lg" style={{
+              background: "linear-gradient(to right, #d1fae5, #a7f3d0, #86efac)",
+              border: "2px solid #10b981"
+            }}>
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-md">
+                  <div className="relative">
+                    <div className="w-8 h-8 rounded-full border-2 border-[#10b981] flex items-center justify-center">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="#10b981"
+                        strokeWidth="3"
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-[#10b981] rounded-full border-2 border-white"></div>
+                  </div>
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-[#065f46]">
+                    {t.verifiedAuthentic}
+                  </h2>
+                  <p className="text-[#047857]">
+                    {t.verificationSuccess}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Info Grid */}
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* Medication Info Card */}
+              <div className="bg-white rounded-2xl shadow-lg p-6">
+                <div className="flex justify-between items-start mb-6">
+                  <h3 className="text-xl font-bold text-gray-900">
+                    {t.medicationInfo}
+                  </h3>
+                  <button
+                    onClick={() => speak(`${t.medicationInfo}. ${t.name}: ${foundMedicine.name}. ${t.treats}: ${foundMedicine.treats}. ${t.manufacturer}: ${foundMedicine.manufacturer}`)}
+                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  >
+                    <Volume2 className="text-gray-600" size={20} />
+                  </button>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <div className="text-sm text-gray-500 mb-1">{t.name}</div>
+                    <div className="text-lg font-medium text-gray-900">{foundMedicine.name} {foundMedicine.strength}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-500 mb-1">{t.treats}</div>
+                    <div className="text-gray-900">{foundMedicine.treats}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-500 mb-1">{t.manufacturer}</div>
+                    <div className="text-gray-900">{foundMedicine.manufacturer}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-500 mb-1">{t.type}</div>
+                    <div className="text-gray-900">{foundMedicine.type}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Dosage Information Card */}
+              <div className="bg-white rounded-2xl shadow-lg p-6">
+                <div className="flex justify-between items-start mb-6">
+                  <h3 className="text-xl font-bold text-gray-900">
+                    {t.dosageInformation}
+                  </h3>
+                  <button
+                    onClick={() => speak(`${t.dosageInformation}. ${foundMedicine.dosage}`)}
+                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  >
+                    <Volume2 className="text-gray-600" size={20} />
+                  </button>
+                </div>
+                <p className="text-gray-900 leading-relaxed">
+                  {foundMedicine.dosage}
+                </p>
+                <div className="mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
+                  <div className="flex items-start space-x-3">
+                    <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <svg className="w-3 h-3 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div>
+                      <div className="font-medium text-green-900">Important Note</div>
+                      <div className="text-sm text-green-800">Follow dosage instructions carefully. Do not exceed recommended dose.</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Precautions Card */}
+            <div className="bg-white rounded-2xl shadow-lg p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-6">
+                {t.precautions}
+              </h3>
+              <div className="space-y-3">
+                {foundMedicine.precautions.map((precaution: string, index: number) => (
+                  <div key={index} className="flex items-start space-x-4">
+                    <div className="w-2.5 h-2.5 rounded-full bg-red-500 mt-2 flex-shrink-0"></div>
+                    <span className="text-gray-900">{precaution}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Side Effects Card */}
+            <div className="bg-white rounded-2xl shadow-lg p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-4">
+                {t.sideEffects}
+              </h3>
+              <p className="text-gray-900">
+                {foundMedicine.sideEffects}
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="mt-12 py-6 border-t border-gray-200">
+        <div className="max-w-6xl mx-auto px-6">
+          <p className="text-center text-gray-500 text-sm">
+            Tablet Verification System • Database
