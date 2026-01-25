@@ -1,13 +1,12 @@
-import { useState } from "react";
 import { Volume2 } from "lucide-react";
 
 export default function TabletChecker() {
-  const [verified] = useState(true);
+  const verified = true;
 
   return (
-    <div className="min-h-screen pt-28 pb-20 bg-gradient-to-b from-white to-slate-50">
+    <div className="min-h-screen bg-gradient-to-b from-white to-slate-50 pt-28 pb-20">
 
-      {/* PAGE HEADING */}
+      {/* PAGE TITLE */}
       <div className="text-center mb-10">
         <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-green-400 bg-clip-text text-transparent">
           Tablet Verification
@@ -21,15 +20,15 @@ export default function TabletChecker() {
       <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl p-8 mb-10">
         <div className="grid md:grid-cols-2 gap-6">
 
-          {/* UPLOAD */}
+          {/* UPLOAD IMAGE */}
           <div>
             <label className="font-semibold text-black block mb-2">
               Upload Tablet Image
             </label>
-            <div className="border-2 border-dashed rounded-xl h-44 flex flex-col justify-center items-center text-gray-500 cursor-pointer">
-              <span className="text-2xl">⬆</span>
-              <span className="mt-2">Click to upload</span>
-              <span className="text-sm">PNG, JPG up to 10MB</span>
+            <div className="border-2 border-dashed rounded-xl h-44 flex flex-col justify-center items-center text-gray-500">
+              <div className="text-2xl">⬆</div>
+              <div className="mt-2">Click to upload</div>
+              <div className="text-sm">PNG, JPG up to 10MB</div>
             </div>
           </div>
 
@@ -59,30 +58,23 @@ export default function TabletChecker() {
               </select>
             </div>
 
-            <button className="w-full mt-2 py-3 rounded-xl text-white font-semibold bg-gradient-to-r from-blue-600 to-green-400">
+            <button className="w-full py-3 rounded-xl text-white font-semibold bg-gradient-to-r from-blue-600 to-green-400">
               Verify Tablet
             </button>
           </div>
         </div>
       </div>
 
-      {/* VERIFIED STATUS */}
-      <div
-        className={`max-w-5xl mx-auto rounded-xl px-6 py-4 mb-8 border shadow
-        ${verified ? "bg-green-50 border-green-300" : "bg-red-50 border-red-300"}`}
-      >
-        <h3 className="font-bold text-black">
-          {verified ? "Verified Authentic" : "Not Verified"}
-        </h3>
+      {/* VERIFIED BANNER */}
+      <div className="max-w-5xl mx-auto bg-green-50 border border-green-300 rounded-xl px-6 py-4 shadow mb-8">
+        <h3 className="font-bold text-black">Verified Authentic</h3>
         <p className="text-gray-600">
-          {verified
-            ? "This tablet has been successfully verified"
-            : "This tablet could not be verified"}
+          This tablet has been successfully verified
         </p>
       </div>
 
       {/* GRID GLOBE */}
-      <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-lg p-8 mb-10 flex justify-center">
+      <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-lg p-10 mb-10 flex justify-center">
         <div style={{ width: 260, height: 260 }}>
           <svg viewBox="0 0 200 200" width="100%" height="100%">
             <circle cx="100" cy="100" r="90" fill="none" stroke="#9BE6C4" strokeWidth="0.6" />
@@ -93,7 +85,7 @@ export default function TabletChecker() {
             <ellipse cx="100" cy="100" rx="60" ry="90" fill="none" stroke="#9BE6C4" strokeWidth="0.4" />
             <circle cx="100" cy="100" r="45" fill="none" stroke="#6AD7A6" strokeWidth="4" />
             <text x="100" y="105" textAnchor="middle" fontSize="12" fontWeight="600" fill="#6AD7A6">
-              {verified ? "VERIFIED" : "UNVERIFIED"}
+              VERIFIED
             </text>
           </svg>
         </div>
@@ -124,15 +116,15 @@ export default function TabletChecker() {
       <div className="max-w-5xl mx-auto bg-white rounded-xl shadow p-6 mt-6">
         <h3 className="font-bold text-black mb-3">Precautions</h3>
         <ul className="space-y-2">
-          <li className="flex items-center gap-2">
+          <li className="flex gap-2 items-center">
             <span className="w-2 h-2 bg-green-500 rounded-full"></span>
             Do not exceed maximum daily dose
           </li>
-          <li className="flex items-center gap-2">
+          <li className="flex gap-2 items-center">
             <span className="w-2 h-2 bg-green-500 rounded-full"></span>
             Avoid alcohol consumption
           </li>
-          <li className="flex items-center gap-2">
+          <li className="flex gap-2 items-center">
             <span className="w-2 h-2 bg-green-500 rounded-full"></span>
             Consult doctor if fever persists
           </li>
@@ -144,6 +136,7 @@ export default function TabletChecker() {
         <h3 className="font-bold text-black mb-2">Possible Side Effects</h3>
         <p>Rare allergic reactions; liver damage in overdose</p>
       </div>
+
     </div>
   );
 }
