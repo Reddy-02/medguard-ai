@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { Upload, Volume2 } from "lucide-react";
 
-/* ---------------- MEDICINE DATABASE (EXTENDABLE TO 150+) ---------------- */
-const MED_DB: any = {
+/* ================= MEDICINE DATABASE (SAMPLE – EXTEND TO 150+) ================= */
+const MED_DB: Record<string, any> = {
   paracetamol: {
     name: "Paracetamol",
     treats: "Fever, Headache, Mild to moderate pain",
@@ -19,7 +19,7 @@ const MED_DB: any = {
   },
 };
 
-const LANG_MAP: any = {
+const LANGS: Record<string, string> = {
   English: "en-US",
   Hindi: "hi-IN",
   Spanish: "es-ES",
@@ -33,68 +33,81 @@ export default function TabletChecker() {
   const [tablet, setTablet] = useState("");
   const [language, setLanguage] = useState("English");
   const [image, setImage] = useState<string | null>(null);
-  const [result, setResult] = useState<any>(null);
+  const [data, setData] = useState<any>(null);
   const [verified, setVerified] = useState<boolean | null>(null);
 
-  /* ---------------- VERIFY ---------------- */
+  /* ================= VERIFY ================= */
   const verifyTablet = () => {
-    const data = MED_DB[tablet.toLowerCase()];
-    if (data) {
-      setResult(data);
+    const med = MED_DB[tablet.toLowerCase()];
+    if (med) {
+      setData(med);
       setVerified(true);
     } else {
-      setResult(null);
+      setData(null);
       setVerified(false);
     }
   };
 
-  /* ---------------- TEXT TO SPEECH ---------------- */
+  /* ================= SPEAK ================= */
   const speak = () => {
-    if (!result) return;
+    if (!data) return;
     const text = `
-      ${result.name}.
-      Treats ${result.treats}.
-      Dosage ${result.dosage}.
+      ${data.name}.
+      Treats ${data.treats}.
+      Dosage ${data.dosage}.
     `;
     const u = new SpeechSynthesisUtterance(text);
-    u.lang = LANG_MAP[language];
+    u.lang = LANGS[language];
     speechSynthesis.cancel();
     speechSynthesis.speak(u);
   };
 
-  /* ---------------- 3D GLOBE ---------------- */
+  /* ================= 3D VERIFIED GLOBE ================= */
   useEffect(() => {
     if (!globeRef.current || verified === null) return;
     globeRef.current.innerHTML = "";
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
     camera.position.z = 4;
 
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    renderer.setSize(320, 320);
+    renderer.setSize(340, 340);
     globeRef.current.appendChild(renderer.domElement);
 
-    const color = verified ? 0x34d399 : 0xef4444;
+    const mainColor = verified ? 0x6ee7b7 : 0xf87171;
 
-    const sphere = new THREE.Mesh(
-      new THREE.SphereGeometry(1.3, 32, 32),
+    /* Outer dense wireframe globe */
+    const globe = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(1.6, 4),
       new THREE.MeshBasicMaterial({
-        color,
+        color: mainColor,
         wireframe: true,
         transparent: true,
-        opacity: 0.6,
+        opacity: 0.35,
       })
     );
-    scene.add(sphere);
+    scene.add(globe);
 
-    /* TEXT INSIDE GLOBE */
+    /* Inner ring */
+    const ring = new THREE.Mesh(
+      new THREE.RingGeometry(0.9, 1, 64),
+      new THREE.MeshBasicMaterial({
+        color: mainColor,
+        transparent: true,
+        opacity: 0.9,
+      })
+    );
+    ring.rotation.x = Math.PI / 2;
+    scene.add(ring);
+
+    /* TEXT INSIDE */
     const canvas = document.createElement("canvas");
     canvas.width = 512;
     canvas.height = 256;
     const ctx = canvas.getContext("2d")!;
-    ctx.fillStyle = verified ? "#34d399" : "#ef4444";
-    ctx.font = "bold 48px Inter";
+    ctx.fillStyle = verified ? "#6ee7b7" : "#f87171";
+    ctx.font = "bold 42px Inter";
     ctx.textAlign = "center";
     ctx.fillText(verified ? "VERIFIED" : "UNVERIFIED", 256, 140);
 
@@ -107,8 +120,9 @@ export default function TabletChecker() {
 
     const animate = () => {
       requestAnimationFrame(animate);
-      sphere.rotation.y += 0.002;
-      sphere.rotation.x += 0.001;
+      globe.rotation.y += 0.0018;
+      globe.rotation.x += 0.0012;
+      ring.rotation.z += 0.002;
       renderer.render(scene, camera);
     };
     animate();
@@ -119,16 +133,16 @@ export default function TabletChecker() {
   return (
     <div className="pt-24 pb-16">
 
-      {/* INPUT CARD */}
-      <div className="max-w-5xl mx-auto bg-white p-8 rounded-2xl shadow-xl grid md:grid-cols-2 gap-6">
+      {/* ================= INPUT CARD ================= */}
+      <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl p-8 grid md:grid-cols-2 gap-6">
 
-        {/* UPLOAD */}
-        <label className="border-dashed border-2 rounded-xl h-44 flex items-center justify-center cursor-pointer relative">
+        {/* Upload */}
+        <label className="border-2 border-dashed rounded-xl h-44 flex items-center justify-center cursor-pointer">
           {image ? (
             <img src={image} className="h-full object-contain" />
           ) : (
             <div className="text-center">
-              <Upload className="mx-auto" />
+              <Upload className="mx-auto mb-2" />
               <p>Click to upload</p>
               <p className="text-xs text-gray-400">PNG, JPG up to 10MB</p>
             </div>
@@ -138,48 +152,49 @@ export default function TabletChecker() {
             accept="image/png,image/jpeg"
             className="hidden"
             onChange={(e) =>
-              e.target.files && setImage(URL.createObjectURL(e.target.files[0]))
+              e.target.files &&
+              setImage(URL.createObjectURL(e.target.files[0]))
             }
           />
         </label>
 
-        {/* INPUTS */}
+        {/* Inputs */}
         <div className="flex flex-col gap-4">
           <input
+            className="border rounded-xl px-4 py-3"
             placeholder="e.g. IBU 200 or Ibuprofen"
             value={tablet}
             onChange={(e) => setTablet(e.target.value)}
-            className="border rounded-xl px-4 py-3"
           />
 
           <select
+            className="border rounded-xl px-4 py-3"
             value={language}
             onChange={(e) => setLanguage(e.target.value)}
-            className="border rounded-xl px-4 py-3"
           >
-            {Object.keys(LANG_MAP).map((l) => (
+            {Object.keys(LANGS).map((l) => (
               <option key={l}>{l}</option>
             ))}
           </select>
 
           <button
             onClick={verifyTablet}
-            className="py-4 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-400 text-white"
+            className="rounded-xl py-4 text-white bg-gradient-to-r from-blue-600 to-emerald-400"
           >
             Verify Tablet
           </button>
         </div>
       </div>
 
-      {/* VERIFIED CARD */}
+      {/* ================= VERIFIED CARD ================= */}
       {verified !== null && (
         <div
-          className={`max-w-5xl mx-auto mt-10 p-6 rounded-2xl shadow-xl border
+          className={`max-w-5xl mx-auto mt-10 p-6 rounded-2xl border shadow-xl
           ${verified ? "bg-emerald-50 border-emerald-400" : "bg-red-50 border-red-400"}`}
         >
-          <p className="font-semibold text-lg">
+          <h3 className="font-semibold text-lg">
             {verified ? "Verified Authentic" : "Not Verified"}
-          </p>
+          </h3>
           <p className="text-slate-500">
             {verified
               ? "This tablet has been successfully verified"
@@ -188,15 +203,15 @@ export default function TabletChecker() {
         </div>
       )}
 
-      {/* 3D GLOBE */}
+      {/* ================= 3D GLOBE ================= */}
       {verified !== null && (
         <div className="max-w-5xl mx-auto mt-8 bg-white rounded-2xl shadow-xl p-10 flex justify-center">
           <div ref={globeRef} />
         </div>
       )}
 
-      {/* INFO */}
-      {result && (
+      {/* ================= DETAILS ================= */}
+      {data && (
         <>
           <div className="max-w-5xl mx-auto mt-8 grid md:grid-cols-2 gap-6">
             <div className="bg-white p-6 rounded-xl shadow">
@@ -206,21 +221,21 @@ export default function TabletChecker() {
                   <Volume2 className="text-emerald-500" />
                 </button>
               </h3>
-              <p><b>Name:</b> {result.name}</p>
-              <p><b>Treats:</b> {result.treats}</p>
-              <p><b>Manufacturer:</b> {result.manufacturer}</p>
+              <p><b>Name:</b> {data.name}</p>
+              <p><b>Treats:</b> {data.treats}</p>
+              <p><b>Manufacturer:</b> {data.manufacturer}</p>
             </div>
 
             <div className="bg-white p-6 rounded-xl shadow">
               <h3 className="font-semibold">Dosage Information</h3>
-              <p>{result.dosage}</p>
+              <p>{data.dosage}</p>
             </div>
           </div>
 
           <div className="max-w-5xl mx-auto mt-6 bg-white p-6 rounded-xl shadow">
             <h3 className="font-semibold">Precautions</h3>
             <ul className="list-disc pl-6">
-              {result.precautions.map((p: string) => (
+              {data.precautions.map((p: string) => (
                 <li key={p}>{p}</li>
               ))}
             </ul>
@@ -228,7 +243,7 @@ export default function TabletChecker() {
 
           <div className="max-w-5xl mx-auto mt-6 bg-white p-6 rounded-xl shadow">
             <h3 className="font-semibold">Possible Side Effects</h3>
-            <p>{result.sideEffects}</p>
+            <p>{data.sideEffects}</p>
           </div>
         </>
       )}
