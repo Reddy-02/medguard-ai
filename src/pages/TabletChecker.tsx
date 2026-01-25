@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Search, Upload, Volume2, Home, CheckCircle } from "lucide-react";
 
-// Medicine Database with 150+ entries (first 30 shown for brevity)
+// Medicine Database with 30 entries for brevity
 const MEDICINE_DB = [
   { id: 1, name: "Paracetamol", strength: "500mg", type: "Analgesic", manufacturer: "GSK Pharmaceuticals", treats: "Fever, Mild to moderate pain", dosage: "500-1000mg every 4-6 hours", precautions: ["Do not exceed 4000mg/day", "Avoid alcohol", "Take with food if stomach upset occurs"], sideEffects: "Nausea, rash, liver damage in overdose" },
   { id: 2, name: "Ibuprofen", strength: "200mg", type: "NSAID", manufacturer: "Pfizer Inc", treats: "Pain, Inflammation, Fever", dosage: "200-400mg every 4-6 hours", precautions: ["Take with food", "Avoid if pregnant", "Monitor kidney function"], sideEffects: "Stomach upset, dizziness, bleeding risk" },
@@ -42,11 +42,7 @@ const LANGUAGES = [
   { code: "es", name: "Spanish", voice: "es-ES" },
   { code: "fr", name: "French", voice: "fr-FR" },
   { code: "de", name: "German", voice: "de-DE" },
-  { code: "zh", name: "Chinese", voice: "zh-CN" },
-  { code: "ar", name: "Arabic", voice: "ar-SA" },
-  { code: "ru", name: "Russian", voice: "ru-RU" },
-  { code: "ja", name: "Japanese", voice: "ja-JP" },
-  { code: "ko", name: "Korean", voice: "ko-KR" }
+  { code: "zh", name: "Chinese", voice: "zh-CN" }
 ];
 
 // Translations for different languages
@@ -128,10 +124,10 @@ const TRANSLATIONS = {
   },
   fr: {
     tabletVerification: "Vérification des Comprimés",
-    uploadImage: "Téléchargez une image ou entrez les détails du comprimé pour une vérification IA instantanée",
-    tabletImage: "Image du Comprimé",
+    uploadImage: "Téléchargez una imagen o entrez les détails du comprimé pour une vérification IA instantanée",
+    tabletImage: "Imagen du Comprimé",
     clickToUpload: "Cliquez para télécharger",
-    fileRequirements: "PNG, JPG jusqu'à 10MB",
+    fileRequirements: "PNG, JPG hasta 10MB",
     tabletImprintName: "Marque/Nom du Comprimé",
     placeholder: "ex., Paracétamol, Ibuprofène, Amoxicilline",
     selectLanguage: "Sélectionner la Langue",
@@ -565,4 +561,10 @@ export default function TabletChecker() {
       <div className="mt-12 py-6 border-t border-gray-200">
         <div className="max-w-6xl mx-auto px-6">
           <p className="text-center text-gray-500 text-sm">
-            Tablet Verification System • Database
+            Tablet Verification System • Database includes 30+ medications
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
