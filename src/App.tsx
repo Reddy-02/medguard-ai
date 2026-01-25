@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { Home } from "./pages/Home";
-import  TabletChecker from "./pages/TabletChecker";
+import TabletChecker from "./pages/TabletChecker";
 import { UsageGuide } from "./pages/UsageGuide";
 import { About } from "./pages/About";
 import { Navbar } from "./components/Navbar";
