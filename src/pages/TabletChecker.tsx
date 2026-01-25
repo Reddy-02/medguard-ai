@@ -101,38 +101,92 @@ export default function TabletChecker() {
         </div>
       </div>
 
-      {/* ===== VERIFIED STATUS ===== */}
-      {verified && (
-        <>
-          <div className="rounded-2xl border border-emerald-300 bg-emerald-50 px-6 py-4 shadow-md">
-            <h3 className="text-black font-semibold text-lg">
-              Verified Authentic
-            </h3>
-            <p className="text-gray-600">
-              This tablet has been successfully verified
-            </p>
-          </div>
+     <div style={{ width: 260, height: 260 }}>
+  <svg viewBox="0 0 200 200" width="100%" height="100%">
+    {/* Outer boundary */}
+    <circle
+      cx="100"
+      cy="100"
+      r="90"
+      fill="none"
+      stroke="#9BE6C4"
+      strokeWidth="0.6"
+    />
 
-          {/* ===== GRID GLOBE ===== */}
-          <div className="bg-white rounded-2xl shadow-lg p-10 flex justify-center">
-            <div style={{ width: 260, height: 260 }}>
-              <svg viewBox="0 0 200 200" width="100%" height="100%">
-                <circle cx="100" cy="100" r="90" fill="none" stroke="#9BE6C4" strokeWidth="0.8" />
-                <g stroke="#9BE6C4" strokeWidth="0.5">
-                  <ellipse cx="100" cy="100" rx="90" ry="70" fill="none" />
-                  <ellipse cx="100" cy="100" rx="90" ry="50" fill="none" />
-                  <ellipse cx="100" cy="100" rx="90" ry="30" fill="none" />
-                  <ellipse cx="100" cy="100" rx="70" ry="90" fill="none" />
-                  <ellipse cx="100" cy="100" rx="50" ry="90" fill="none" />
-                  <ellipse cx="100" cy="100" rx="30" ry="90" fill="none" />
-                </g>
-                <circle cx="100" cy="100" r="45" fill="none" stroke="#6AD7A6" strokeWidth="4" />
-                <text x="100" y="105" textAnchor="middle" fontSize="12" fontWeight="600" fill="#6AD7A6">
-                  VERIFIED
-                </text>
-              </svg>
-            </div>
-          </div>
+    {/* Latitude lines */}
+    <g stroke="#9BE6C4" strokeWidth="0.4" opacity="0.7">
+      {Array.from({ length: 9 }).map((_, i) => (
+        <ellipse
+          key={i}
+          cx="100"
+          cy="100"
+          rx="90"
+          ry={80 - i * 8}
+          fill="none"
+        />
+      ))}
+    </g>
+
+    {/* Longitude lines */}
+    <g stroke="#9BE6C4" strokeWidth="0.4" opacity="0.7">
+      {Array.from({ length: 9 }).map((_, i) => (
+        <ellipse
+          key={i}
+          cx="100"
+          cy="100"
+          rx={80 - i * 8}
+          ry="90"
+          fill="none"
+        />
+      ))}
+    </g>
+
+    {/* Diagonal mesh */}
+    <g stroke="#9BE6C4" strokeWidth="0.35" opacity="0.4">
+      {Array.from({ length: 12 }).map((_, i) => (
+        <line
+          key={i}
+          x1={20 + i * 13}
+          y1="10"
+          x2={180 - i * 13}
+          y2="190"
+        />
+      ))}
+      {Array.from({ length: 12 }).map((_, i) => (
+        <line
+          key={i + 20}
+          x1="10"
+          y1={20 + i * 13}
+          x2="190"
+          y2={180 - i * 13}
+        />
+      ))}
+    </g>
+
+    {/* Verification ring */}
+    <circle
+      cx="100"
+      cy="100"
+      r="45"
+      fill="none"
+      stroke="#6AD7A6"
+      strokeWidth="4"
+    />
+
+    {/* VERIFIED text */}
+    <text
+      x="100"
+      y="105"
+      textAnchor="middle"
+      fontFamily="Inter, Arial, sans-serif"
+      fontSize="12"
+      fontWeight="600"
+      fill="#6AD7A6"
+    >
+      VERIFIED
+    </text>
+  </svg>
+</div>
 
           {/* ===== INFO CARDS ===== */}
           <div className="grid md:grid-cols-2 gap-6">
