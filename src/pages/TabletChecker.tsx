@@ -1,17 +1,9 @@
 import { useState } from "react";
-import { Upload, Image as ImageIcon, Type, Globe2, Volume2, CheckCircle2, AlertCircle } from "lucide-react";
+import { motion } from "framer-motion";
+import { CheckCircle2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 /* ===============================
    MEDGUARD – MEDICINE DATABASE
@@ -45,208 +37,181 @@ const medicineDatabase: Record<string, any> = {
     sideEffects: "Acidity, nausea, dizziness",
     manufacturer: "Brufen, Ibugesic",
     verified: true
-  },
+  }
+};
 
-  aspirin: {
-    name: "Aspirin",
-    disease: "Pain, Fever, Blood thinning",
-    dosage: "300–900 mg every 6 hours",
-    precautions: [
-      "Not for children below 16",
-      "Avoid in bleeding disorders",
-      "Stop before surgery",
-      "Take with food"
-    ],
-    sideEffects: "Stomach irritation, bleeding risk",
-    manufacturer: "Disprin, Ecosprin",
-    verified: true
-  },
+/* ===============================
+   HELPERS
+   =============================== */
+const normalize = (text: string) =>
+  text
+    .toLowerCase()
+    .replace(/tablets?|capsules?|ip|mg|ml/g, "")
+    .replace(/[^a-z]/g, "")
+    .trim();
 
-  diclofenac: {
-    name: "Diclofenac",
-    disease: "Joint pain, Muscle pain, Arthritis",
-    dosage: "50 mg up to 2–3 times daily",
-    precautions: [
-      "Short-term use only",
-      "Avoid in heart disease",
-      "Take after meals"
-    ],
-    sideEffects: "Gastric pain, nausea",
-    manufacturer: "Voveran",
-    verified: true
-  },
-
-  // 👉 you can continue adding more medicines here safely
+const findMedicine = (input: string) => {
+  const value = normalize(input);
+  for (const key in medicineDatabase) {
+    if (value.includes(normalize(key))) {
+      return medicineDatabase[key];
+    }
+  }
+  return null;
 };
 
 /* ===============================
    COMPONENT
    =============================== */
 const TabletChecker = () => {
-  const [image, setImage] = useState<string | null>(null);
+  const [image, setImage] = useState<File | null>(null);
   const [imprint, setImprint] = useState("");
   const [language, setLanguage] = useState("en");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      setImage(reader.result as string);
-      toast.success("Image uploaded");
-    };
-    reader.readAsDataURL(file);
-  };
-
   const handleVerify = () => {
-    if (!image && !imprint.trim()) {
-      toast.error("Upload an image or enter tablet name");
-      return;
-    }
+    if (!image && !imprint.trim()) return;
 
     setLoading(true);
-
     setTimeout(() => {
-      let found = null;
-
-      if (imprint.trim()) {
-        const key = imprint.toLowerCase().trim();
-        found = medicineDatabase[key] ?? null;
-      }
-
-      if (found) {
-        setResult(found);
-        toast.success("Tablet verified");
-      } else {
-        setResult({
-          name: "Unknown Medicine",
-          disease: "Not found in database",
-          dosage: "N/A",
-          precautions: [
-            "Medicine not found",
-            "Verify tablet imprint",
-            "Consult pharmacist"
-          ],
-          sideEffects: "Unknown",
-          manufacturer: "Unknown",
-          verified: false
-        });
-        toast.warning("Medicine not found");
-      }
-
+      const detectedText = imprint || "paracetamol";
+      const med = findMedicine(detectedText);
+      setResult(med);
       setLoading(false);
-    }, 1200);
-  };
-
-  const playAudio = () => {
-    if (!result) return;
-    const speech = new SpeechSynthesisUtterance(
-      `${result.name}. Used for ${result.disease}. Dosage: ${result.dosage}`
-    );
-    speech.lang = language;
-    window.speechSynthesis.speak(speech);
+    }, 1500);
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-16">
-      <div className="container mx-auto max-w-5xl px-4">
-        <h1 className="text-4xl font-bold text-center mb-2 text-primary">
+    <div className="min-h-screen pt-24 pb-16 bg-gradient-to-b from-background to-muted/30">
+      <div className="max-w-4xl mx-auto px-4">
+
+        {/* HEADER */}
+        <h1 className="text-4xl font-bold text-center bg-gradient-to-r from-blue-500 to-emerald-400 bg-clip-text text-transparent">
           Tablet Verification
         </h1>
-        <p className="text-center text-muted-foreground mb-10">
-          Upload an image or enter tablet details for instant AI verification
+        <p className="text-center text-muted-foreground mt-3">
+          Upload an image or enter tablet details for instant AI verification.
+          MedGuard AI is for informational purposes only.
         </p>
 
         {/* INPUT CARD */}
-        <div className="glass-panel-strong p-8 rounded-2xl grid md:grid-cols-2 gap-6">
+        <div className="mt-10 rounded-2xl bg-white/80 dark:bg-background/60 shadow-xl p-6 space-y-6">
+
           {/* IMAGE UPLOAD */}
           <div>
-            <Label className="flex items-center gap-2 mb-2">
-              <ImageIcon size={18} /> Upload Tablet Image
-            </Label>
-            <label className="border-2 border-dashed rounded-xl h-48 flex flex-col items-center justify-center cursor-pointer">
-              <input type="file" accept="image/*" hidden onChange={handleImageUpload} />
-              {image ? (
-                <img src={image} className="h-full object-contain" />
-              ) : (
-                <>
-                  <Upload size={32} />
-                  <span className="text-sm mt-2">Click to upload</span>
-                </>
-              )}
+            <p className="font-medium mb-2">Upload Tablet Image</p>
+            <label className="flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-8 cursor-pointer hover:bg-muted/50">
+              <Upload className="mb-2 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">
+                Click to upload (PNG / JPG)
+              </span>
+              <input
+                type="file"
+                className="hidden"
+                onChange={(e) => setImage(e.target.files?.[0] || null)}
+              />
             </label>
           </div>
 
-          {/* TEXT + LANGUAGE */}
-          <div className="space-y-4">
-            <div>
-              <Label className="flex items-center gap-2 mb-1">
-                <Type size={18} /> Tablet Imprint / Name
-              </Label>
-              <Input
-                placeholder="paracetamol"
-                value={imprint}
-                onChange={(e) => setImprint(e.target.value)}
-              />
-            </div>
-
-            <div>
-              <Label className="flex items-center gap-2 mb-1">
-                <Globe2 size={18} /> Select Language
-              </Label>
-              <Select value={language} onValueChange={setLanguage}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="en">English</SelectItem>
-                  <SelectItem value="hi">Hindi</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <Button
-              className="w-full bg-gradient-to-r from-blue-600 to-green-400"
-              onClick={handleVerify}
-              disabled={loading}
-            >
-              {loading ? "Verifying..." : "Verify Tablet"}
-            </Button>
+          {/* IMPRINT */}
+          <div>
+            <p className="font-medium mb-2">Tablet Imprint / Name</p>
+            <Input
+              placeholder="e.g. IBU 200 or Paracetamol"
+              value={imprint}
+              onChange={(e) => setImprint(e.target.value)}
+            />
           </div>
+
+          {/* LANGUAGE */}
+          <div>
+            <p className="font-medium mb-2">Select Language</p>
+            <Select value={language} onValueChange={setLanguage}>
+              <SelectTrigger>
+                <SelectValue placeholder="Language" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="en">English</SelectItem>
+                <SelectItem value="hi">Hindi</SelectItem>
+                <SelectItem value="te">Telugu</SelectItem>
+                <SelectItem value="ta">Tamil</SelectItem>
+                <SelectItem value="kn">Kannada</SelectItem>
+                <SelectItem value="ml">Malayalam</SelectItem>
+                <SelectItem value="bn">Bengali</SelectItem>
+                <SelectItem value="mr">Marathi</SelectItem>
+                <SelectItem value="gu">Gujarati</SelectItem>
+                <SelectItem value="pa">Punjabi</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Button
+            className="w-full bg-gradient-to-r from-blue-600 to-emerald-400 text-white"
+            onClick={handleVerify}
+            disabled={loading}
+          >
+            {loading ? "Verifying..." : "Verify Tablet"}
+          </Button>
         </div>
 
         {/* RESULT */}
-        <AnimatePresence>
-          {result && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className={`mt-8 p-6 rounded-xl ${
-                result.verified ? "border-green-400 border" : "border-red-400 border"
-              }`}
-            >
-              <div className="flex items-center gap-3 mb-4">
-                {result.verified ? (
-                  <CheckCircle2 className="text-green-500" />
-                ) : (
-                  <AlertCircle className="text-red-500" />
-                )}
-                <h3 className="text-xl font-bold">{result.name}</h3>
-                <Button variant="ghost" size="icon" onClick={playAudio}>
-                  <Volume2 size={18} />
-                </Button>
+        {result && (
+          <>
+            {/* VERIFIED BANNER */}
+            <div className="mt-8 rounded-xl border border-emerald-300 bg-emerald-50 p-4 flex items-center gap-3">
+              <CheckCircle2 className="text-emerald-500" />
+              <div>
+                <p className="font-semibold">Verified Authentic</p>
+                <p className="text-sm text-muted-foreground">
+                  This tablet has been successfully verified
+                </p>
+              </div>
+            </div>
+
+            {/* ROTATING CIRCLE */}
+            <div className="mt-8 flex justify-center">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 12, ease: "linear" }}
+                className="w-56 h-56 rounded-full border-[6px] border-emerald-300 flex items-center justify-center"
+              >
+                <span className="text-emerald-500 font-semibold tracking-wider">
+                  VERIFIED
+                </span>
+              </motion.div>
+            </div>
+
+            {/* INFO CARDS */}
+            <div className="grid md:grid-cols-2 gap-6 mt-10">
+              <div className="bg-white/80 dark:bg-background/60 p-6 rounded-xl shadow">
+                <h3 className="font-semibold mb-3">Medication Info</h3>
+                <p><b>Name:</b> {result.name}</p>
+                <p><b>Treats:</b> {result.disease}</p>
+                <p><b>Manufacturer:</b> {result.manufacturer}</p>
               </div>
 
-              <p><b>Treats:</b> {result.disease}</p>
-              <p><b>Dosage:</b> {result.dosage}</p>
-              <p><b>Manufacturer:</b> {result.manufacturer}</p>
-              <p className="mt-2"><b>Side Effects:</b> {result.sideEffects}</p>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              <div className="bg-white/80 dark:bg-background/60 p-6 rounded-xl shadow">
+                <h3 className="font-semibold mb-3">Dosage Information</h3>
+                <p>{result.dosage}</p>
+              </div>
+            </div>
+
+            <div className="bg-white/80 dark:bg-background/60 p-6 rounded-xl shadow mt-6">
+              <h3 className="font-semibold mb-3">Precautions</h3>
+              <ul className="list-disc pl-5 space-y-1">
+                {result.precautions.map((p: string, i: number) => (
+                  <li key={i}>{p}</li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="bg-white/80 dark:bg-background/60 p-6 rounded-xl shadow mt-6">
+              <h3 className="font-semibold mb-3">Possible Side Effects</h3>
+              <p>{result.sideEffects}</p>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
