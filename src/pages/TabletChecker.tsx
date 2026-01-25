@@ -124,7 +124,7 @@ const TRANSLATIONS = {
   },
   fr: {
     tabletVerification: "Vérification des Comprimés",
-    uploadImage: "Téléchargez una imagen o entrez les détails du comprimé pour une vérification IA instantanée",
+    uploadImage: "Téléchargez una imagen o entrez les détails du comprimé para una vérification IA instantanée",
     tabletImage: "Imagen du Comprimé",
     clickToUpload: "Cliquez para télécharger",
     fileRequirements: "PNG, JPG hasta 10MB",
@@ -292,15 +292,20 @@ export default function TabletChecker() {
 
       {/* Main Content */}
       <div className="max-w-6xl mx-auto px-6 py-8">
-        {/* Header with Green Gradient */}
+        {/* Header with Holographic Text */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-3" style={{
-            background: "linear-gradient(to right, #10b981, #059669, #047857)",
-            WebkitBackgroundClip: "text",
-            backgroundClip: "text",
-            color: "transparent"
-          }}>
-            {t.tabletVerification}
+          <h1 className="text-4xl font-bold mb-3 relative">
+            <span className="relative z-10" style={{
+              background: "linear-gradient(90deg, #ff0000, #ff8000, #ffff00, #80ff00, #00ff80, #00ffff, #0080ff, #8000ff, #ff00ff, #ff0080)",
+              backgroundSize: "200% 200%",
+              WebkitBackgroundClip: "text",
+              backgroundClip: "text",
+              color: "transparent",
+              animation: "holographic 3s linear infinite",
+              textShadow: "0 0 10px rgba(255, 255, 255, 0.3), 0 0 20px rgba(255, 255, 255, 0.2)"
+            }}>
+              {t.tabletVerification}
+            </span>
           </h1>
           <p className="text-gray-600">
             {t.uploadImage}
@@ -412,15 +417,21 @@ export default function TabletChecker() {
               {/* Divider */}
               <div className="border-t border-gray-200 my-4"></div>
 
-              {/* Verify Button with Green Gradient */}
+              {/* Verify Button with Holographic Effect */}
               <button
                 onClick={handleVerify}
-                className="w-full py-3.5 rounded-lg text-white font-medium hover:shadow-lg transition-all duration-300"
+                className="w-full py-3.5 rounded-lg text-white font-medium hover:shadow-lg transition-all duration-300 relative overflow-hidden group"
                 style={{
-                  background: "linear-gradient(to right, #10b981, #059669, #047857)",
+                  background: "linear-gradient(90deg, #ff0000, #ff8000, #ffff00, #80ff00, #00ff80, #00ffff, #0080ff, #8000ff, #ff00ff, #ff0080)",
+                  backgroundSize: "200% 200%",
+                  animation: "holographic 3s linear infinite"
                 }}
               >
-                {t.verifyTablet}
+                <span className="relative z-10 flex items-center justify-center">
+                  {t.verifyTablet}
+                  <div className="ml-2 w-4 h-4 bg-white/20 rounded-full"></div>
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
               </button>
             </div>
           </div>
@@ -429,12 +440,16 @@ export default function TabletChecker() {
         {/* Verification Result */}
         {verified && foundMedicine && (
           <div className="space-y-8">
-            {/* Verified Banner with Green Gradient */}
-            <div className="rounded-2xl p-6 shadow-lg" style={{
-              background: "linear-gradient(to right, #d1fae5, #a7f3d0, #86efac)",
-              border: "2px solid #10b981"
+            {/* Verified Banner with Holographic Effect */}
+            <div className="rounded-2xl p-6 shadow-lg relative overflow-hidden" style={{
+              background: "linear-gradient(90deg, #d1fae5, #a7f3d0, #86efac, #d1fae5)",
+              backgroundSize: "200% 200%",
+              animation: "holographic 6s linear infinite",
+              border: "2px solid transparent",
+              borderImage: "linear-gradient(90deg, #ff0000, #ff8000, #ffff00, #80ff00, #00ff80, #00ffff, #0080ff, #8000ff, #ff00ff, #ff0080) 1"
             }}>
-              <div className="flex items-center space-x-4">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer"></div>
+              <div className="relative flex items-center space-x-4">
                 <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-md">
                   <div className="relative">
                     <div className="w-8 h-8 rounded-full border-2 border-[#10b981] flex items-center justify-center">
@@ -452,10 +467,17 @@ export default function TabletChecker() {
                   </div>
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-[#065f46]">
+                  <h2 className="text-2xl font-bold mb-1" style={{
+                    background: "linear-gradient(90deg, #ff0000, #ff8000, #ffff00, #80ff00, #00ff80, #00ffff, #0080ff, #8000ff, #ff00ff, #ff0080)",
+                    backgroundSize: "200% 200%",
+                    WebkitBackgroundClip: "text",
+                    backgroundClip: "text",
+                    color: "transparent",
+                    animation: "holographic 3s linear infinite"
+                  }}>
                     {t.verifiedAuthentic}
                   </h2>
-                  <p className="text-[#047857]">
+                  <p className="text-gray-700">
                     {t.verificationSuccess}
                   </p>
                 </div>
@@ -480,7 +502,14 @@ export default function TabletChecker() {
                 <div className="space-y-4">
                   <div>
                     <div className="text-sm text-gray-500 mb-1">{t.name}</div>
-                    <div className="text-lg font-medium text-gray-900">{foundMedicine.name} {foundMedicine.strength}</div>
+                    <div className="text-lg font-medium" style={{
+                      background: "linear-gradient(90deg, #ff0000, #ff8000, #ffff00)",
+                      WebkitBackgroundClip: "text",
+                      backgroundClip: "text",
+                      color: "transparent"
+                    }}>
+                      {foundMedicine.name} {foundMedicine.strength}
+                    </div>
                   </div>
                   <div>
                     <div className="text-sm text-gray-500 mb-1">{t.treats}</div>
@@ -513,16 +542,21 @@ export default function TabletChecker() {
                 <p className="text-gray-900 leading-relaxed">
                   {foundMedicine.dosage}
                 </p>
-                <div className="mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
+                <div className="mt-4 p-4 rounded-lg border" style={{
+                  background: "linear-gradient(90deg, #d1fae5, #a7f3d0, #86efac)",
+                  borderColor: "#10b981"
+                }}>
                   <div className="flex items-start space-x-3">
-                    <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <svg className="w-3 h-3 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style={{
+                      background: "linear-gradient(90deg, #ff0000, #ff8000, #ffff00)"
+                    }}>
+                      <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
                     </div>
                     <div>
-                      <div className="font-medium text-green-900">Important Note</div>
-                      <div className="text-sm text-green-800">Follow dosage instructions carefully. Do not exceed recommended dose.</div>
+                      <div className="font-medium text-gray-900">Important Note</div>
+                      <div className="text-sm text-gray-700">Follow dosage instructions carefully. Do not exceed recommended dose.</div>
                     </div>
                   </div>
                 </div>
@@ -537,7 +571,9 @@ export default function TabletChecker() {
               <div className="space-y-3">
                 {foundMedicine.precautions.map((precaution: string, index: number) => (
                   <div key={index} className="flex items-start space-x-4">
-                    <div className="w-2.5 h-2.5 rounded-full bg-red-500 mt-2 flex-shrink-0"></div>
+                    <div className="w-2.5 h-2.5 rounded-full mt-2 flex-shrink-0" style={{
+                      background: "linear-gradient(90deg, #ff0000, #ff8000, #ffff00)"
+                    }}></div>
                     <span className="text-gray-900">{precaution}</span>
                   </div>
                 ))}
@@ -565,6 +601,38 @@ export default function TabletChecker() {
           </p>
         </div>
       </div>
+
+      {/* CSS Animations */}
+      <style jsx>{`
+        @keyframes holographic {
+          0% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+          100% {
+            background-position: 0% 50%;
+          }
+        }
+        
+        @keyframes shimmer {
+          0% {
+            transform: translateX(-100%);
+          }
+          100% {
+            transform: translateX(100%);
+          }
+        }
+        
+        .animate-shimmer {
+          animation: shimmer 2s infinite;
+        }
+        
+        .group:hover .holographic-button {
+          animation: holographic 1s linear infinite;
+        }
+      `}</style>
     </div>
   );
 }
