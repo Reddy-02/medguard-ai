@@ -1,15 +1,15 @@
 import { useState } from "react";
-import { CheckCircle, Upload, Volume2 } from "lucide-react";
+import { CheckCircle, Volume2, Upload } from "lucide-react";
 
 /* ===============================
-   MEDICINE DATABASE (sample – extend to 150+)
+   MEDICINE DATABASE (sample)
+   You can expand this to 150+
 ================================ */
 const medicineDatabase: Record<string, any> = {
   paracetamol: {
-    name: "Paracetamol 500mg",
+    name: "Paracetamol",
     treats: "Fever, Headache, Mild to moderate pain",
-    dosage:
-      "Adults: 500–1000 mg every 4–6 hours. Maximum 4000 mg per day.",
+    dosage: "500–1000 mg every 4–6 hours (max 4000 mg/day)",
     manufacturer: "Crocin, Dolo 650",
     precautions: [
       "Do not exceed maximum daily dose",
@@ -22,202 +22,200 @@ const medicineDatabase: Record<string, any> = {
 };
 
 /* ===============================
-   LANGUAGES
+   LANGUAGE LABELS
 ================================ */
-const languages = [
-  "English",
-  "Hindi",
-  "Spanish",
-  "French",
-  "German",
-  "Chinese",
-];
+const languages = {
+  English: {
+    verified: "Verified Authentic",
+    verifiedDesc: "This tablet has been successfully verified",
+    medicationInfo: "Medication Info",
+    dosageInfo: "Dosage Information",
+    precautions: "Precautions",
+    sideEffects: "Possible Side Effects",
+  },
+  Spanish: {
+    verified: "Autenticado",
+    verifiedDesc: "Esta tableta ha sido verificada",
+    medicationInfo: "Información del medicamento",
+    dosageInfo: "Información de dosis",
+    precautions: "Precauciones",
+    sideEffects: "Efectos secundarios",
+  },
+  French: {
+    verified: "Authentifié",
+    verifiedDesc: "Ce comprimé a été vérifié",
+    medicationInfo: "Informations sur le médicament",
+    dosageInfo: "Informations sur la posologie",
+    precautions: "Précautions",
+    sideEffects: "Effets secondaires",
+  },
+  German: {
+    verified: "Verifiziert",
+    verifiedDesc: "Dieses Medikament wurde überprüft",
+    medicationInfo: "Medikamenteninfo",
+    dosageInfo: "Dosierungsinformation",
+    precautions: "Vorsichtsmaßnahmen",
+    sideEffects: "Nebenwirkungen",
+  },
+  Hindi: {
+    verified: "सत्यापित",
+    verifiedDesc: "यह दवा सफलतापूर्वक सत्यापित की गई है",
+    medicationInfo: "दवा जानकारी",
+    dosageInfo: "खुराक जानकारी",
+    precautions: "सावधानियां",
+    sideEffects: "संभावित दुष्प्रभाव",
+  },
+  Chinese: {
+    verified: "已验证",
+    verifiedDesc: "该药片已成功验证",
+    medicationInfo: "药物信息",
+    dosageInfo: "剂量信息",
+    precautions: "注意事项",
+    sideEffects: "副作用",
+  },
+};
 
 export default function TabletChecker() {
-  const [tabletName, setTabletName] = useState("");
-  const [language, setLanguage] = useState("English");
-  const [verified, setVerified] = useState(false);
+  const [name, setName] = useState("");
+  const [language, setLanguage] = useState<keyof typeof languages>("English");
   const [result, setResult] = useState<any>(null);
 
-  /* ===============================
-     VERIFY HANDLER
-  ================================ */
+  const labels = languages[language];
+
   const verifyTablet = () => {
-    const key = tabletName.toLowerCase().trim();
-    const data = medicineDatabase[key];
-    setResult(data || null);
-    setVerified(true);
+    const key = name.toLowerCase().trim();
+    setResult(medicineDatabase[key] || null);
   };
 
-  /* ===============================
-     TEXT TO SPEECH
-  ================================ */
-  const speakAll = () => {
+  const speakResult = () => {
     if (!result) return;
-
     const text = `
-    Medication Information.
-    Name: ${result.name}.
-    Treats: ${result.treats}.
-    Manufacturer: ${result.manufacturer}.
-    Dosage Information.
-    ${result.dosage}.
+      ${labels.medicationInfo}.
+      Name ${result.name}.
+      Treats ${result.treats}.
+      Manufacturer ${result.manufacturer}.
+      ${labels.dosageInfo}.
+      ${result.dosage}.
     `;
-
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.95;
+    speechSynthesis.cancel();
     speechSynthesis.speak(utterance);
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-16 bg-gradient-to-b from-white to-slate-100">
-      {/* ================= HEADER ================= */}
-      <div className="text-center max-w-4xl mx-auto mb-10">
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-500 to-emerald-400 bg-clip-text text-transparent">
-          Tablet Verification
-        </h1>
-        <p className="mt-3 text-slate-600">
-          Upload an image or enter tablet details for instant AI verification.
-          MedGuard AI is for informational purposes only.
-        </p>
-      </div>
+    <div className="min-h-screen pt-24 pb-20 bg-gradient-to-b from-white to-slate-100">
+      {/* TITLE */}
+      <h1 className="text-4xl font-bold text-center text-sky-600">
+        Tablet Verification
+      </h1>
+      <p className="text-center text-slate-500 mt-2 max-w-2xl mx-auto">
+        Upload an image or enter tablet details for instant AI verification.
+        MedGuard AI is for informational purposes only.
+      </p>
 
-      {/* ================= INPUT CARD ================= */}
-      <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-6">
-        {/* Upload */}
-        <label className="block font-medium mb-2">
-          Upload Tablet Image
-        </label>
-        <div className="border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center text-slate-500 cursor-pointer hover:border-blue-400 transition">
-          <Upload size={28} />
-          <p className="mt-2">Click to upload</p>
-          <p className="text-xs">PNG, JPG up to 10MB</p>
-          <input type="file" className="hidden" />
+      {/* INPUT CARD */}
+      <div className="max-w-4xl mx-auto mt-10 bg-white rounded-2xl shadow-xl p-8">
+        <label className="font-medium">Upload Tablet Image</label>
+        <div className="mt-2 border-2 border-dashed rounded-xl h-40 flex items-center justify-center text-slate-400">
+          <Upload />
+          <span className="ml-2">Click to upload (PNG / JPG)</span>
         </div>
 
-        {/* Tablet Name */}
-        <label className="block font-medium mt-6 mb-2">
-          Tablet Imprint / Name
-        </label>
+        <label className="block mt-6 font-medium">Tablet Imprint / Name</label>
         <input
-          value={tabletName}
-          onChange={(e) => setTabletName(e.target.value)}
-          placeholder="e.g., IBU 200 or Paracetamol"
-          className="w-full rounded-xl border px-4 py-3 outline-none focus:ring-2 focus:ring-blue-400"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="mt-2 w-full border rounded-xl px-4 py-3"
+          placeholder="e.g., Paracetamol"
         />
 
-        {/* Language */}
-        <label className="block font-medium mt-6 mb-2">
-          Select Language
-        </label>
+        <label className="block mt-6 font-medium">Select Language</label>
         <select
+          className="mt-2 w-full border rounded-xl px-4 py-3"
           value={language}
-          onChange={(e) => setLanguage(e.target.value)}
-          className="w-full rounded-xl border px-4 py-3"
+          onChange={(e) => setLanguage(e.target.value as any)}
         >
-          {languages.map((l) => (
-            <option key={l}>{l}</option>
+          {Object.keys(languages).map((lang) => (
+            <option key={lang}>{lang}</option>
           ))}
         </select>
 
-        {/* Verify Button */}
         <button
           onClick={verifyTablet}
-          className="w-full mt-6 py-3 rounded-xl text-white font-semibold bg-gradient-to-r from-blue-500 to-emerald-400 hover:opacity-90 transition"
+          className="mt-6 w-full py-4 rounded-xl text-white font-semibold bg-gradient-to-r from-blue-600 to-emerald-400"
         >
           Verify Tablet
         </button>
       </div>
 
-      {/* ================= VERIFIED SECTION ================= */}
-      {verified && (
+      {/* VERIFIED */}
+      {result && (
         <>
-          {/* Verified Banner */}
+          {/* VERIFIED AUTHENTIC */}
           <div className="max-w-5xl mx-auto mt-10">
-            <div className="flex items-center gap-4 p-5 rounded-2xl bg-emerald-50 border border-emerald-200 shadow-lg animate-pulse">
-              <CheckCircle className="text-emerald-500" size={26} />
+            <div className="relative flex items-center gap-4 p-6 rounded-2xl bg-white border border-emerald-300 animate-float animate-pulse-glow">
+              <div className="absolute inset-0 bg-emerald-200/30 blur-xl -z-10 rounded-2xl" />
+              <div className="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center">
+                <CheckCircle className="text-white" />
+              </div>
               <div>
-                <p className="font-semibold text-emerald-700">
-                  Verified Authentic
-                </p>
-                <p className="text-sm text-emerald-600">
-                  This tablet has been successfully verified
-                </p>
+                <p className="font-semibold text-lg">{labels.verified}</p>
+                <p className="text-slate-500">{labels.verifiedDesc}</p>
               </div>
             </div>
           </div>
 
-          {/* Rotating Circle */}
-          <div className="flex justify-center mt-8">
-            <div className="relative w-72 h-72">
-              <div className="absolute inset-0 rounded-full border-[6px] border-emerald-300 animate-spin-slow" />
-              <div className="absolute inset-6 rounded-full border-[4px] border-emerald-200 animate-spin-reverse" />
-              <div className="absolute inset-0 flex items-center justify-center text-emerald-600 font-semibold">
+          {/* VERIFIED CIRCLE */}
+          <div className="flex justify-center mt-10">
+            <div className="relative w-[320px] h-[320px] bg-white rounded-2xl shadow-xl flex items-center justify-center">
+              <div className="absolute w-[260px] h-[260px] rounded-full border-4 border-emerald-300/50 animate-spin-slow" />
+              <div className="absolute w-[200px] h-[200px] rounded-full border-2 border-emerald-200 animate-spin-reverse" />
+              <div className="absolute w-[150px] h-[150px] rounded-full border-8 border-emerald-400 shadow-[0_0_40px_rgba(52,211,153,0.6)]" />
+              <span className="text-emerald-600 font-semibold tracking-widest">
                 VERIFIED
-              </div>
+              </span>
             </div>
           </div>
 
-          {/* Info Cards */}
+          {/* INFO */}
           <div className="max-w-5xl mx-auto mt-10 grid md:grid-cols-2 gap-6">
-            <div className="bg-white rounded-2xl shadow p-6">
+            <div className="bg-white rounded-xl p-6 shadow">
               <div className="flex justify-between items-center">
-                <h3 className="font-semibold text-lg">
-                  Medication Info
-                </h3>
+                <h3 className="font-semibold">{labels.medicationInfo}</h3>
                 <Volume2
-                  onClick={speakAll}
-                  className="cursor-pointer"
+                  onClick={speakResult}
+                  className="cursor-pointer text-slate-500"
                 />
               </div>
-              <p className="mt-3">
-                <b>Name:</b>{" "}
-                {result?.name || tabletName || "Unknown"}
+              <p className="mt-2">
+                <b>Name:</b> {result.name}
               </p>
               <p>
-                <b>Treats:</b>{" "}
-                {result?.treats || "Not found in database"}
+                <b>Treats:</b> {result.treats}
               </p>
               <p>
-                <b>Manufacturer:</b>{" "}
-                {result?.manufacturer || "Unknown"}
+                <b>Manufacturer:</b> {result.manufacturer}
               </p>
             </div>
 
-            <div className="bg-white rounded-2xl shadow p-6">
-              <h3 className="font-semibold text-lg">
-                Dosage Information
-              </h3>
-              <p className="mt-3">
-                {result?.dosage || "N/A"}
-              </p>
+            <div className="bg-white rounded-xl p-6 shadow">
+              <h3 className="font-semibold">{labels.dosageInfo}</h3>
+              <p className="mt-2">{result.dosage}</p>
             </div>
           </div>
 
-          {/* Precautions */}
-          <div className="max-w-5xl mx-auto mt-6 bg-white rounded-2xl shadow p-6">
-            <h3 className="font-semibold text-lg mb-2">
-              Precautions
-            </h3>
-            {result?.precautions ? (
-              <ul className="space-y-2">
-                {result.precautions.map((p: string) => (
-                  <li key={p}>• {p}</li>
-                ))}
-              </ul>
-            ) : (
-              <p>No data available</p>
-            )}
+          <div className="max-w-5xl mx-auto mt-6 bg-white rounded-xl p-6 shadow">
+            <h3 className="font-semibold">{labels.precautions}</h3>
+            <ul className="mt-2 list-disc ml-6">
+              {result.precautions.map((p: string, i: number) => (
+                <li key={i}>{p}</li>
+              ))}
+            </ul>
           </div>
 
-          {/* Side Effects */}
-          <div className="max-w-5xl mx-auto mt-6 bg-white rounded-2xl shadow p-6">
-            <h3 className="font-semibold text-lg">
-              Possible Side Effects
-            </h3>
-            <p className="mt-2">
-              {result?.sideEffects || "Unknown"}
-            </p>
+          <div className="max-w-5xl mx-auto mt-6 bg-white rounded-xl p-6 shadow">
+            <h3 className="font-semibold">{labels.sideEffects}</h3>
+            <p className="mt-2">{result.sideEffects}</p>
           </div>
         </>
       )}
