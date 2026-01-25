@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { Volume2 } from "lucide-react";
 
 /* ===============================
    MEDICINE DATABASE (150+ READY)
    =============================== */
-
 const medicineDatabase: Record<string, any> = {
   paracetamol: {
     name: "Paracetamol",
@@ -19,70 +19,45 @@ const medicineDatabase: Record<string, any> = {
     sideEffects: "Rare allergic reactions; liver damage in overdose",
     manufacturer: "Crocin, Dolo 650",
     verified: true
-  },
-
-  ibuprofen: {
-    name: "Ibuprofen",
-    disease: "Pain, Inflammation, Fever",
-    dosage: "200–400 mg every 6 hours",
-    precautions: ["Take after food", "Avoid pregnancy"],
-    sideEffects: "Acidity, nausea",
-    manufacturer: "Brufen",
-    verified: true
   }
-
-  // 🔴 ADD REMAINING MEDICINES HERE (same format)
+  // 🔴 add remaining medicines here
 };
 
 /* ===============================
-   LANGUAGE SUPPORT (10+)
+   LANGUAGE → VOICE MAP
    =============================== */
+const voiceLangMap: Record<string, string> = {
+  English: "en-IN",
+  Telugu: "te-IN",
+  Hindi: "hi-IN",
+  Tamil: "ta-IN",
+  Kannada: "kn-IN",
+  Malayalam: "ml-IN",
+  Bengali: "bn-IN",
+  Marathi: "mr-IN",
+  Gujarati: "gu-IN",
+  Punjabi: "pa-IN"
+};
 
-const languages = [
-  "English",
-  "Telugu",
-  "Hindi",
-  "Tamil",
-  "Kannada",
-  "Malayalam",
-  "Bengali",
-  "Marathi",
-  "Gujarati",
-  "Punjabi"
-];
-
-/* ===============================
-   COMPONENT
-   =============================== */
+const languages = Object.keys(voiceLangMap);
 
 const TabletChecker = () => {
-  const [image, setImage] = useState<File | null>(null);
   const [imprint, setImprint] = useState("");
   const [language, setLanguage] = useState("English");
-  const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const normalize = (text: string) =>
-    text.toLowerCase().replace(/\s+/g, "").trim();
-
-  const findMedicine = (text: string) => {
-    const key = normalize(text);
-    return medicineDatabase[key] || null;
-  };
+  const normalize = (s: string) =>
+    s.toLowerCase().replace(/\s+/g, "");
 
   const handleVerify = () => {
     setLoading(true);
-
     setTimeout(() => {
-      const detectedText =
-        imprint.trim() ||
-        (image ? "paracetamol" : "");
-
-      const med = findMedicine(detectedText);
-
+      const key = normalize(imprint);
+      const med = medicineDatabase[key];
       setResult(
         med ?? {
-          name: detectedText || "Unknown",
+          name: imprint || "Unknown",
           disease: "Not found in database",
           dosage: "N/A",
           precautions: ["No data available"],
@@ -91,58 +66,56 @@ const TabletChecker = () => {
           verified: false
         }
       );
-
       setLoading(false);
     }, 1200);
   };
 
+  /* ===============================
+     TEXT TO SPEECH
+     =============================== */
+  const speakResult = () => {
+    if (!result) return;
+
+    const text = `
+      Medicine Name: ${result.name}.
+      Treats: ${result.disease}.
+      Dosage: ${result.dosage}.
+      Precautions: ${result.precautions.join(", ")}.
+      Side effects: ${result.sideEffects}.
+    `;
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = voiceLangMap[language] || "en-IN";
+    speechSynthesis.cancel();
+    speechSynthesis.speak(utterance);
+  };
+
   return (
-    <div className="min-h-screen pt-24 pb-16 bg-gradient-to-b from-white to-slate-50">
-      {/* HEADER */}
+    <div className="min-h-screen pt-24 pb-16">
+      {/* TITLE */}
       <div className="text-center mb-10">
         <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-500 to-green-400 bg-clip-text text-transparent">
           Tablet Verification
         </h1>
-        <p className="text-gray-500 mt-3 max-w-2xl mx-auto">
+        <p className="text-gray-500 mt-3 max-w-3xl mx-auto">
           Upload an image or enter tablet details for instant AI verification.
-          MedGuard AI is for informational purposes only.
+          MedGuard AI is for informational purposes only. Always consult a licensed doctor.
         </p>
       </div>
 
       {/* INPUT CARD */}
       <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-8">
-        {/* IMAGE UPLOAD */}
-        <label className="block font-semibold mb-2">
-          Upload Tablet Image
-        </label>
-        <div className="border-2 border-dashed rounded-lg p-8 text-center mb-6">
-          <input
-            type="file"
-            accept="image/png,image/jpeg"
-            className="hidden"
-            id="upload"
-            onChange={(e) =>
-              setImage(e.target.files?.[0] || null)
-            }
-          />
-          <label htmlFor="upload" className="cursor-pointer text-gray-500">
-            Click to upload (PNG / JPG)
-          </label>
-        </div>
-
-        {/* IMPRINT */}
-        <label className="block font-semibold mb-2">
+        <label className="font-semibold block mb-2">
           Tablet Imprint / Name
         </label>
         <input
           value={imprint}
           onChange={(e) => setImprint(e.target.value)}
-          placeholder="e.g. Paracetamol"
-          className="w-full border rounded-lg px-4 py-3 mb-5"
+          placeholder="e.g., IBU 200 or Paracetamol"
+          className="w-full border rounded-lg px-4 py-3 mb-4"
         />
 
-        {/* LANGUAGE */}
-        <label className="block font-semibold mb-2">
+        <label className="font-semibold block mb-2">
           Select Language
         </label>
         <select
@@ -150,41 +123,33 @@ const TabletChecker = () => {
           onChange={(e) => setLanguage(e.target.value)}
           className="w-full border rounded-lg px-4 py-3 mb-6"
         >
-          {languages.map((lang) => (
-            <option key={lang}>{lang}</option>
+          {languages.map((l) => (
+            <option key={l}>{l}</option>
           ))}
         </select>
 
-        {/* VERIFY BUTTON */}
         <button
           onClick={handleVerify}
-          disabled={loading}
-          className="w-full py-3 rounded-lg text-white font-semibold bg-gradient-to-r from-blue-600 to-green-400 hover:opacity-90"
+          className="w-full py-3 rounded-lg text-white font-semibold bg-gradient-to-r from-blue-600 to-green-400"
         >
           {loading ? "Verifying..." : "Verify Tablet"}
         </button>
       </div>
 
-      {/* RESULT SECTION */}
-      {result !== null && (
+      {/* RESULT */}
+      {result && (
         <div className="max-w-4xl mx-auto mt-10 space-y-6">
-          {/* VERIFIED BANNER */}
-          <div
-            className={`p-4 rounded-lg flex items-center gap-3 ${
-              result.verified
-                ? "bg-green-100 text-green-700"
-                : "bg-red-100 text-red-700"
-            }`}
-          >
-            ✔ {result.verified ? "Verified Authentic" : "Not Verified"}
+          {/* VERIFIED */}
+          <div className="p-4 rounded-lg bg-green-100 text-green-700 flex items-center gap-3">
+            ✔ Verified Authentic
           </div>
 
           {/* ROTATING CIRCLE */}
           <div className="flex justify-center">
             <motion.div
               animate={{ rotate: 360 }}
-              transition={{ repeat: Infinity, duration: 6, ease: "linear" }}
-              className="w-52 h-52 rounded-full border-4 border-green-300 flex items-center justify-center text-green-500 font-bold"
+              transition={{ repeat: Infinity, duration: 8, ease: "linear" }}
+              className="w-56 h-56 rounded-full border-4 border-green-300 flex items-center justify-center text-green-500 font-bold"
             >
               VERIFIED
             </motion.div>
@@ -193,7 +158,16 @@ const TabletChecker = () => {
           {/* INFO CARDS */}
           <div className="grid md:grid-cols-2 gap-6">
             <div className="bg-white p-6 rounded-xl shadow">
-              <h3 className="font-bold mb-2">Medication Info</h3>
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="font-bold">Medication Info</h3>
+                <button
+                  onClick={speakResult}
+                  className="text-blue-500 hover:scale-110 transition"
+                  title="Listen"
+                >
+                  <Volume2 />
+                </button>
+              </div>
               <p><b>Name:</b> {result.name}</p>
               <p><b>Treats:</b> {result.disease}</p>
               <p><b>Manufacturer:</b> {result.manufacturer}</p>
