@@ -1,11 +1,32 @@
 import { useState } from "react";
-import { Search, Upload, Volume2, Home, CheckCircle, Moon, Sun } from "lucide-react";
+import { Search, Upload, Volume2, CheckCircle, Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
 
-// Medicine Database with 30 entries for brevity
+/* -------------------- MEDICINE DATABASE -------------------- */
 const MEDICINE_DB = [
-  { id: 1, name: "Paracetamol", strength: "500mg", type: "Analgesic", manufacturer: "GSK Pharmaceuticals", treats: "Fever, Mild to moderate pain", dosage: "500-1000mg every 4-6 hours", precautions: ["Do not exceed 4000mg/day", "Avoid alcohol", "Take with food if stomach upset occurs"], sideEffects: "Nausea, rash, liver damage in overdose" },
-  { id: 2, name: "Ibuprofen", strength: "200mg", type: "NSAID", manufacturer: "Pfizer Inc", treats: "Pain, Inflammation, Fever", dosage: "200-400mg every 4-6 hours", precautions: ["Take with food", "Avoid if pregnant", "Monitor kidney function"], sideEffects: "Stomach upset, dizziness, bleeding risk" },
-  { id: 3, name: "Aspirin", strength: "325mg", type: "Salicylate", manufacturer: "Bayer AG", treats: "Pain, Fever, Antiplatelet", dosage: "325-650mg every 4 hours", precautions: ["Avoid in children", "Take with food", "Monitor for bleeding"], sideEffects: "Stomach irritation, tinnitus, bleeding" },
+  {
+    id: 1,
+    name: "Paracetamol",
+    strength: "500mg",
+    type: "Analgesic",
+    manufacturer: "GSK Pharmaceuticals",
+    treats: "Fever, Mild to moderate pain",
+    dosage: "500–1000mg every 4–6 hours",
+    precautions: ["Do not exceed 4000mg/day", "Avoid alcohol"],
+    sideEffects: "Nausea, rash, liver damage in overdose",
+  },
+  {
+    id: 2,
+    name: "Ibuprofen",
+    strength: "200mg",
+    type: "NSAID",
+    manufacturer: "Pfizer Inc",
+    treats: "Pain, Inflammation, Fever",
+    dosage: "200–400mg every 4–6 hours",
+    precautions: ["Take with food", "Avoid if pregnant"],
+    sideEffects: "Stomach upset, dizziness",
+  },
+   { id: 3, name: "Aspirin", strength: "325mg", type: "Salicylate", manufacturer: "Bayer AG", treats: "Pain, Fever, Antiplatelet", dosage: "325-650mg every 4 hours", precautions: ["Avoid in children", "Take with food", "Monitor for bleeding"], sideEffects: "Stomach irritation, tinnitus, bleeding" },
   { id: 4, name: "Naproxen", strength: "250mg", type: "NSAID", manufacturer: "Roche Holding", treats: "Arthritis pain, Inflammation", dosage: "250-500mg twice daily", precautions: ["Take with food", "Avoid prolonged use", "Monitor blood pressure"], sideEffects: "Heartburn, headache, fluid retention" },
   { id: 5, name: "Diclofenac", strength: "50mg", type: "NSAID", manufacturer: "Novartis AG", treats: "Osteoarthritis, Rheumatoid arthritis", dosage: "50mg 2-3 times daily", precautions: ["Take with food", "Short-term use recommended", "Monitor liver function"], sideEffects: "Abdominal pain, nausea, liver enzyme elevation" },
   { id: 6, name: "Celecoxib", strength: "200mg", type: "COX-2 Inhibitor", manufacturer: "Pfizer Inc", treats: "Arthritis, Acute pain", dosage: "100-200mg twice daily", precautions: ["Cardiovascular risk", "Avoid in heart disease", "Take with food"], sideEffects: "Headache, abdominal pain, edema" },
@@ -35,69 +56,45 @@ const MEDICINE_DB = [
   { id: 30, name: "Linezolid", strength: "600mg", type: "Oxazolidinone", manufacturer: "Pfizer Inc", treats: "VRE infections, Pneumonia", dosage: "600mg every 12 hours", precautions: ["Monitor blood counts", "Avoid tyramine foods", "Short-term use"], sideEffects: "Thrombocytopenia, neuropathy, diarrhea" }
 ];
 
-// Language configurations
+/* -------------------- LANGUAGES -------------------- */
 const LANGUAGES = [
   { code: "en", name: "English", voice: "en-US" },
   { code: "hi", name: "Hindi", voice: "hi-IN" },
-  { code: "es", name: "Spanish", voice: "es-ES" },
-  { code: "fr", name: "French", voice: "fr-FR" },
-  { code: "de", name: "German", voice: "de-DE" },
-  { code: "zh", name: "Chinese", voice: "zh-CN" }
 ];
 
-// Translations for different languages
-const TRANSLATIONS = {
+/* -------------------- TRANSLATIONS -------------------- */
+const TRANSLATIONS: any = {
   en: {
-    tabletVerification: "Tablet Verification",
-    uploadImage: "Upload an image or enter tablet details for instant AI verification",
-    tabletImage: "Tablet Image",
-    clickToUpload: "Click to upload",
-    fileRequirements: "PNG, JPG up to 10MB",
-    tabletImprintName: "Tablet Imprint/Name",
-    placeholder: "e.g., Paracetamol, Ibuprofen, Amoxicillin",
-    selectLanguage: "Select Language",
-    verifyTablet: "Verify Tablet",
-    verifiedAuthentic: "Verified Authentic",
-    verificationSuccess: "This tablet has been successfully verified",
-    medicationInfo: "Medication Info",
-    name: "Name",
-    treats: "Treats",
-    manufacturer: "Manufacturer",
-    dosageInformation: "Dosage Information",
+    title: "Tablet Verification",
+    subtitle: "Verify medicine authenticity using AI",
+    upload: "Upload Tablet Image",
+    click: "Click to upload",
+    inputLabel: "Tablet Name",
+    placeholder: "e.g. Paracetamol",
+    language: "Select Language",
+    verify: "Verify Tablet",
+    verified: "Verified Authentic",
+    info: "Medication Info",
+    dosage: "Dosage",
     precautions: "Precautions",
-    sideEffects: "Possible Side Effects",
-    type: "Type",
-    strength: "Strength",
-    searchPlaceholder: "Search medicines...",
-    noResults: "No medicine found. Try another name.",
-    errorMessage: "Please enter a medicine name to verify"
+    sideEffects: "Side Effects",
   },
   hi: {
-    tabletVerification: "टैबलेट सत्यापन",
-    uploadImage: "तत्काल एआई सत्यापन के लिए एक छवि अपलोड करें या टैबलेट विवरण दर्ज करें",
-    tabletImage: "टैबलेट छवि",
-    clickToUpload: "अपलोड करने के लिए क्लिक करें",
-    fileRequirements: "PNG, JPG 10MB तक",
-    tabletImprintName: "टैबलेट इम्प्रिंट/नाम",
-    placeholder: "जैसे, पैरासिटामोल, इबुप्रोफेन, एमोक्सिसिलिन",
-    selectLanguage: "भाषा चुनें",
-    verifyTablet: "टैबलेट सत्यापित करें",
-    verifiedAuthentic: "प्रमाणित प्रामाणिक",
-    verificationSuccess: "इस टैबलेट को सफलतापूर्वक सत्यापित किया गया है",
-    medicationInfo: "दवा की जानकारी",
-    name: "नाम",
-    treats: "इलाज करता है",
-    manufacturer: "निर्माता",
-    dosageInformation: "खुराक की जानकारी",
+    title: "टैबलेट सत्यापन",
+    subtitle: "एआई द्वारा दवा की प्रामाणिकता जांचें",
+    upload: "टैबलेट चित्र अपलोड करें",
+    click: "अपलोड करने के लिए क्लिक करें",
+    inputLabel: "टैबलेट नाम",
+    placeholder: "जैसे पैरासिटामोल",
+    language: "भाषा चुनें",
+    verify: "सत्यापित करें",
+    verified: "सत्यापित प्रामाणिक",
+    info: "दवा जानकारी",
+    dosage: "खुराक",
     precautions: "सावधानियां",
-    sideEffects: "संभावित दुष्प्रभाव",
-    type: "प्रकार",
-    strength: "शक्ति",
-    searchPlaceholder: "दवाइयां खोजें...",
-    noResults: "कोई दवा नहीं मिली। कोई अन्य नाम आज़माएं।",
-    errorMessage: "सत्यापित करने के लिए कृपया एक दवा का नाम दर्ज करें"
+    sideEffects: "दुष्प्रभाव",
   },
-  es: {
+   es: {
     tabletVerification: "Verificación de Tabletas",
     uploadImage: "Suba una imagen o ingrese detalles de la tableta para verificación instantánea con IA",
     tabletImage: "Imagen de la Tableta",
@@ -175,493 +172,182 @@ const TRANSLATIONS = {
 };
 
 export default function TabletChecker() {
-  const [activeTab, setActiveTab] = useState("Tablet Checker");
-  const [tabletName, setTabletName] = useState("");
-  const [selectedLanguage, setSelectedLanguage] = useState(LANGUAGES[0]);
-  const [verified, setVerified] = useState(false);
-  const [foundMedicine, setFoundMedicine] = useState<any>(null);
-  const [searchResults, setSearchResults] = useState<any[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
-  const [darkMode, setDarkMode] = useState(false);
+  const { theme, setTheme } = useTheme();
+  const isDark = theme === "dark";
 
-  // Get translations for current language
-  const t = TRANSLATIONS[selectedLanguage.code as keyof typeof TRANSLATIONS] || TRANSLATIONS.en;
+  const [tabletName, setTabletName] = useState("");
+  const [found, setFound] = useState<any>(null);
+  const [verified, setVerified] = useState(false);
+  const [image, setImage] = useState<string | null>(null);
+  const [lang, setLang] = useState(LANGUAGES[0]);
+
+  const t = TRANSLATIONS[lang.code];
 
   const speak = (text: string) => {
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = selectedLanguage.voice;
-    utterance.rate = 0.9;
-    speechSynthesis.speak(utterance);
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = lang.voice;
+    speechSynthesis.speak(u);
   };
 
-  const handleVerify = () => {
-    if (!tabletName.trim()) {
-      alert(t.errorMessage);
-      return;
-    }
-
-    const searchTerm = tabletName.toLowerCase();
-    const found = MEDICINE_DB.find(med => 
-      med.name.toLowerCase().includes(searchTerm) || 
-      med.name.toLowerCase() === searchTerm
+  const verifyTablet = () => {
+    const res = MEDICINE_DB.find(
+      (m) => m.name.toLowerCase() === tabletName.toLowerCase()
     );
-
-    if (found) {
-      setFoundMedicine(found);
+    if (res) {
+      setFound(res);
       setVerified(true);
-      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     } else {
-      alert(t.noResults);
+      alert("Medicine not found");
       setVerified(false);
-      setFoundMedicine(null);
     }
   };
 
-  const handleSearch = (value: string) => {
-    setTabletName(value);
-    if (value.length > 1) {
-      const results = MEDICINE_DB.filter(med =>
-        med.name.toLowerCase().includes(value.toLowerCase())
-      ).slice(0, 5);
-      setSearchResults(results);
-      setShowSuggestions(true);
-    } else {
-      setSearchResults([]);
-      setShowSuggestions(false);
-    }
-  };
-
-  const handleSelectMedicine = (medicine: any) => {
-    setTabletName(medicine.name);
-    setFoundMedicine(medicine);
-    setSearchResults([]);
-    setShowSuggestions(false);
-  };
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setUploadedImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
+  const uploadImage = (e: any) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setImage(reader.result as string);
+    reader.readAsDataURL(file);
   };
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'bg-gray-900 text-gray-100' : 'bg-gradient-to-b from-gray-50 to-gray-100 text-gray-900'}`}>
-      {/* Navigation Bar */}
-      <nav className={`shadow-sm border-b transition-colors duration-300 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-8">
-              <button
-                onClick={() => setActiveTab("Home")}
-                className={`text-sm font-medium transition-colors duration-300 ${activeTab === "Home" ? (darkMode ? 'text-cyan-400' : 'text-cyan-600') : (darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-900')}`}
-              >
-                Home
-              </button>
-              <button
-                onClick={() => setActiveTab("Tablet Checker")}
-                className={`flex items-center space-x-2 text-sm font-medium transition-colors duration-300 ${activeTab === "Tablet Checker" ? (darkMode ? 'text-cyan-400' : 'text-cyan-600') : (darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-900')}`}
-              >
-                <CheckCircle size={16} />
-                <span>Tablet Checker</span>
-              </button>
-              <button
-                onClick={() => setActiveTab("Us")}
-                className={`text-sm font-medium transition-colors duration-300 ${activeTab === "Us" ? (darkMode ? 'text-cyan-400' : 'text-cyan-600') : (darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-900')}`}
-              >
-                Us
-              </button>
-            </div>
+    <div className="min-h-screen bg-gray-50 text-gray-900 transition-colors
+      dark:bg-gray-900 dark:text-gray-100">
 
-            <div className="flex items-center space-x-4">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder={t.searchPlaceholder}
-                  className={`w-64 pl-10 pr-4 py-2 rounded-lg border text-sm placeholder:text-gray-500 focus:outline-none transition-colors duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder:text-gray-400 focus:border-cyan-500' : 'bg-gray-100 border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-cyan-500'}`}
-                  onChange={(e) => handleSearch(e.target.value)}
-                />
-                <Search className={`absolute left-3 top-2.5 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} size={16} />
-              </div>
-              
-              <button
-                onClick={() => setDarkMode(!darkMode)}
-                className={`p-2 rounded-lg transition-colors duration-300 ${darkMode ? 'bg-gray-700 hover:bg-gray-600 text-yellow-300' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}
-              >
-                {darkMode ? <Sun size={20} /> : <Moon size={20} />}
-              </button>
-            </div>
+      {/* HEADER */}
+      <div className="flex justify-between items-center px-6 py-4 border-b
+        border-gray-200 dark:border-gray-800">
+
+        <h1 className="text-2xl font-bold holographic-text-static">
+          {t.title}
+        </h1>
+
+        <button
+          onClick={() => setTheme(isDark ? "light" : "dark")}
+          className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200
+            dark:bg-gray-700 dark:hover:bg-gray-600">
+          {isDark ? <Sun /> : <Moon />}
+        </button>
+      </div>
+
+      {/* CONTENT */}
+      <div className="max-w-5xl mx-auto px-6 py-8 space-y-8">
+
+        <p className="text-center text-gray-600 dark:text-gray-400">
+          {t.subtitle}
+        </p>
+
+        {/* INPUT CARD */}
+        <div className="grid md:grid-cols-2 gap-6 bg-white dark:bg-gray-800
+          rounded-2xl p-6 shadow-lg">
+
+          {/* IMAGE UPLOAD */}
+          <label className="border-2 border-dashed rounded-xl p-6 text-center
+            cursor-pointer border-gray-300 dark:border-gray-600">
+            <input type="file" hidden onChange={uploadImage} />
+            {image ? (
+              <img src={image} className="mx-auto h-40 rounded-lg" />
+            ) : (
+              <>
+                <Upload className="mx-auto mb-2" />
+                <p>{t.click}</p>
+              </>
+            )}
+          </label>
+
+          {/* INPUTS */}
+          <div className="space-y-4">
+            <label className="block font-medium">{t.inputLabel}</label>
+            <input
+              value={tabletName}
+              onChange={(e) => setTabletName(e.target.value)}
+              placeholder={t.placeholder}
+              className="w-full px-4 py-2 rounded-lg border
+                bg-gray-50 dark:bg-gray-700
+                border-gray-300 dark:border-gray-600"
+            />
+
+            <label className="block font-medium">{t.language}</label>
+            <select
+              value={lang.code}
+              onChange={(e) =>
+                setLang(LANGUAGES.find(l => l.code === e.target.value)!)
+              }
+              className="w-full px-4 py-2 rounded-lg border
+                bg-gray-50 dark:bg-gray-700
+                border-gray-300 dark:border-gray-600">
+              {LANGUAGES.map(l => (
+                <option key={l.code} value={l.code}>{l.name}</option>
+              ))}
+            </select>
+
+            <button
+              onClick={verifyTablet}
+              className="w-full py-3 rounded-lg text-white
+                holographic-button-static">
+              {t.verify}
+            </button>
           </div>
         </div>
-      </nav>
 
-      {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-6 py-8">
-        {/* Header with Static Holographic Text */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-3">
-            <span className="holographic-text-static">
-              {t.tabletVerification}
-            </span>
-          </h1>
-          <p className={`transition-colors duration-300 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-            {t.uploadImage}
-          </p>
-        </div>
+        {/* RESULT */}
+        {verified && found && (
+          <div className="space-y-6">
 
-        {/* Input Section */}
-        <div className={`rounded-2xl shadow-lg p-8 mb-8 transition-colors duration-300 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Upload Section */}
-            <div>
-              <h3 className={`font-medium mb-4 transition-colors duration-300 ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
-                {t.tabletImage}
-              </h3>
-              <label className={`block border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-300 ${darkMode ? 'border-gray-600 hover:border-cyan-500 bg-gray-700' : 'border-gray-300 hover:border-cyan-500 bg-gray-50'}`}>
-                <input
-                  type="file"
-                  accept="image/png,image/jpeg"
-                  className="hidden"
-                  onChange={handleImageUpload}
-                />
-                {uploadedImage ? (
-                  <div className="relative">
-                    <img
-                      src={uploadedImage}
-                      alt="Uploaded tablet"
-                      className="mx-auto max-h-48 rounded-lg"
-                    />
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setUploadedImage(null);
-                      }}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
-                    >
-                      <span className="text-xs">×</span>
-                    </button>
-                  </div>
-                ) : (
-                  <>
-                    <div className="mb-5">
-                      <Upload className={`mx-auto ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} size={40} />
-                    </div>
-                    <div className={`font-medium mb-1 transition-colors duration-300 ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
-                      {t.clickToUpload}
-                    </div>
-                    <div className={`text-sm transition-colors duration-300 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                      {t.fileRequirements}
-                    </div>
-                  </>
-                )}
-              </label>
-            </div>
-
-            {/* Input Fields */}
-            <div className="space-y-6">
-              {/* Tablet Name Input with Suggestions */}
-              <div className="relative">
-                <label className={`font-medium block mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
-                  {t.tabletImprintName}
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={tabletName}
-                    onChange={(e) => handleSearch(e.target.value)}
-                    placeholder={t.placeholder}
-                    className={`w-full px-4 py-3 border rounded-lg focus:outline-none transition-colors duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-gray-100 focus:border-cyan-500' : 'bg-white border-gray-300 text-gray-900 focus:border-cyan-500'}`}
-                  />
-                  {showSuggestions && searchResults.length > 0 && (
-                    <div className={`absolute z-10 w-full mt-1 border rounded-lg shadow-lg max-h-60 overflow-y-auto transition-colors duration-300 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'}`}>
-                      {searchResults.map((medicine) => (
-                        <div
-                          key={medicine.id}
-                          onClick={() => handleSelectMedicine(medicine)}
-                          className={`px-4 py-3 cursor-pointer border-b last:border-b-0 transition-colors duration-300 ${darkMode ? 'hover:bg-gray-700 border-gray-700' : 'hover:bg-blue-50 border-gray-100'}`}
-                        >
-                          <div className={`font-medium ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
-                            {medicine.name} {medicine.strength}
-                          </div>
-                          <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                            {medicine.type} • {medicine.manufacturer}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Language Selection */}
+            <div className="flex items-center space-x-4 p-6 rounded-2xl
+              bg-gradient-to-r from-cyan-500/20 to-emerald-500/20">
+              <CheckCircle className="text-cyan-500" size={36} />
               <div>
-                <label className={`font-medium block mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
-                  {t.selectLanguage}
-                </label>
-                <select
-                  value={selectedLanguage.code}
-                  onChange={(e) => {
-                    const lang = LANGUAGES.find(l => l.code === e.target.value);
-                    if (lang) setSelectedLanguage(lang);
-                  }}
-                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none transition-colors duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-gray-100 focus:border-cyan-500' : 'bg-white border-gray-300 text-gray-900 focus:border-cyan-500'}`}
-                >
-                  {LANGUAGES.map((lang) => (
-                    <option key={lang.code} value={lang.code}>
-                      {lang.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Divider */}
-              <div className={`border-t my-4 transition-colors duration-300 ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}></div>
-
-              {/* Verify Button with Static Holographic Effect */}
-              <button
-                onClick={handleVerify}
-                className="w-full py-3.5 rounded-lg text-white font-medium hover:shadow-lg transition-all duration-300 holographic-button-static"
-              >
-                <span className="relative z-10 flex items-center justify-center">
-                  {t.verifyTablet}
-                  <div className="ml-2 w-4 h-4 bg-white/30 rounded-full"></div>
-                </span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Verification Result */}
-        {verified && foundMedicine && (
-          <div className="space-y-8">
-            {/* Verified Banner with Static Holographic Effect */}
-            <div className={`rounded-2xl p-6 shadow-lg border-2 transition-colors duration-300 ${darkMode ? 'border-cyan-500/30' : 'border-cyan-500/20'}`} style={{
-              background: darkMode 
-                ? 'linear-gradient(135deg, #1e3a8a 0%, #0f766e 50%, #1e3a8a 100%)' 
-                : 'linear-gradient(135deg, #dbeafe 0%, #d1fae5 50%, #dbeafe 100%)'
-            }}>
-              <div className="flex items-center space-x-4">
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center shadow-md ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
-                  <div className="relative">
-                    <div className="w-8 h-8 rounded-full border-2 border-cyan-400 flex items-center justify-center">
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="3"
-                        viewBox="0 0 24 24"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                    </div>
-                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-cyan-400 rounded-full border-2 border-white"></div>
-                  </div>
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold mb-1 holographic-text-static">
-                    {t.verifiedAuthentic}
-                  </h2>
-                  <p className={`transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                    {t.verificationSuccess}
-                  </p>
-                </div>
+                <h2 className="text-xl font-bold">{t.verified}</h2>
+                <p>{found.name} {found.strength}</p>
               </div>
             </div>
 
-            {/* Info Grid */}
-            <div className="grid md:grid-cols-2 gap-8">
-              {/* Medication Info Card */}
-              <div className={`rounded-2xl shadow-lg p-6 transition-colors duration-300 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
-                <div className="flex justify-between items-start mb-6">
-                  <h3 className={`text-xl font-bold transition-colors duration-300 ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
-                    {t.medicationInfo}
-                  </h3>
-                  <button
-                    onClick={() => speak(`${t.medicationInfo}. ${t.name}: ${foundMedicine.name}. ${t.treats}: ${foundMedicine.treats}. ${t.manufacturer}: ${foundMedicine.manufacturer}`)}
-                    className={`p-2 rounded-full transition-colors duration-300 ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
-                  >
-                    <Volume2 className={darkMode ? 'text-gray-400' : 'text-gray-600'} size={20} />
-                  </button>
-                </div>
-                <div className="space-y-4">
-                  <div>
-                    <div className={`text-sm mb-1 transition-colors duration-300 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                      {t.name}
-                    </div>
-                    <div className="text-lg font-medium holographic-medicine-name">
-                      {foundMedicine.name} {foundMedicine.strength}
-                    </div>
-                  </div>
-                  <div>
-                    <div className={`text-sm mb-1 transition-colors duration-300 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                      {t.treats}
-                    </div>
-                    <div className={`transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-900'}`}>
-                      {foundMedicine.treats}
-                    </div>
-                  </div>
-                  <div>
-                    <div className={`text-sm mb-1 transition-colors duration-300 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                      {t.manufacturer}
-                    </div>
-                    <div className={`transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-900'}`}>
-                      {foundMedicine.manufacturer}
-                    </div>
-                  </div>
-                  <div>
-                    <div className={`text-sm mb-1 transition-colors duration-300 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                      {t.type}
-                    </div>
-                    <div className={`transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-900'}`}>
-                      {foundMedicine.type}
-                    </div>
-                  </div>
-                </div>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="bg-white dark:bg-gray-800 rounded-xl p-6">
+                <h3 className="font-bold mb-2">{t.info}</h3>
+                <p>{found.treats}</p>
+                <p className="text-sm text-gray-500">{found.manufacturer}</p>
               </div>
 
-              {/* Dosage Information Card */}
-              <div className={`rounded-2xl shadow-lg p-6 transition-colors duration-300 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
-                <div className="flex justify-between items-start mb-6">
-                  <h3 className={`text-xl font-bold transition-colors duration-300 ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
-                    {t.dosageInformation}
-                  </h3>
-                  <button
-                    onClick={() => speak(`${t.dosageInformation}. ${foundMedicine.dosage}`)}
-                    className={`p-2 rounded-full transition-colors duration-300 ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
-                  >
-                    <Volume2 className={darkMode ? 'text-gray-400' : 'text-gray-600'} size={20} />
-                  </button>
-                </div>
-                <p className={`leading-relaxed transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-900'}`}>
-                  {foundMedicine.dosage}
-                </p>
-                <div className={`mt-4 p-4 rounded-lg border transition-colors duration-300 ${darkMode ? 'border-cyan-500/30 bg-cyan-900/20' : 'border-cyan-500/20 bg-cyan-50/50'}`}>
-                  <div className="flex items-start space-x-3">
-                    <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 holographic-icon">
-                      <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                    <div>
-                      <div className={`font-medium transition-colors duration-300 ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
-                        Important Note
-                      </div>
-                      <div className={`text-sm transition-colors duration-300 ${darkMode ? 'text-gray-400' : 'text-gray-700'}`}>
-                        Follow dosage instructions carefully. Do not exceed recommended dose.
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              <div className="bg-white dark:bg-gray-800 rounded-xl p-6">
+                <h3 className="font-bold mb-2">{t.dosage}</h3>
+                <p>{found.dosage}</p>
+                <button
+                  onClick={() => speak(found.dosage)}
+                  className="mt-3 flex items-center gap-2 text-cyan-500">
+                  <Volume2 size={18} /> Speak
+                </button>
               </div>
             </div>
 
-            {/* Precautions Card */}
-            <div className={`rounded-2xl shadow-lg p-6 transition-colors duration-300 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
-              <h3 className={`text-xl font-bold mb-6 transition-colors duration-300 ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
-                {t.precautions}
-              </h3>
-              <div className="space-y-3">
-                {foundMedicine.precautions.map((precaution: string, index: number) => (
-                  <div key={index} className="flex items-start space-x-4">
-                    <div className="w-2.5 h-2.5 rounded-full mt-2 flex-shrink-0 holographic-dot"></div>
-                    <span className={`transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-900'}`}>
-                      {precaution}
-                    </span>
-                  </div>
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6">
+              <h3 className="font-bold mb-2">{t.precautions}</h3>
+              <ul className="list-disc ml-5">
+                {found.precautions.map((p: string, i: number) => (
+                  <li key={i}>{p}</li>
                 ))}
-              </div>
+              </ul>
             </div>
 
-            {/* Side Effects Card */}
-            <div className={`rounded-2xl shadow-lg p-6 transition-colors duration-300 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
-              <h3 className={`text-xl font-bold mb-4 transition-colors duration-300 ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
-                {t.sideEffects}
-              </h3>
-              <p className={`transition-colors duration-300 ${darkMode ? 'text-gray-300' : 'text-gray-900'}`}>
-                {foundMedicine.sideEffects}
-              </p>
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6">
+              <h3 className="font-bold mb-2">{t.sideEffects}</h3>
+              <p>{found.sideEffects}</p>
             </div>
           </div>
         )}
       </div>
 
-      {/* Footer */}
-      <div className={`mt-12 py-6 border-t transition-colors duration-300 ${darkMode ? 'border-gray-800' : 'border-gray-200'}`}>
-        <div className="max-w-6xl mx-auto px-6">
-          <p className={`text-center text-sm transition-colors duration-300 ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-            Tablet Verification System • Database includes 30+ medications
-          </p>
-        </div>
-      </div>
-
-      {/* CSS Styles */}
-      <style jsx>{`
+      {/* STYLES */}
+      <style>{`
         .holographic-text-static {
-          background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 25%, #10b981 50%, #06b6d4 75%, #0ea5e9 100%);
+          background: linear-gradient(135deg,#0ea5e9,#10b981);
           -webkit-background-clip: text;
-          background-clip: text;
           color: transparent;
-          text-shadow: 0 2px 4px rgba(14, 165, 233, 0.3);
         }
-        
         .holographic-button-static {
-          background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 33%, #10b981 66%, #0ea5e9 100%);
-          background-size: 200% 200%;
-          border: none;
-          box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
-        }
-        
-        .holographic-button-static:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4);
-        }
-        
-        .holographic-medicine-name {
-          background: linear-gradient(135deg, #0ea5e9 0%, #10b981 100%);
-          -webkit-background-clip: text;
-          background-clip: text;
-          color: transparent;
-        }
-        
-        .holographic-icon {
-          background: linear-gradient(135deg, #0ea5e9 0%, #10b981 100%);
-          box-shadow: 0 2px 4px rgba(14, 165, 233, 0.3);
-        }
-        
-        .holographic-dot {
-          background: linear-gradient(135deg, #0ea5e9 0%, #10b981 100%);
-          box-shadow: 0 1px 3px rgba(14, 165, 233, 0.3);
-        }
-        
-        /* Dark mode specific holographic effects */
-        .dark .holographic-text-static {
-          text-shadow: 0 2px 8px rgba(14, 165, 233, 0.5);
-        }
-        
-        .dark .holographic-button-static {
-          box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4);
-        }
-        
-        .dark .holographic-button-static:hover {
-          box-shadow: 0 6px 20px rgba(14, 165, 233, 0.6);
-        }
-        
-        .dark .holographic-medicine-name {
-          text-shadow: 0 2px 4px rgba(14, 165, 233, 0.4);
-        }
-        
-        .dark .holographic-icon {
-          box-shadow: 0 2px 6px rgba(14, 165, 233, 0.4);
-        }
-        
-        .dark .holographic-dot {
-          box-shadow: 0 1px 4px rgba(14, 165, 233, 0.4);
+          background: linear-gradient(135deg,#0ea5e9,#10b981);
+          box-shadow: 0 4px 15px rgba(14,165,233,.4);
         }
       `}</style>
     </div>
