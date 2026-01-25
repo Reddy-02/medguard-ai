@@ -1,11 +1,19 @@
 import { useEffect, useRef, useState } from "react";
-import * as THREE from "three";
-import { Upload, Volume2 } from "lucide-react";
 
-/* ================= MEDICINE DATABASE (SAMPLE – EXTEND TO 150+) ================= */
+/* -------------------- LANGUAGES -------------------- */
+const LANGUAGES = [
+  "English",
+  "Spanish",
+  "French",
+  "German",
+  "Hindi",
+  "Chinese",
+] as const;
+
+/* -------------------- MEDICINE DATABASE (EXTENDABLE) -------------------- */
 const MED_DB: Record<string, any> = {
   paracetamol: {
-    name: "Paracetamol",
+    name: "Paracetamol 500mg",
     treats: "Fever, Headache, Mild to moderate pain",
     dosage: "500–1000 mg every 4–6 hours (max 4000 mg/day)",
     manufacturer: "Crocin, Dolo 650",
@@ -16,236 +24,178 @@ const MED_DB: Record<string, any> = {
       "Consult doctor if fever persists",
     ],
     sideEffects: "Rare allergic reactions; liver damage in overdose",
+    verified: true,
   },
 };
 
-const LANGS: Record<string, string> = {
-  English: "en-US",
-  Hindi: "hi-IN",
-  Spanish: "es-ES",
-  French: "fr-FR",
-  German: "de-DE",
-  Chinese: "zh-CN",
-};
-
+/* -------------------- COMPONENT -------------------- */
 export default function TabletChecker() {
-  const globeRef = useRef<HTMLDivElement>(null);
-  const [tablet, setTablet] = useState("");
+  const [tabletName, setTabletName] = useState("");
   const [language, setLanguage] = useState("English");
-  const [image, setImage] = useState<string | null>(null);
-  const [data, setData] = useState<any>(null);
-  const [verified, setVerified] = useState<boolean | null>(null);
+  const [result, setResult] = useState<any | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  /* ================= VERIFY ================= */
+  /* -------------------- VERIFY -------------------- */
   const verifyTablet = () => {
-    const med = MED_DB[tablet.toLowerCase()];
-    if (med) {
-      setData(med);
-      setVerified(true);
-    } else {
-      setData(null);
-      setVerified(false);
-    }
+    const key = tabletName.toLowerCase().trim();
+    setResult(MED_DB[key] || { verified: false });
   };
 
-  /* ================= SPEAK ================= */
-  const speak = () => {
-    if (!data) return;
-    const text = `
-      ${data.name}.
-      Treats ${data.treats}.
-      Dosage ${data.dosage}.
-    `;
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = LANGS[language];
+  /* -------------------- SPEAK -------------------- */
+  const speak = (text: string) => {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang =
+      language === "Hindi"
+        ? "hi-IN"
+        : language === "Chinese"
+        ? "zh-CN"
+        : "en-US";
     speechSynthesis.cancel();
-    speechSynthesis.speak(u);
+    speechSynthesis.speak(utterance);
   };
-
-  /* ================= 3D VERIFIED GLOBE ================= */
-  useEffect(() => {
-    if (!globeRef.current || verified === null) return;
-    globeRef.current.innerHTML = "";
-
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
-    camera.position.z = 4;
-
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    renderer.setSize(340, 340);
-    globeRef.current.appendChild(renderer.domElement);
-
-    const mainColor = verified ? 0x6ee7b7 : 0xf87171;
-
-    /* Outer dense wireframe globe */
-    const globe = new THREE.Mesh(
-      new THREE.IcosahedronGeometry(1.6, 4),
-      new THREE.MeshBasicMaterial({
-        color: mainColor,
-        wireframe: true,
-        transparent: true,
-        opacity: 0.35,
-      })
-    );
-    scene.add(globe);
-
-    /* Inner ring */
-    const ring = new THREE.Mesh(
-      new THREE.RingGeometry(0.9, 1, 64),
-      new THREE.MeshBasicMaterial({
-        color: mainColor,
-        transparent: true,
-        opacity: 0.9,
-      })
-    );
-    ring.rotation.x = Math.PI / 2;
-    scene.add(ring);
-
-    /* TEXT INSIDE */
-    const canvas = document.createElement("canvas");
-    canvas.width = 512;
-    canvas.height = 256;
-    const ctx = canvas.getContext("2d")!;
-    ctx.fillStyle = verified ? "#6ee7b7" : "#f87171";
-    ctx.font = "bold 42px Inter";
-    ctx.textAlign = "center";
-    ctx.fillText(verified ? "VERIFIED" : "UNVERIFIED", 256, 140);
-
-    const textTexture = new THREE.CanvasTexture(canvas);
-    const textMesh = new THREE.Mesh(
-      new THREE.PlaneGeometry(2, 1),
-      new THREE.MeshBasicMaterial({ map: textTexture, transparent: true })
-    );
-    scene.add(textMesh);
-
-    const animate = () => {
-      requestAnimationFrame(animate);
-      globe.rotation.y += 0.0018;
-      globe.rotation.x += 0.0012;
-      ring.rotation.z += 0.002;
-      renderer.render(scene, camera);
-    };
-    animate();
-
-    return () => renderer.dispose();
-  }, [verified]);
 
   return (
-    <div className="pt-24 pb-16">
+    <div className="min-h-screen bg-gradient-to-b from-white to-slate-50 pt-24 pb-20">
 
-      {/* ================= INPUT CARD ================= */}
-      <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl p-8 grid md:grid-cols-2 gap-6">
+      {/* -------------------- FORM CARD -------------------- */}
+      <div className="mx-auto max-w-5xl bg-white rounded-2xl shadow-xl p-8">
+        <div className="grid md:grid-cols-2 gap-8">
 
-        {/* Upload */}
-        <label className="border-2 border-dashed rounded-xl h-44 flex items-center justify-center cursor-pointer">
-          {image ? (
-            <img src={image} className="h-full object-contain" />
-          ) : (
-            <div className="text-center">
-              <Upload className="mx-auto mb-2" />
-              <p>Click to upload</p>
-              <p className="text-xs text-gray-400">PNG, JPG up to 10MB</p>
+          {/* Upload */}
+          <label className="border-2 border-dashed rounded-xl p-8 text-center cursor-pointer hover:bg-slate-50">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/png,image/jpeg"
+              className="hidden"
+            />
+            <div className="text-lg font-medium">Upload Tablet Image</div>
+            <div className="text-sm text-gray-500 mt-2">
+              Click to upload (PNG / JPG up to 10MB)
             </div>
-          )}
-          <input
-            type="file"
-            accept="image/png,image/jpeg"
-            className="hidden"
-            onChange={(e) =>
-              e.target.files &&
-              setImage(URL.createObjectURL(e.target.files[0]))
-            }
-          />
-        </label>
+          </label>
 
-        {/* Inputs */}
-        <div className="flex flex-col gap-4">
-          <input
-            className="border rounded-xl px-4 py-3"
-            placeholder="e.g. IBU 200 or Ibuprofen"
-            value={tablet}
-            onChange={(e) => setTablet(e.target.value)}
-          />
+          {/* Inputs */}
+          <div className="space-y-4">
+            <div>
+              <label className="font-medium">Tablet Imprint / Name</label>
+              <input
+                value={tabletName}
+                onChange={(e) => setTabletName(e.target.value)}
+                placeholder="e.g., Paracetamol"
+                className="w-full mt-1 rounded-lg border px-4 py-2"
+              />
+            </div>
 
-          <select
-            className="border rounded-xl px-4 py-3"
-            value={language}
-            onChange={(e) => setLanguage(e.target.value)}
-          >
-            {Object.keys(LANGS).map((l) => (
-              <option key={l}>{l}</option>
-            ))}
-          </select>
+            <div>
+              <label className="font-medium">Select Language</label>
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                className="w-full mt-1 rounded-lg border px-4 py-2"
+              >
+                {LANGUAGES.map((l) => (
+                  <option key={l}>{l}</option>
+                ))}
+              </select>
+            </div>
 
-          <button
-            onClick={verifyTablet}
-            className="rounded-xl py-4 text-white bg-gradient-to-r from-blue-600 to-emerald-400"
-          >
-            Verify Tablet
-          </button>
+            <button
+              onClick={verifyTablet}
+              className="w-full py-3 rounded-xl text-white font-semibold bg-gradient-to-r from-blue-600 to-green-400"
+            >
+              Verify Tablet
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* ================= VERIFIED CARD ================= */}
-      {verified !== null && (
+      {/* -------------------- VERIFIED BANNER -------------------- */}
+      {result && (
         <div
-          className={`max-w-5xl mx-auto mt-10 p-6 rounded-2xl border shadow-xl
-          ${verified ? "bg-emerald-50 border-emerald-400" : "bg-red-50 border-red-400"}`}
+          className={`mx-auto max-w-5xl mt-8 p-6 rounded-xl shadow-lg ${
+            result.verified
+              ? "bg-green-50 border border-green-400 shadow-green-200"
+              : "bg-red-50 border border-red-400 shadow-red-200"
+          }`}
         >
-          <h3 className="font-semibold text-lg">
-            {verified ? "Verified Authentic" : "Not Verified"}
+          <h3 className="font-bold text-black">
+            {result.verified ? "Verified Authentic" : "Not Verified"}
           </h3>
-          <p className="text-slate-500">
-            {verified
+          <p className="text-gray-600">
+            {result.verified
               ? "This tablet has been successfully verified"
-              : "This tablet is not found in our database"}
+              : "This tablet could not be verified"}
           </p>
         </div>
       )}
 
-      {/* ================= 3D GLOBE ================= */}
-      {verified !== null && (
-        <div className="max-w-5xl mx-auto mt-8 bg-white rounded-2xl shadow-xl p-10 flex justify-center">
-          <div ref={globeRef} />
+      {/* -------------------- 3D GRID GLOBE (STATIC LIKE IMAGE) -------------------- */}
+      {result && (
+        <div className="mx-auto max-w-5xl bg-white mt-6 rounded-xl shadow-xl p-10 flex justify-center">
+          <div className="relative w-80 h-80 rounded-full border-8 border-green-300 opacity-80"
+               style={{
+                 backgroundImage:
+                   "radial-gradient(circle, rgba(0,255,170,0.15) 1px, transparent 1px)",
+                 backgroundSize: "12px 12px",
+               }}>
+            <div className="absolute inset-0 flex items-center justify-center text-green-400 font-semibold tracking-widest">
+              {result.verified ? "VERIFIED" : "UNVERIFIED"}
+            </div>
+          </div>
         </div>
       )}
 
-      {/* ================= DETAILS ================= */}
-      {data && (
-        <>
-          <div className="max-w-5xl mx-auto mt-8 grid md:grid-cols-2 gap-6">
-            <div className="bg-white p-6 rounded-xl shadow">
-              <h3 className="font-semibold flex items-center gap-2">
-                Medication Info
-                <button onClick={speak}>
-                  <Volume2 className="text-emerald-500" />
-                </button>
-              </h3>
-              <p><b>Name:</b> {data.name}</p>
-              <p><b>Treats:</b> {data.treats}</p>
-              <p><b>Manufacturer:</b> {data.manufacturer}</p>
+      {/* -------------------- INFO CARDS -------------------- */}
+      {result?.verified && (
+        <div className="mx-auto max-w-5xl mt-8 grid md:grid-cols-2 gap-6">
+
+          {/* Medication Info */}
+          <div className="bg-white rounded-xl shadow p-6">
+            <div className="flex justify-between items-center">
+              <h3 className="font-bold text-black">Medication Info</h3>
+              <button onClick={() =>
+                speak(
+                  `${result.name}. Treats ${result.treats}. Manufactured by ${result.manufacturer}`
+                )
+              }>
+                🔊
+              </button>
             </div>
-
-            <div className="bg-white p-6 rounded-xl shadow">
-              <h3 className="font-semibold">Dosage Information</h3>
-              <p>{data.dosage}</p>
-            </div>
+            <p><b>Name:</b> {result.name}</p>
+            <p><b>Treats:</b> {result.treats}</p>
+            <p><b>Manufacturer:</b> {result.manufacturer}</p>
           </div>
 
-          <div className="max-w-5xl mx-auto mt-6 bg-white p-6 rounded-xl shadow">
-            <h3 className="font-semibold">Precautions</h3>
-            <ul className="list-disc pl-6">
-              {data.precautions.map((p: string) => (
-                <li key={p}>{p}</li>
-              ))}
-            </ul>
+          {/* Dosage */}
+          <div className="bg-white rounded-xl shadow p-6">
+            <h3 className="font-bold text-black mb-2">Dosage Information</h3>
+            <p>{result.dosage}</p>
           </div>
+        </div>
+      )}
 
-          <div className="max-w-5xl mx-auto mt-6 bg-white p-6 rounded-xl shadow">
-            <h3 className="font-semibold">Possible Side Effects</h3>
-            <p>{data.sideEffects}</p>
-          </div>
-        </>
+      {/* Precautions */}
+      {result?.verified && (
+        <div className="mx-auto max-w-5xl mt-6 bg-white rounded-xl shadow p-6">
+          <h3 className="font-bold text-black mb-3">Precautions</h3>
+          <ul className="space-y-2">
+            {result.precautions.map((p: string, i: number) => (
+              <li key={i} className="flex items-start gap-2">
+                <span className="w-2 h-2 mt-2 rounded-full bg-green-400"></span>
+                <span>{p}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Side Effects */}
+      {result?.verified && (
+        <div className="mx-auto max-w-5xl mt-6 bg-white rounded-xl shadow p-6">
+          <h3 className="font-bold text-black mb-2">Possible Side Effects</h3>
+          <p>{result.sideEffects}</p>
+        </div>
       )}
     </div>
   );
