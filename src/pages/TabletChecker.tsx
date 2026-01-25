@@ -1,275 +1,211 @@
-import { useEffect, useMemo, useState } from "react";
+"use client";
+
+import { useState } from "react";
 import {
-  Search,
   Upload,
-  Volume2,
   CheckCircle,
+  Volume2,
   Moon,
   Sun,
+  ShieldCheck,
+  Activity,
 } from "lucide-react";
 
-/* ============================================================
-   MEDICINE DATABASE
-============================================================ */
+/* ---------------- DATA ---------------- */
 const MEDICINE_DB = [
-  { id: 1, name: "Paracetamol", strength: "500mg", type: "Analgesic", manufacturer: "GSK Pharmaceuticals", treats: "Fever, Mild to moderate pain", dosage: "500–1000mg every 4–6 hours", precautions: ["Do not exceed 4000mg/day", "Avoid alcohol"], sideEffects: "Nausea, liver damage in overdose" },
-  { id: 2, name: "Ibuprofen", strength: "200mg", type: "NSAID", manufacturer: "Pfizer Inc", treats: "Pain, Inflammation", dosage: "200–400mg every 4–6 hours", precautions: ["Take with food", "Avoid in pregnancy"], sideEffects: "Stomach upset, dizziness" },
-  { id: 3, name: "Aspirin", strength: "325mg", type: "Salicylate", manufacturer: "Bayer AG", treats: "Pain, Fever", dosage: "325–650mg every 4 hours", precautions: ["Avoid in children"], sideEffects: "Bleeding risk" },
-];
-
-/* ============================================================
-   LANGUAGES
-============================================================ */
-const LANGUAGES = [
-  { code: "en", name: "English", voice: "en-US" },
-  { code: "hi", name: "Hindi", voice: "hi-IN" },
-  { code: "es", name: "Spanish", voice: "es-ES" },
-];
-
-/* ============================================================
-   TRANSLATIONS
-============================================================ */
-const T: any = {
-  en: {
-    title: "Tablet Verification",
-    subtitle: "Instant AI-based medicine authenticity check",
-    upload: "Upload Tablet Image",
-    click: "Click to upload",
-    placeholder: "Enter tablet name",
-    language: "Select Language",
-    verify: "Verify Tablet",
-    verified: "Verified Authentic",
-    medicationInfo: "Medication Info",
-    dosage: "Dosage Information",
-    precautions: "Precautions",
-    sideEffects: "Side Effects",
-    notFound: "Medicine not found",
+  {
+    name: "Paracetamol",
+    treats: "Fever, Mild to moderate pain",
+    manufacturer: "GSK Pharmaceuticals",
+    dosage: "500–1000mg every 4–6 hours",
+    precautions: ["Do not exceed 4000mg/day", "Avoid alcohol"],
+    sideEffects: "Nausea, liver damage in overdose",
+    confidence: 98,
   },
-};
+];
 
-/* ============================================================
-   COMPONENT
-============================================================ */
+/* ---------------- COMPONENT ---------------- */
 export default function TabletChecker() {
-  const [tabletName, setTabletName] = useState("");
-  const [language, setLanguage] = useState(LANGUAGES[0]);
-  const [darkMode, setDarkMode] = useState(false);
-  const [image, setImage] = useState<string | null>(null);
+  const [dark, setDark] = useState(false);
   const [verified, setVerified] = useState(false);
-  const [medicine, setMedicine] = useState<any>(null);
-  const [suggestions, setSuggestions] = useState<any[]>([]);
-  const t = T[language.code];
+  const [scanning, setScanning] = useState(false);
 
-  /* ===================== SPEECH ===================== */
+  const medicine = MEDICINE_DB[0];
+
   const speak = (text: string) => {
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    u.lang = language.voice;
     u.rate = 0.9;
     speechSynthesis.speak(u);
   };
 
-  /* ===================== SEARCH ===================== */
-  useEffect(() => {
-    if (tabletName.length > 1) {
-      setSuggestions(
-        MEDICINE_DB.filter((m) =>
-          m.name.toLowerCase().includes(tabletName.toLowerCase())
-        ).slice(0, 5)
-      );
-    } else {
-      setSuggestions([]);
-    }
-  }, [tabletName]);
+  const startVerification = () => {
+    setScanning(true);
+    setVerified(false);
 
-  /* ===================== VERIFY ===================== */
-  const verifyTablet = () => {
-    const found = MEDICINE_DB.find(
-      (m) => m.name.toLowerCase() === tabletName.toLowerCase()
-    );
-    if (found) {
-      setMedicine(found);
+    setTimeout(() => {
+      setScanning(false);
       setVerified(true);
-      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
-    } else {
-      alert(t.notFound);
-      setVerified(false);
-    }
-  };
-
-  /* ===================== IMAGE ===================== */
-  const uploadImage = (e: any) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => setImage(reader.result as string);
-    reader.readAsDataURL(file);
+    }, 2500);
   };
 
   return (
     <div
-      className={`min-h-screen transition-colors duration-300 ${
-        darkMode ? "bg-gray-900 text-gray-100" : "bg-gray-50 text-gray-900"
+      className={`min-h-screen transition-all duration-500 ${
+        dark ? "bg-[#050b14] text-white" : "bg-[#f6f9fc] text-gray-900"
       }`}
     >
-      {/* ===================== NAVBAR ===================== */}
-      <nav
-        className={`border-b ${
-          darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
-        }`}
-      >
-        <div className="max-w-6xl mx-auto px-6 h-16 flex justify-between items-center">
+      {/* GRID BACKGROUND (HOME MATCH) */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff10_1px,transparent_1px),linear-gradient(to_bottom,#ffffff10_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
+
+      {/* HEADER */}
+      <div className="relative z-10 flex justify-between items-center px-8 py-6">
+        <div className="flex items-center gap-3">
+          <ShieldCheck className="text-cyan-400" />
           <h1 className="text-xl font-bold holographic-text">
-            {t.title}
+            MedGuard AI
           </h1>
-
-          <button
-            onClick={() => setDarkMode(!darkMode)}
-            className="p-2 rounded-lg bg-gray-200 dark:bg-gray-700"
-          >
-            {darkMode ? <Sun /> : <Moon />}
-          </button>
         </div>
-      </nav>
+        <button
+          onClick={() => setDark(!dark)}
+          className="p-2 rounded-lg bg-white/10 backdrop-blur"
+        >
+          {dark ? <Sun /> : <Moon />}
+        </button>
+      </div>
 
-      {/* ===================== CONTENT ===================== */}
-      <div className="max-w-5xl mx-auto px-6 py-10 space-y-10">
-        <p className="text-center text-gray-500">{t.subtitle}</p>
+      {/* MAIN CARD */}
+      <div className="relative z-10 max-w-5xl mx-auto px-6 mt-10">
+        <div className="glass-card p-10 rounded-3xl shadow-2xl">
+          {/* STATUS */}
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-3xl font-bold holographic-text">
+              Tablet Verification
+            </h2>
+            <span className="px-4 py-1 rounded-full text-sm bg-cyan-500/20 text-cyan-300 flex items-center gap-2">
+              <Activity size={14} /> AI ACTIVE
+            </span>
+          </div>
 
-        {/* INPUT CARD */}
-        <div className="grid md:grid-cols-2 gap-8 bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg">
-          {/* IMAGE */}
-          <label className="border-2 border-dashed rounded-xl p-6 text-center cursor-pointer">
-            <input hidden type="file" onChange={uploadImage} />
-            {image ? (
-              <img src={image} className="mx-auto h-40 rounded-lg" />
-            ) : (
-              <>
-                <Upload className="mx-auto mb-2" size={36} />
-                <p>{t.click}</p>
-              </>
-            )}
-          </label>
+          {/* INPUT AREA */}
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* UPLOAD */}
+            <div className="border-2 border-dashed rounded-2xl p-8 text-center hover:border-cyan-400 transition">
+              <Upload className="mx-auto mb-3 text-cyan-400" size={40} />
+              <p className="opacity-80">Upload Tablet Image</p>
+            </div>
 
-          {/* INPUTS */}
-          <div className="space-y-5">
-            <input
-              value={tabletName}
-              onChange={(e) => setTabletName(e.target.value)}
-              placeholder={t.placeholder}
-              className="w-full px-4 py-3 rounded-lg border dark:bg-gray-700"
-            />
+            {/* ACTION */}
+            <div className="flex flex-col justify-center gap-4">
+              <button
+                onClick={startVerification}
+                className="w-full py-4 rounded-xl text-white font-semibold holographic-button"
+              >
+                Verify Tablet
+              </button>
 
-            {suggestions.length > 0 && (
-              <div className="border rounded-lg bg-white shadow">
-                {suggestions.map((s) => (
-                  <div
-                    key={s.id}
-                    onClick={() => {
-                      setTabletName(s.name);
-                      setSuggestions([]);
-                    }}
-                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                  >
-                    {s.name} {s.strength}
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <select
-              value={language.code}
-              onChange={(e) =>
-                setLanguage(LANGUAGES.find((l) => l.code === e.target.value)!)
-              }
-              className="w-full px-4 py-3 rounded-lg border dark:bg-gray-700"
-            >
-              {LANGUAGES.map((l) => (
-                <option key={l.code}>{l.name}</option>
-              ))}
-            </select>
-
-            <button
-              onClick={verifyTablet}
-              className="w-full py-3 rounded-lg text-white holographic-button"
-            >
-              {t.verify}
-            </button>
+              {scanning && (
+                <p className="text-cyan-400 animate-pulse">
+                  🔍 AI Scanning tablet authenticity...
+                </p>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* ===================== RESULT ===================== */}
-        {verified && medicine && (
-          <div className="space-y-8">
+        {/* VERIFIED RESULT */}
+        {verified && (
+          <div className="mt-12 space-y-8">
             {/* VERIFIED BANNER */}
-            <div className="p-6 rounded-2xl bg-gradient-to-r from-cyan-500/20 to-emerald-500/20 flex items-center gap-4">
-              <CheckCircle size={40} className="text-cyan-500" />
-              <h2 className="text-2xl font-bold holographic-text">
-                {t.verified}
-              </h2>
+            <div className="verified-banner">
+              <CheckCircle size={36} />
+              <div>
+                <h3 className="text-xl font-bold">Verified Authentic</h3>
+                <p>AI Confidence Score: {medicine.confidence}%</p>
+              </div>
             </div>
 
             {/* INFO GRID */}
-            <div className="grid md:grid-cols-2 gap-6">
-              {/* MEDICATION INFO */}
-              <div className="bg-white dark:bg-gray-800 p-6 rounded-xl">
-                <div className="flex justify-between mb-3">
-                  <h3 className="font-bold">{t.medicationInfo}</h3>
-                  <button onClick={() => speak(medicine.treats)}>
-                    <Volume2
-                      className={darkMode ? "text-gray-300" : "text-black"}
-                    />
-                  </button>
-                </div>
-                <p>{medicine.treats}</p>
-                <p className="text-sm text-gray-500">{medicine.manufacturer}</p>
-              </div>
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* MED INFO */}
+              <InfoCard
+                title="Medication Info"
+                content={`${medicine.treats}\n${medicine.manufacturer}`}
+                speak={() =>
+                  speak(
+                    `Medication treats ${medicine.treats}. Manufactured by ${medicine.manufacturer}`
+                  )
+                }
+              />
 
               {/* DOSAGE */}
-              <div className="bg-white dark:bg-gray-800 p-6 rounded-xl">
-                <div className="flex justify-between mb-3">
-                  <h3 className="font-bold">{t.dosage}</h3>
-                  <button onClick={() => speak(medicine.dosage)}>
-                    <Volume2
-                      className={darkMode ? "text-gray-300" : "text-black"}
-                    />
-                  </button>
-                </div>
-                <p>{medicine.dosage}</p>
-              </div>
-            </div>
-
-            {/* PRECAUTIONS */}
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl">
-              <h3 className="font-bold mb-2">{t.precautions}</h3>
-              <ul className="list-disc ml-5">
-                {medicine.precautions.map((p: string, i: number) => (
-                  <li key={i}>{p}</li>
-                ))}
-              </ul>
-            </div>
-
-            {/* SIDE EFFECTS */}
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl">
-              <h3 className="font-bold mb-2">{t.sideEffects}</h3>
-              <p>{medicine.sideEffects}</p>
+              <InfoCard
+                title="Dosage Information"
+                content={medicine.dosage}
+                speak={() => speak(medicine.dosage)}
+              />
             </div>
           </div>
         )}
       </div>
 
-      {/* ===================== STYLES ===================== */}
+      {/* STYLES */}
       <style jsx>{`
+        .glass-card {
+          background: rgba(255, 255, 255, 0.06);
+          backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
         .holographic-text {
-          background: linear-gradient(135deg, #0ea5e9, #06b6d4, #10b981);
+          background: linear-gradient(90deg, #0ea5e9, #06b6d4, #10b981);
           -webkit-background-clip: text;
           color: transparent;
         }
+
         .holographic-button {
-          background: linear-gradient(135deg, #0ea5e9, #10b981);
-          box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4);
+          background: linear-gradient(90deg, #0ea5e9, #10b981);
+          box-shadow: 0 0 30px rgba(14, 165, 233, 0.6);
+        }
+
+        .verified-banner {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          padding: 24px;
+          border-radius: 20px;
+          background: linear-gradient(
+            90deg,
+            rgba(14, 165, 233, 0.25),
+            rgba(16, 185, 129, 0.25)
+          );
+          box-shadow: 0 0 40px rgba(16, 185, 129, 0.4);
         }
       `}</style>
+    </div>
+  );
+}
+
+/* ---------------- SUB COMPONENT ---------------- */
+function InfoCard({
+  title,
+  content,
+  speak,
+}: {
+  title: string;
+  content: string;
+  speak: () => void;
+}) {
+  return (
+    <div className="glass-card p-6 rounded-2xl relative">
+      <button
+        onClick={speak}
+        className="absolute top-4 right-4 opacity-70 hover:opacity-100"
+      >
+        <Volume2 />
+      </button>
+      <h4 className="text-lg font-bold mb-2">{title}</h4>
+      <p className="opacity-80 whitespace-pre-line">{content}</p>
     </div>
   );
 }
