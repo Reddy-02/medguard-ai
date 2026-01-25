@@ -1,12 +1,13 @@
-import { useState, useRef } from "react";
-import { Upload, CheckCircle, Volume2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import * as THREE from "three";
+import { Upload, Volume2, CheckCircle, XCircle } from "lucide-react";
 
-/* ---------------- MEDICINE DB (extendable to 150+) ---------------- */
+/* ---------------- MEDICINE DB (SAMPLE – extend to 150+) ---------------- */
 const MED_DB: any = {
   paracetamol: {
     name: "Paracetamol 500mg",
     treats: "Fever, Headache, Mild to moderate pain",
-    dosage: "Adults: 500–1000 mg every 4–6 hours (max 4000 mg/day)",
+    dosage: "500–1000 mg every 4–6 hours (max 4000 mg/day)",
     manufacturer: "Crocin, Dolo 650",
     precautions: [
       "Do not exceed maximum daily dose",
@@ -18,204 +19,179 @@ const MED_DB: any = {
   },
 };
 
-/* ---------------- LANGUAGES ---------------- */
-const LANGUAGES = [
-  "English",
-  "Hindi",
-  "Spanish",
-  "French",
-  "German",
-  "Chinese",
-];
+const LANG_MAP: any = {
+  English: "en-US",
+  Hindi: "hi-IN",
+  Spanish: "es-ES",
+  French: "fr-FR",
+  German: "de-DE",
+  Chinese: "zh-CN",
+};
 
 export default function TabletChecker() {
-  const [tabletName, setTabletName] = useState("");
-  const [language, setLanguage] = useState("English");
-  const [image, setImage] = useState<File | null>(null);
+  const mountRef = useRef<HTMLDivElement>(null);
+  const [tablet, setTablet] = useState("");
+  const [lang, setLang] = useState("English");
   const [verified, setVerified] = useState<any>(null);
-  const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const [status, setStatus] = useState<"verified" | "fake" | null>(null);
 
+  /* ---------------- VERIFY ---------------- */
   const verifyTablet = () => {
-    const res = MED_DB[tabletName.toLowerCase()];
-    setVerified(res || null);
+    const data = MED_DB[tablet.toLowerCase()];
+    if (data) {
+      setVerified(data);
+      setStatus("verified");
+    } else {
+      setVerified(null);
+      setStatus("fake");
+    }
   };
 
   /* ---------------- TEXT TO SPEECH ---------------- */
-  const speakInfo = () => {
+  const speak = () => {
     if (!verified) return;
     const text = `
-      Medication name ${verified.name}.
+      ${verified.name}.
       Treats ${verified.treats}.
-      Dosage information ${verified.dosage}.
+      Dosage ${verified.dosage}.
     `;
     const utter = new SpeechSynthesisUtterance(text);
-    utter.lang =
-      language === "Hindi"
-        ? "hi-IN"
-        : language === "Spanish"
-        ? "es-ES"
-        : language === "French"
-        ? "fr-FR"
-        : language === "German"
-        ? "de-DE"
-        : language === "Chinese"
-        ? "zh-CN"
-        : "en-US";
-
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(utter);
-    speechRef.current = utter;
+    utter.lang = LANG_MAP[lang];
+    speechSynthesis.cancel();
+    speechSynthesis.speak(utter);
   };
 
+  /* ---------------- TRUE 3D GLOBE ---------------- */
+  useEffect(() => {
+    if (!mountRef.current || !status) return;
+
+    mountRef.current.innerHTML = "";
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
+    camera.position.z = 4;
+
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setSize(300, 300);
+    mountRef.current.appendChild(renderer.domElement);
+
+    const color = status === "verified" ? 0x34d399 : 0xef4444;
+
+    const geometry = new THREE.SphereGeometry(1.3, 32, 32);
+    const material = new THREE.MeshBasicMaterial({
+      color,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.6,
+    });
+
+    const sphere = new THREE.Mesh(geometry, material);
+    scene.add(sphere);
+
+    const animate = () => {
+      requestAnimationFrame(animate);
+      sphere.rotation.y += 0.003;
+      sphere.rotation.x += 0.002;
+      renderer.render(scene, camera);
+    };
+
+    animate();
+
+    return () => renderer.dispose();
+  }, [status]);
+
   return (
-    <div className="min-h-screen pt-24 pb-16 bg-gradient-to-b from-white to-slate-100">
+    <div className="pt-24 pb-16">
 
-      {/* ---------------- INPUT CARD ---------------- */}
-      <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl p-8 grid md:grid-cols-2 gap-6">
+      {/* INPUT CARD (UNCHANGED UI) */}
+      <div className="max-w-5xl mx-auto bg-white p-8 rounded-2xl shadow-xl grid md:grid-cols-2 gap-6">
+        <label className="border-dashed border-2 rounded-xl flex flex-col items-center justify-center h-44 cursor-pointer">
+          <Upload />
+          <span>Click to upload</span>
+          <input type="file" className="hidden" />
+        </label>
 
-        {/* Upload */}
-        <div>
-          <p className="font-medium mb-2">Upload Tablet Image</p>
-          <label className="cursor-pointer border-2 border-dashed rounded-xl h-44 flex flex-col items-center justify-center text-slate-400 hover:border-emerald-400 transition">
-            <Upload />
-            <span className="mt-2">Click to upload</span>
-            <span className="text-xs">PNG, JPG up to 10MB</span>
-            <input
-              type="file"
-              accept="image/png,image/jpeg"
-              className="hidden"
-              onChange={(e) => setImage(e.target.files?.[0] || null)}
-            />
-          </label>
-          {image && (
-            <p className="text-sm text-emerald-600 mt-2">{image.name}</p>
-          )}
-        </div>
-
-        {/* Inputs */}
         <div className="flex flex-col gap-4">
-          <div>
-            <p className="font-medium mb-1">Tablet Imprint/Name</p>
-            <input
-              value={tabletName}
-              onChange={(e) => setTabletName(e.target.value)}
-              placeholder="paracetamol"
-              className="w-full border rounded-xl px-4 py-3"
-            />
-          </div>
+          <input
+            placeholder="paracetamol"
+            value={tablet}
+            onChange={(e) => setTablet(e.target.value)}
+            className="border rounded-xl px-4 py-3"
+          />
 
-          {/* LANGUAGE SELECT (FIXED) */}
-          <div>
-            <p className="font-medium mb-1">Select Language</p>
-            <select
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-              className="w-full border rounded-xl px-4 py-3"
-            >
-              {LANGUAGES.map((l) => (
-                <option key={l}>{l}</option>
-              ))}
-            </select>
-          </div>
+          <select
+            value={lang}
+            onChange={(e) => setLang(e.target.value)}
+            className="border rounded-xl px-4 py-3"
+          >
+            {Object.keys(LANG_MAP).map((l) => (
+              <option key={l}>{l}</option>
+            ))}
+          </select>
 
           <button
             onClick={verifyTablet}
-            className="mt-auto py-4 rounded-xl text-white font-semibold bg-gradient-to-r from-blue-600 to-emerald-400"
+            className="py-4 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-400 text-white"
           >
             Verify Tablet
           </button>
         </div>
       </div>
 
-      {/* ---------------- VERIFIED SECTION ---------------- */}
-      {verified && (
+      {/* VERIFIED AUTHENTIC CARD */}
+      {status && (
         <>
-          {/* VERIFIED AUTHENTIC (EXACT STYLE) */}
-          <div className="max-w-5xl mx-auto mt-10">
-            <div className="relative flex gap-4 items-center p-6 rounded-2xl bg-white border border-emerald-300 shadow-xl animate-glow-pulse">
+          <div
+            className={`max-w-5xl mx-auto mt-10 p-6 rounded-2xl shadow-xl flex gap-4 items-center
+            ${status === "verified"
+              ? "bg-emerald-50 border border-emerald-400 shadow-emerald-300/50"
+              : "bg-red-50 border border-red-400 shadow-red-300/50"}
+            animate-pulse`}
+          >
+            {status === "verified" ? (
               <CheckCircle className="text-emerald-500 w-8 h-8" />
-              <div>
-                <p className="font-semibold text-lg">Verified Authentic</p>
-                <p className="text-slate-500">
-                  This tablet has been successfully verified
-                </p>
-              </div>
+            ) : (
+              <XCircle className="text-red-500 w-8 h-8" />
+            )}
+            <div>
+              <p className="font-semibold text-lg">
+                {status === "verified" ? "Verified Authentic" : "Not Verified"}
+              </p>
+              <p className="text-slate-500">
+                {status === "verified"
+                  ? "This tablet has been successfully verified"
+                  : "This tablet was not found in our database"}
+              </p>
             </div>
           </div>
 
-          {/* ---------------- SMOOTH GRID GLOBE ---------------- */}
+          {/* TRUE 3D GLOBE */}
           <div className="max-w-5xl mx-auto mt-8 bg-white rounded-2xl shadow-xl p-10 flex justify-center">
-            <div className="relative w-[320px] h-[320px]">
-
-              {/* GRID */}
-              <svg
-                viewBox="0 0 200 200"
-                className="absolute inset-0 animate-spin-slow"
-              >
-                <defs>
-                  <pattern
-                    id="grid"
-                    width="8"
-                    height="8"
-                    patternUnits="userSpaceOnUse"
-                  >
-                    <path
-                      d="M8 0 L0 0 0 8"
-                      fill="none"
-                      stroke="rgba(52,211,153,.35)"
-                      strokeWidth="0.4"
-                    />
-                  </pattern>
-                </defs>
-                <circle cx="100" cy="100" r="90" fill="url(#grid)" />
-              </svg>
-
-              {/* INNER RING */}
-              <div className="absolute inset-10 rounded-full border-[5px] border-emerald-400 animate-spin-reverse" />
-
-              {/* TEXT */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-emerald-600 font-semibold tracking-widest">
-                  VERIFIED
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* ---------------- INFO CARDS ---------------- */}
-          <div className="max-w-5xl mx-auto mt-10 grid md:grid-cols-2 gap-6">
-            <div className="bg-white rounded-xl p-6 shadow relative">
-              <h3 className="font-semibold mb-2 flex items-center gap-2">
-                Medication Info
-                <button onClick={speakInfo}>
-                  <Volume2 className="w-5 h-5 text-emerald-500" />
-                </button>
-              </h3>
-              <p><b>Name:</b> {verified.name}</p>
-              <p><b>Treats:</b> {verified.treats}</p>
-              <p><b>Manufacturer:</b> {verified.manufacturer}</p>
-            </div>
-
-            <div className="bg-white rounded-xl p-6 shadow">
-              <h3 className="font-semibold mb-2">Dosage Information</h3>
-              <p>{verified.dosage}</p>
-            </div>
-          </div>
-
-          <div className="max-w-5xl mx-auto mt-6 bg-white rounded-xl p-6 shadow">
-            <h3 className="font-semibold mb-2">Precautions</h3>
-            <ul className="list-disc ml-6">
-              {verified.precautions.map((p: string, i: number) => (
-                <li key={i}>{p}</li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="max-w-5xl mx-auto mt-6 bg-white rounded-xl p-6 shadow">
-            <h3 className="font-semibold mb-2">Possible Side Effects</h3>
-            <p>{verified.sideEffects}</p>
+            <div ref={mountRef} />
           </div>
         </>
+      )}
+
+      {/* INFO */}
+      {verified && (
+        <div className="max-w-5xl mx-auto mt-8 grid md:grid-cols-2 gap-6">
+          <div className="bg-white p-6 rounded-xl shadow">
+            <h3 className="font-semibold flex items-center gap-2">
+              Medication Info
+              <button onClick={speak}>
+                <Volume2 className="text-emerald-500" />
+              </button>
+            </h3>
+            <p><b>Name:</b> {verified.name}</p>
+            <p><b>Treats:</b> {verified.treats}</p>
+            <p><b>Manufacturer:</b> {verified.manufacturer}</p>
+          </div>
+
+          <div className="bg-white p-6 rounded-xl shadow">
+            <h3 className="font-semibold">Dosage Information</h3>
+            <p>{verified.dosage}</p>
+          </div>
+        </div>
       )}
     </div>
   );
