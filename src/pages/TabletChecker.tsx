@@ -258,20 +258,20 @@ export default function TabletChecker() {
             <div className="flex items-center space-x-8">
               <button
                 onClick={() => setActiveTab("Home")}
-                className={`text-sm font-medium ${activeTab === "Home" ? "text-[#10b981]" : "text-gray-600 hover:text-gray-900"}`}
+                className={`text-sm font-medium ${activeTab === "Home" ? "text-[#0ea5e9]" : "text-gray-600 hover:text-gray-900"}`}
               >
                 Home
               </button>
               <button
                 onClick={() => setActiveTab("Tablet Checker")}
-                className={`flex items-center space-x-2 text-sm font-medium ${activeTab === "Tablet Checker" ? "text-[#10b981]" : "text-gray-600 hover:text-gray-900"}`}
+                className={`flex items-center space-x-2 text-sm font-medium ${activeTab === "Tablet Checker" ? "text-[#0ea5e9]" : "text-gray-600 hover:text-gray-900"}`}
               >
                 <CheckCircle size={16} />
                 <span>Tablet Checker</span>
               </button>
               <button
                 onClick={() => setActiveTab("Us")}
-                className={`text-sm font-medium ${activeTab === "Us" ? "text-[#10b981]" : "text-gray-600 hover:text-gray-900"}`}
+                className={`text-sm font-medium ${activeTab === "Us" ? "text-[#0ea5e9]" : "text-gray-600 hover:text-gray-900"}`}
               >
                 Us
               </button>
@@ -281,7 +281,7 @@ export default function TabletChecker() {
               <input
                 type="text"
                 placeholder={t.searchPlaceholder}
-                className="w-64 pl-10 pr-4 py-2 bg-gray-100 rounded-lg border border-gray-300 focus:outline-none focus:border-[#10b981] text-sm text-gray-900 placeholder:text-gray-500"
+                className="w-64 pl-10 pr-4 py-2 bg-gray-100 rounded-lg border border-gray-300 focus:outline-none focus:border-[#0ea5e9] text-sm text-gray-900 placeholder:text-gray-500"
                 onChange={(e) => handleSearch(e.target.value)}
               />
               <Search className="absolute left-3 top-2.5 text-gray-400" size={16} />
@@ -292,18 +292,10 @@ export default function TabletChecker() {
 
       {/* Main Content */}
       <div className="max-w-6xl mx-auto px-6 py-8">
-        {/* Header with Holographic Text */}
+        {/* Header with Blue-Green Holographic Text */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold mb-3 relative">
-            <span className="relative z-10" style={{
-              background: "linear-gradient(90deg, #ff0000, #ff8000, #ffff00, #80ff00, #00ff80, #00ffff, #0080ff, #8000ff, #ff00ff, #ff0080)",
-              backgroundSize: "200% 200%",
-              WebkitBackgroundClip: "text",
-              backgroundClip: "text",
-              color: "transparent",
-              animation: "holographic 3s linear infinite",
-              textShadow: "0 0 10px rgba(255, 255, 255, 0.3), 0 0 20px rgba(255, 255, 255, 0.2)"
-            }}>
+            <span className="relative z-10 holographic-text">
               {t.tabletVerification}
             </span>
           </h1>
@@ -320,7 +312,7 @@ export default function TabletChecker() {
               <h3 className="font-medium text-gray-900 mb-4">
                 {t.tabletImage}
               </h3>
-              <label className="block border-2 border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer hover:border-[#10b981] transition-colors bg-gray-50">
+              <label className="block border-2 border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer hover:border-[#0ea5e9] transition-colors bg-gray-50">
                 <input
                   type="file"
                   accept="image/png,image/jpeg"
@@ -374,7 +366,7 @@ export default function TabletChecker() {
                     value={tabletName}
                     onChange={(e) => handleSearch(e.target.value)}
                     placeholder={t.placeholder}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#10b981] text-gray-900 bg-white"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#0ea5e9] text-gray-900 bg-white"
                   />
                   {showSuggestions && searchResults.length > 0 && (
                     <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
@@ -382,7 +374,7 @@ export default function TabletChecker() {
                         <div
                           key={medicine.id}
                           onClick={() => handleSelectMedicine(medicine)}
-                          className="px-4 py-3 hover:bg-green-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                          className="px-4 py-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0"
                         >
                           <div className="font-medium text-gray-900">{medicine.name} {medicine.strength}</div>
                           <div className="text-sm text-gray-600">{medicine.type} • {medicine.manufacturer}</div>
@@ -404,7 +396,7 @@ export default function TabletChecker() {
                     const lang = LANGUAGES.find(l => l.code === e.target.value);
                     if (lang) setSelectedLanguage(lang);
                   }}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#10b981] text-gray-900 bg-white"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#0ea5e9] text-gray-900 bg-white"
                 >
                   {LANGUAGES.map((lang) => (
                     <option key={lang.code} value={lang.code}>
@@ -417,19 +409,19 @@ export default function TabletChecker() {
               {/* Divider */}
               <div className="border-t border-gray-200 my-4"></div>
 
-              {/* Verify Button with Holographic Effect */}
+              {/* Verify Button with Blue-Green Holographic Effect */}
               <button
                 onClick={handleVerify}
                 className="w-full py-3.5 rounded-lg text-white font-medium hover:shadow-lg transition-all duration-300 relative overflow-hidden group"
                 style={{
-                  background: "linear-gradient(90deg, #ff0000, #ff8000, #ffff00, #80ff00, #00ff80, #00ffff, #0080ff, #8000ff, #ff00ff, #ff0080)",
+                  background: "linear-gradient(90deg, #0ea5e9, #06b6d4, #10b981, #0ea5e9)",
                   backgroundSize: "200% 200%",
-                  animation: "holographic 3s linear infinite"
+                  animation: "holographic-bg 3s linear infinite"
                 }}
               >
                 <span className="relative z-10 flex items-center justify-center">
                   {t.verifyTablet}
-                  <div className="ml-2 w-4 h-4 bg-white/20 rounded-full"></div>
+                  <div className="ml-2 w-4 h-4 bg-white/30 rounded-full"></div>
                 </span>
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
               </button>
@@ -440,41 +432,34 @@ export default function TabletChecker() {
         {/* Verification Result */}
         {verified && foundMedicine && (
           <div className="space-y-8">
-            {/* Verified Banner with Holographic Effect */}
+            {/* Verified Banner with Blue-Green Holographic Effect */}
             <div className="rounded-2xl p-6 shadow-lg relative overflow-hidden" style={{
-              background: "linear-gradient(90deg, #d1fae5, #a7f3d0, #86efac, #d1fae5)",
+              background: "linear-gradient(90deg, #dbeafe, #d1fae5, #dbeafe)",
               backgroundSize: "200% 200%",
-              animation: "holographic 6s linear infinite",
+              animation: "holographic-bg 6s linear infinite",
               border: "2px solid transparent",
-              borderImage: "linear-gradient(90deg, #ff0000, #ff8000, #ffff00, #80ff00, #00ff80, #00ffff, #0080ff, #8000ff, #ff00ff, #ff0080) 1"
+              borderImage: "linear-gradient(90deg, #0ea5e9, #06b6d4, #10b981, #0ea5e9) 1"
             }}>
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer"></div>
               <div className="relative flex items-center space-x-4">
                 <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-md">
                   <div className="relative">
-                    <div className="w-8 h-8 rounded-full border-2 border-[#10b981] flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-full border-2 border-[#0ea5e9] flex items-center justify-center">
                       <svg
                         className="w-4 h-4"
                         fill="none"
-                        stroke="#10b981"
+                        stroke="#0ea5e9"
                         strokeWidth="3"
                         viewBox="0 0 24 24"
                       >
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                       </svg>
                     </div>
-                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-[#10b981] rounded-full border-2 border-white"></div>
+                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-[#0ea5e9] rounded-full border-2 border-white"></div>
                   </div>
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold mb-1" style={{
-                    background: "linear-gradient(90deg, #ff0000, #ff8000, #ffff00, #80ff00, #00ff80, #00ffff, #0080ff, #8000ff, #ff00ff, #ff0080)",
-                    backgroundSize: "200% 200%",
-                    WebkitBackgroundClip: "text",
-                    backgroundClip: "text",
-                    color: "transparent",
-                    animation: "holographic 3s linear infinite"
-                  }}>
+                  <h2 className="text-2xl font-bold mb-1 holographic-text">
                     {t.verifiedAuthentic}
                   </h2>
                   <p className="text-gray-700">
@@ -503,7 +488,7 @@ export default function TabletChecker() {
                   <div>
                     <div className="text-sm text-gray-500 mb-1">{t.name}</div>
                     <div className="text-lg font-medium" style={{
-                      background: "linear-gradient(90deg, #ff0000, #ff8000, #ffff00)",
+                      background: "linear-gradient(90deg, #0ea5e9, #10b981)",
                       WebkitBackgroundClip: "text",
                       backgroundClip: "text",
                       color: "transparent"
@@ -543,12 +528,12 @@ export default function TabletChecker() {
                   {foundMedicine.dosage}
                 </p>
                 <div className="mt-4 p-4 rounded-lg border" style={{
-                  background: "linear-gradient(90deg, #d1fae5, #a7f3d0, #86efac)",
-                  borderColor: "#10b981"
+                  background: "linear-gradient(90deg, #dbeafe, #d1fae5)",
+                  borderColor: "#0ea5e9"
                 }}>
                   <div className="flex items-start space-x-3">
                     <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style={{
-                      background: "linear-gradient(90deg, #ff0000, #ff8000, #ffff00)"
+                      background: "linear-gradient(90deg, #0ea5e9, #10b981)"
                     }}>
                       <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -572,7 +557,7 @@ export default function TabletChecker() {
                 {foundMedicine.precautions.map((precaution: string, index: number) => (
                   <div key={index} className="flex items-start space-x-4">
                     <div className="w-2.5 h-2.5 rounded-full mt-2 flex-shrink-0" style={{
-                      background: "linear-gradient(90deg, #ff0000, #ff8000, #ffff00)"
+                      background: "linear-gradient(90deg, #0ea5e9, #10b981)"
                     }}></div>
                     <span className="text-gray-900">{precaution}</span>
                   </div>
@@ -604,7 +589,7 @@ export default function TabletChecker() {
 
       {/* CSS Animations */}
       <style jsx>{`
-        @keyframes holographic {
+        @keyframes holographic-bg {
           0% {
             background-position: 0% 50%;
           }
@@ -613,6 +598,21 @@ export default function TabletChecker() {
           }
           100% {
             background-position: 0% 50%;
+          }
+        }
+        
+        @keyframes holographic-text {
+          0% {
+            background-position: 0% 50%;
+            text-shadow: 0 0 10px rgba(14, 165, 233, 0.5), 0 0 20px rgba(16, 185, 129, 0.3);
+          }
+          50% {
+            background-position: 100% 50%;
+            text-shadow: 0 0 15px rgba(14, 165, 233, 0.7), 0 0 25px rgba(16, 185, 129, 0.5);
+          }
+          100% {
+            background-position: 0% 50%;
+            text-shadow: 0 0 10px rgba(14, 165, 233, 0.5), 0 0 20px rgba(16, 185, 129, 0.3);
           }
         }
         
@@ -625,12 +625,21 @@ export default function TabletChecker() {
           }
         }
         
+        .holographic-text {
+          background: linear-gradient(90deg, #0ea5e9, #06b6d4, #10b981, #0ea5e9);
+          background-size: 200% 200%;
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+          animation: holographic-text 3s linear infinite;
+        }
+        
         .animate-shimmer {
           animation: shimmer 2s infinite;
         }
         
         .group:hover .holographic-button {
-          animation: holographic 1s linear infinite;
+          animation: holographic-bg 1s linear infinite;
         }
       `}</style>
     </div>
