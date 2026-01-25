@@ -1,205 +1,187 @@
 import { useState } from "react";
+import { Volume2 } from "lucide-react";
 
-const LANGUAGES = ["English", "Spanish", "French", "German", "Hindi", "Chinese"];
+type Medicine = {
+  name: string;
+  treats: string;
+  dosage: string;
+  manufacturer: string;
+  precautions: string[];
+  sideEffects: string;
+};
 
-const DB: any = {
+const MEDICINE_DB: Record<string, Medicine> = {
   paracetamol: {
-    verified: true,
     name: "Paracetamol 500mg",
-    treats: "Fever, Headache, Mild to moderate pain",
-    dosage: "500–1000 mg every 4–6 hours (max 4000 mg/day)",
-    manufacturer: "Crocin, Dolo 650",
+    treats: "Pain relief, Fever reduction, Headache",
+    dosage: "Adults: 500–1000mg every 4–6 hours. Maximum 4000mg per day.",
+    manufacturer: "Various Generic Manufacturers",
     precautions: [
-      "Do not exceed maximum daily dose",
+      "Do not exceed recommended dose",
       "Avoid alcohol consumption",
-      "Check other medicines for paracetamol content",
-      "Consult doctor if fever persists",
+      "Not recommended with other paracetamol-containing products",
+      "Consult doctor if symptoms persist",
     ],
-    sideEffects: "Rare allergic reactions; liver damage in overdose",
+    sideEffects:
+      "Rare: Allergic reactions, liver damage (overdose), skin rash",
   },
 };
 
 export default function TabletChecker() {
-  const [tablet, setTablet] = useState("");
-  const [lang, setLang] = useState("English");
-  const [data, setData] = useState<any>(null);
+  const [tabletName, setTabletName] = useState("paracetamol");
+  const [verified, setVerified] = useState(false);
 
-  const verify = () => {
-    setData(DB[tablet.toLowerCase()] || { verified: false });
+  const medicine = MEDICINE_DB[tabletName.toLowerCase()];
+
+  const speak = (text: string) => {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "en-US";
+    speechSynthesis.speak(utterance);
   };
-
-  const speakInfo = () => {
-    if (!data?.verified) return;
-    const text = `Medication Info. Name ${data.name}. Treats ${data.treats}. Dosage Information. ${data.dosage}`;
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang =
-      lang === "Hindi"
-        ? "hi-IN"
-        : lang === "Chinese"
-        ? "zh-CN"
-        : "en-US";
-    speechSynthesis.cancel();
-    speechSynthesis.speak(u);
-  };
-
-  const verifiedGlow = data?.verified
-    ? "shadow-[0_0_30px_rgba(34,197,94,0.35)]"
-    : "shadow-[0_0_30px_rgba(239,68,68,0.35)]";
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-slate-50 pt-24 pb-20">
-
-      {/* ================= HEADING ================= */}
-      <div className="text-center mb-10">
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-green-400 bg-clip-text text-transparent">
-          Tablet Verification
+    <div className="container max-w-5xl pt-24 pb-16 space-y-10">
+      {/* ===== HEADING ===== */}
+      <div className="text-center">
+        <h1 className="text-4xl font-bold text-black">
+          <span className="text-blue-600">Tablet</span>{" "}
+          <span className="text-green-500">Verification</span>
         </h1>
-        <p className="text-gray-500 mt-2">
+        <p className="mt-2 text-gray-500">
           Upload an image or enter tablet details for instant AI verification
         </p>
       </div>
 
-      {/* ================= INPUT CARD ================= */}
-      <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl p-8 grid md:grid-cols-2 gap-8">
-        <label className="border-2 border-dashed rounded-xl p-8 text-center cursor-pointer hover:bg-slate-50">
-          <input type="file" accept="image/png,image/jpeg" className="hidden" />
-          <div className="font-semibold">Upload Tablet Image</div>
-          <div className="text-sm text-gray-500 mt-2">
-            Click to upload (PNG / JPG up to 10MB)
-          </div>
-        </label>
+      {/* ===== INPUT CARD ===== */}
+      <div className="bg-white rounded-2xl shadow-lg p-6 grid md:grid-cols-2 gap-6">
+        {/* Upload */}
+        <div>
+          <h3 className="font-semibold text-black mb-2">
+            Upload Tablet Image
+          </h3>
+          <label className="border-2 border-dashed rounded-xl h-48 flex flex-col items-center justify-center cursor-pointer text-gray-500">
+            <input type="file" accept="image/png,image/jpeg" className="hidden" />
+            <span className="text-lg">⬆</span>
+            <span>Click to upload</span>
+            <span className="text-sm">PNG, JPG up to 10MB</span>
+          </label>
+        </div>
 
+        {/* Inputs */}
         <div className="space-y-4">
           <div>
-            <label className="font-medium">Tablet Imprint / Name</label>
+            <label className="font-semibold text-black">
+              Tablet Imprint / Name
+            </label>
             <input
-              value={tablet}
-              onChange={(e) => setTablet(e.target.value)}
-              className="w-full mt-1 rounded-lg border px-4 py-2"
-              placeholder="e.g., Paracetamol"
+              value={tabletName}
+              onChange={(e) => setTabletName(e.target.value)}
+              className="mt-1 w-full rounded-lg border px-4 py-2"
             />
           </div>
 
           <div>
-            <label className="font-medium">Select Language</label>
-            <select
-              value={lang}
-              onChange={(e) => setLang(e.target.value)}
-              className="w-full mt-1 rounded-lg border px-4 py-2"
-            >
-              {LANGUAGES.map((l) => (
-                <option key={l}>{l}</option>
-              ))}
+            <label className="font-semibold text-black">Select Language</label>
+            <select className="mt-1 w-full rounded-lg border px-4 py-2">
+              <option>English</option>
+              <option>Hindi</option>
+              <option>Spanish</option>
+              <option>French</option>
+              <option>German</option>
+              <option>Chinese</option>
             </select>
           </div>
 
           <button
-            onClick={verify}
-            className="w-full py-3 rounded-xl text-white font-semibold bg-gradient-to-r from-blue-600 to-green-400"
+            onClick={() => setVerified(!!medicine)}
+            className="w-full py-3 rounded-xl text-white font-semibold bg-gradient-to-r from-blue-600 to-green-500"
           >
             Verify Tablet
           </button>
         </div>
       </div>
 
-      {/* ================= VERIFIED STATUS ================= */}
-      {data && (
-        <div
-          className={`max-w-5xl mx-auto mt-8 p-6 rounded-xl bg-white border ${verifiedGlow}`}
-        >
-          <h3 className="font-bold text-black">
-            {data.verified ? "Verified Authentic" : "Not Verified"}
-          </h3>
-          <p className="text-gray-600">
-            {data.verified
-              ? "This tablet has been successfully verified"
-              : "Verification failed"}
-          </p>
-        </div>
-      )}
-
-      {/* ================= GRID GLOBE ================= */}
-      {data && (
-        <div className="max-w-5xl mx-auto bg-white mt-6 rounded-xl shadow-xl p-10 flex justify-center">
-          <svg width="300" height="300" viewBox="0 0 300 300">
-            {[...Array(40)].map((_, i) => (
-              <circle
-                key={i}
-                cx="150"
-                cy="150"
-                r={145 - i * 3}
-                fill="none"
-                stroke="#22c55e"
-                strokeOpacity="0.25"
-              />
-            ))}
-
-            <circle
-              cx="150"
-              cy="150"
-              r="90"
-              fill="none"
-              stroke="#22c55e"
-              strokeWidth="7"
-            />
-
-            <text
-              x="150"
-              y="156"
-              textAnchor="middle"
-              fontSize="18"
-              fill="#22c55e"
-              fontWeight="600"
-              letterSpacing="2"
-            >
-              {data.verified ? "VERIFIED" : "UNVERIFIED"}
-            </text>
-          </svg>
-        </div>
-      )}
-
-      {/* ================= INFO ================= */}
-      {data?.verified && (
-        <div className="max-w-5xl mx-auto mt-8 grid md:grid-cols-2 gap-6">
-
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <div className="flex justify-between items-center">
-              <h3 className="font-bold text-black">Medication Info</h3>
-              <button onClick={speakInfo}>
-                <svg width="20" height="20" fill="black" viewBox="0 0 24 24">
-                  <path d="M3 9v6h4l5 5V4L7 9H3z" />
-                </svg>
-              </button>
-            </div>
-            <p><b>Name:</b> {data.name}</p>
-            <p><b>Treats:</b> {data.treats}</p>
-            <p><b>Manufacturer:</b> {data.manufacturer}</p>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <h3 className="font-bold text-black">Dosage Information</h3>
-            <p>{data.dosage}</p>
-          </div>
-        </div>
-      )}
-
-      {data?.verified && (
+      {/* ===== VERIFIED STATUS ===== */}
+      {verified && (
         <>
-          <div className="max-w-5xl mx-auto mt-6 bg-white rounded-xl shadow-lg p-6">
-            <h3 className="font-bold text-black">Precautions</h3>
-            <ul className="mt-3 space-y-2">
-              {data.precautions.map((p: string, i: number) => (
-                <li key={i} className="flex gap-2">
-                  <span className="w-2 h-2 mt-2 rounded-full bg-green-500" />
+          <div className="rounded-2xl border border-emerald-300 bg-emerald-50 px-6 py-4 shadow-md">
+            <h3 className="text-black font-semibold text-lg">
+              Verified Authentic
+            </h3>
+            <p className="text-gray-600">
+              This tablet has been successfully verified
+            </p>
+          </div>
+
+          {/* ===== GRID GLOBE ===== */}
+          <div className="bg-white rounded-2xl shadow-lg p-10 flex justify-center">
+            <div style={{ width: 260, height: 260 }}>
+              <svg viewBox="0 0 200 200" width="100%" height="100%">
+                <circle cx="100" cy="100" r="90" fill="none" stroke="#9BE6C4" strokeWidth="0.8" />
+                <g stroke="#9BE6C4" strokeWidth="0.5">
+                  <ellipse cx="100" cy="100" rx="90" ry="70" fill="none" />
+                  <ellipse cx="100" cy="100" rx="90" ry="50" fill="none" />
+                  <ellipse cx="100" cy="100" rx="90" ry="30" fill="none" />
+                  <ellipse cx="100" cy="100" rx="70" ry="90" fill="none" />
+                  <ellipse cx="100" cy="100" rx="50" ry="90" fill="none" />
+                  <ellipse cx="100" cy="100" rx="30" ry="90" fill="none" />
+                </g>
+                <circle cx="100" cy="100" r="45" fill="none" stroke="#6AD7A6" strokeWidth="4" />
+                <text x="100" y="105" textAnchor="middle" fontSize="12" fontWeight="600" fill="#6AD7A6">
+                  VERIFIED
+                </text>
+              </svg>
+            </div>
+          </div>
+
+          {/* ===== INFO CARDS ===== */}
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="bg-white rounded-2xl shadow-lg p-6">
+              <div className="flex justify-between items-center">
+                <h3 className="font-bold text-black">Medication Info</h3>
+                <Volume2
+                  className="text-black cursor-pointer"
+                  onClick={() =>
+                    speak(
+                      `${medicine.name}. Treats ${medicine.treats}. Manufactured by ${medicine.manufacturer}`
+                    )
+                  }
+                />
+              </div>
+              <p><b>Name:</b> {medicine.name}</p>
+              <p><b>Treats:</b> {medicine.treats}</p>
+              <p><b>Manufacturer:</b> {medicine.manufacturer}</p>
+            </div>
+
+            <div className="bg-white rounded-2xl shadow-lg p-6">
+              <div className="flex justify-between items-center">
+                <h3 className="font-bold text-black">Dosage Information</h3>
+                <Volume2
+                  className="text-black cursor-pointer"
+                  onClick={() => speak(medicine.dosage)}
+                />
+              </div>
+              <p>{medicine.dosage}</p>
+            </div>
+          </div>
+
+          {/* ===== PRECAUTIONS ===== */}
+          <div className="bg-white rounded-2xl shadow-lg p-6">
+            <h3 className="font-bold text-black mb-3">Precautions</h3>
+            <ul className="space-y-2">
+              {medicine.precautions.map((p, i) => (
+                <li key={i} className="flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-green-500" />
                   {p}
                 </li>
               ))}
             </ul>
           </div>
 
-          <div className="max-w-5xl mx-auto mt-6 bg-white rounded-xl shadow-lg p-6">
-            <h3 className="font-bold text-black">Possible Side Effects</h3>
-            <p>{data.sideEffects}</p>
+          {/* ===== SIDE EFFECTS ===== */}
+          <div className="bg-white rounded-2xl shadow-lg p-6">
+            <h3 className="font-bold text-black mb-2">Possible Side Effects</h3>
+            <p>{medicine.sideEffects}</p>
           </div>
         </>
       )}
