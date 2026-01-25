@@ -67,6 +67,26 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       keyframes: {
+  "spin-slow": {
+    "0%": { transform: "rotate(0deg)" },
+    "100%": { transform: "rotate(360deg)" },
+  },
+  "spin-reverse": {
+    "0%": { transform: "rotate(360deg)" },
+    "100%": { transform: "rotate(0deg)" },
+  },
+  "glow-pulse": {
+    "0%,100%": { boxShadow: "0 0 40px rgba(52,211,153,.5)" },
+    "50%": { boxShadow: "0 0 80px rgba(52,211,153,.9)" },
+  },
+},
+animation: {
+  "spin-slow": "spin-slow 20s linear infinite",
+  "spin-reverse": "spin-reverse 35s linear infinite",
+  "glow-pulse": "glow-pulse 3s ease-in-out infinite",
+},
+
+      keyframes: {
         "accordion-down": {
           from: {
             height: "0",
