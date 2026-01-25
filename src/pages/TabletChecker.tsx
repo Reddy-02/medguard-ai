@@ -1,12 +1,12 @@
-import { useState } from "react";
-import { CheckCircle, Upload } from "lucide-react";
+import { useState, useRef } from "react";
+import { Upload, CheckCircle, Volume2 } from "lucide-react";
 
-/* ---------------- MEDICINE DB (sample) ---------------- */
-const DB: any = {
+/* ---------------- MEDICINE DB (extendable to 150+) ---------------- */
+const MED_DB: any = {
   paracetamol: {
-    name: "Paracetamol",
+    name: "Paracetamol 500mg",
     treats: "Fever, Headache, Mild to moderate pain",
-    dosage: "500–1000 mg every 4–6 hours (max 4000 mg/day)",
+    dosage: "Adults: 500–1000 mg every 4–6 hours (max 4000 mg/day)",
     manufacturer: "Crocin, Dolo 650",
     precautions: [
       "Do not exceed maximum daily dose",
@@ -18,63 +18,121 @@ const DB: any = {
   },
 };
 
-export default function TabletChecker() {
-  const [name, setName] = useState("");
-  const [image, setImage] = useState<File | null>(null);
-  const [result, setResult] = useState<any>(null);
+/* ---------------- LANGUAGES ---------------- */
+const LANGUAGES = [
+  "English",
+  "Hindi",
+  "Spanish",
+  "French",
+  "German",
+  "Chinese",
+];
 
-  const verify = () => {
-    setResult(DB[name.toLowerCase()] || null);
+export default function TabletChecker() {
+  const [tabletName, setTabletName] = useState("");
+  const [language, setLanguage] = useState("English");
+  const [image, setImage] = useState<File | null>(null);
+  const [verified, setVerified] = useState<any>(null);
+  const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
+
+  const verifyTablet = () => {
+    const res = MED_DB[tabletName.toLowerCase()];
+    setVerified(res || null);
+  };
+
+  /* ---------------- TEXT TO SPEECH ---------------- */
+  const speakInfo = () => {
+    if (!verified) return;
+    const text = `
+      Medication name ${verified.name}.
+      Treats ${verified.treats}.
+      Dosage information ${verified.dosage}.
+    `;
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang =
+      language === "Hindi"
+        ? "hi-IN"
+        : language === "Spanish"
+        ? "es-ES"
+        : language === "French"
+        ? "fr-FR"
+        : language === "German"
+        ? "de-DE"
+        : language === "Chinese"
+        ? "zh-CN"
+        : "en-US";
+
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utter);
+    speechRef.current = utter;
   };
 
   return (
     <div className="min-h-screen pt-24 pb-16 bg-gradient-to-b from-white to-slate-100">
 
-      {/* ---------------- FORM ---------------- */}
-      <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-8">
+      {/* ---------------- INPUT CARD ---------------- */}
+      <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl p-8 grid md:grid-cols-2 gap-6">
 
-        <p className="font-medium mb-2">Upload Tablet Image</p>
+        {/* Upload */}
+        <div>
+          <p className="font-medium mb-2">Upload Tablet Image</p>
+          <label className="cursor-pointer border-2 border-dashed rounded-xl h-44 flex flex-col items-center justify-center text-slate-400 hover:border-emerald-400 transition">
+            <Upload />
+            <span className="mt-2">Click to upload</span>
+            <span className="text-xs">PNG, JPG up to 10MB</span>
+            <input
+              type="file"
+              accept="image/png,image/jpeg"
+              className="hidden"
+              onChange={(e) => setImage(e.target.files?.[0] || null)}
+            />
+          </label>
+          {image && (
+            <p className="text-sm text-emerald-600 mt-2">{image.name}</p>
+          )}
+        </div>
 
-        {/* REAL IMAGE UPLOAD */}
-        <label className="cursor-pointer block border-2 border-dashed rounded-xl h-44 flex flex-col items-center justify-center text-slate-400 hover:border-emerald-400 transition">
-          <Upload />
-          <span className="mt-2">Click to upload (PNG / JPG)</span>
-          <input
-            type="file"
-            accept="image/png,image/jpeg"
-            className="hidden"
-            onChange={(e) => setImage(e.target.files?.[0] || null)}
-          />
-        </label>
+        {/* Inputs */}
+        <div className="flex flex-col gap-4">
+          <div>
+            <p className="font-medium mb-1">Tablet Imprint/Name</p>
+            <input
+              value={tabletName}
+              onChange={(e) => setTabletName(e.target.value)}
+              placeholder="paracetamol"
+              className="w-full border rounded-xl px-4 py-3"
+            />
+          </div>
 
-        {image && (
-          <p className="text-sm text-emerald-600 mt-2">
-            Selected: {image.name}
-          </p>
-        )}
+          {/* LANGUAGE SELECT (FIXED) */}
+          <div>
+            <p className="font-medium mb-1">Select Language</p>
+            <select
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+              className="w-full border rounded-xl px-4 py-3"
+            >
+              {LANGUAGES.map((l) => (
+                <option key={l}>{l}</option>
+              ))}
+            </select>
+          </div>
 
-        <p className="mt-6 font-medium">Tablet Imprint / Name</p>
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="mt-2 w-full border rounded-xl px-4 py-3"
-          placeholder="Paracetamol"
-        />
-
-        <button
-          onClick={verify}
-          className="mt-6 w-full py-4 rounded-xl text-white font-semibold bg-gradient-to-r from-blue-600 to-emerald-400"
-        >
-          Verify Tablet
-        </button>
+          <button
+            onClick={verifyTablet}
+            className="mt-auto py-4 rounded-xl text-white font-semibold bg-gradient-to-r from-blue-600 to-emerald-400"
+          >
+            Verify Tablet
+          </button>
+        </div>
       </div>
 
-      {/* ---------------- VERIFIED RESULT ---------------- */}
-      {result && (
+      {/* ---------------- VERIFIED SECTION ---------------- */}
+      {verified && (
         <>
-          {/* VERIFIED AUTHENTIC BAR */}
+          {/* VERIFIED AUTHENTIC (EXACT STYLE) */}
           <div className="max-w-5xl mx-auto mt-10">
-            <div className="relative flex gap-4 items-center p-6 rounded-2xl bg-white border border-emerald-300 animate-glow-pulse">
+            <div className="relative flex gap-4 items-center p-6 rounded-2xl bg-white border border-emerald-300 shadow-xl animate-glow-pulse">
               <CheckCircle className="text-emerald-500 w-8 h-8" />
               <div>
                 <p className="font-semibold text-lg">Verified Authentic</p>
@@ -85,11 +143,11 @@ export default function TabletChecker() {
             </div>
           </div>
 
-          {/* ---------------- GLOBE (REAL GRID) ---------------- */}
+          {/* ---------------- SMOOTH GRID GLOBE ---------------- */}
           <div className="max-w-5xl mx-auto mt-8 bg-white rounded-2xl shadow-xl p-10 flex justify-center">
             <div className="relative w-[320px] h-[320px]">
 
-              {/* GRID SPHERE */}
+              {/* GRID */}
               <svg
                 viewBox="0 0 200 200"
                 className="absolute inset-0 animate-spin-slow"
@@ -97,30 +155,25 @@ export default function TabletChecker() {
                 <defs>
                   <pattern
                     id="grid"
-                    width="10"
-                    height="10"
+                    width="8"
+                    height="8"
                     patternUnits="userSpaceOnUse"
                   >
                     <path
-                      d="M10 0 L0 0 0 10"
+                      d="M8 0 L0 0 0 8"
                       fill="none"
-                      stroke="rgba(52,211,153,.3)"
-                      strokeWidth="0.5"
+                      stroke="rgba(52,211,153,.35)"
+                      strokeWidth="0.4"
                     />
                   </pattern>
                 </defs>
-                <circle
-                  cx="100"
-                  cy="100"
-                  r="90"
-                  fill="url(#grid)"
-                />
+                <circle cx="100" cy="100" r="90" fill="url(#grid)" />
               </svg>
 
               {/* INNER RING */}
-              <div className="absolute inset-10 rounded-full border-4 border-emerald-400 animate-spin-reverse" />
+              <div className="absolute inset-10 rounded-full border-[5px] border-emerald-400 animate-spin-reverse" />
 
-              {/* CENTER TEXT */}
+              {/* TEXT */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <span className="text-emerald-600 font-semibold tracking-widest">
                   VERIFIED
@@ -129,25 +182,30 @@ export default function TabletChecker() {
             </div>
           </div>
 
-          {/* ---------------- INFO ---------------- */}
+          {/* ---------------- INFO CARDS ---------------- */}
           <div className="max-w-5xl mx-auto mt-10 grid md:grid-cols-2 gap-6">
-            <div className="bg-white rounded-xl p-6 shadow">
-              <h3 className="font-semibold mb-2">Medication Info</h3>
-              <p><b>Name:</b> {result.name}</p>
-              <p><b>Treats:</b> {result.treats}</p>
-              <p><b>Manufacturer:</b> {result.manufacturer}</p>
+            <div className="bg-white rounded-xl p-6 shadow relative">
+              <h3 className="font-semibold mb-2 flex items-center gap-2">
+                Medication Info
+                <button onClick={speakInfo}>
+                  <Volume2 className="w-5 h-5 text-emerald-500" />
+                </button>
+              </h3>
+              <p><b>Name:</b> {verified.name}</p>
+              <p><b>Treats:</b> {verified.treats}</p>
+              <p><b>Manufacturer:</b> {verified.manufacturer}</p>
             </div>
 
             <div className="bg-white rounded-xl p-6 shadow">
               <h3 className="font-semibold mb-2">Dosage Information</h3>
-              <p>{result.dosage}</p>
+              <p>{verified.dosage}</p>
             </div>
           </div>
 
           <div className="max-w-5xl mx-auto mt-6 bg-white rounded-xl p-6 shadow">
             <h3 className="font-semibold mb-2">Precautions</h3>
             <ul className="list-disc ml-6">
-              {result.precautions.map((p: string, i: number) => (
+              {verified.precautions.map((p: string, i: number) => (
                 <li key={i}>{p}</li>
               ))}
             </ul>
@@ -155,7 +213,7 @@ export default function TabletChecker() {
 
           <div className="max-w-5xl mx-auto mt-6 bg-white rounded-xl p-6 shadow">
             <h3 className="font-semibold mb-2">Possible Side Effects</h3>
-            <p>{result.sideEffects}</p>
+            <p>{verified.sideEffects}</p>
           </div>
         </>
       )}
