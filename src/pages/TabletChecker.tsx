@@ -71,43 +71,253 @@ const MEDICINES: Record<string, Medicine> = {
   },
 };
 
-/* ================= SPEECH TEXT ================= */
-const speechText: Record<string, { medicine: string; dosage: string }> = {
+/* ================= MULTILINGUAL MEDICINE DATA ================= */
+const medicineTranslations: Record<string, Record<string, any>> = {
   English: {
-    medicine:
-      "This medicine is used to treat the listed conditions. Follow precautions carefully.",
-    dosage:
-      "Please follow the dosage instructions carefully and do not exceed the maximum daily dose.",
+    paracetamol: {
+      name: "Paracetamol",
+      disease: "Fever, Headache, Mild to moderate pain",
+      dosage: "500–1000 mg every 4–6 hours (max 4000 mg/day)",
+      precautions: [
+        "Do not exceed maximum daily dose",
+        "Avoid alcohol consumption",
+        "Check other medicines for paracetamol content",
+        "Consult doctor if fever persists",
+      ],
+      sideEffects: "Rare allergic reactions; liver damage in overdose",
+      manufacturer: "Crocin, Dolo 650",
+    },
+    ibuprofen: {
+      name: "Ibuprofen",
+      disease: "Pain, Inflammation, Fever",
+      dosage: "200–400 mg every 6 hours (max 1200 mg/day)",
+      precautions: [
+        "Take after food",
+        "Avoid alcohol",
+        "Avoid during pregnancy",
+        "Not recommended in stomach ulcers",
+      ],
+      sideEffects: "Acidity, nausea, dizziness",
+      manufacturer: "Brufen, Ibugesic",
+    },
+    aspirin: {
+      name: "Aspirin",
+      disease: "Pain, Fever, Blood thinning",
+      dosage: "300–900 mg every 6 hours",
+      precautions: [
+        "Not for children below 16",
+        "Avoid in bleeding disorders",
+        "Stop before surgery",
+        "Take with food",
+      ],
+      sideEffects: "Stomach irritation, bleeding risk",
+      manufacturer: "Disprin, Ecosprin",
+    },
   },
   Hindi: {
-    medicine:
-      "यह दवा बताए गए रोगों के इलाज के लिए उपयोग की जाती है।",
-    dosage:
-      "कृपया खुराक निर्देशों का सावधानीपूर्वक पालन करें।",
+    paracetamol: {
+      name: "पेरासिटामोल",
+      disease: "बुखार, सिरदर्द, हल्के से मध्यम दर्द",
+      dosage: "500–1000 मिलीग्राम हर 4–6 घंटे (अधिकतम 4000 मिलीग्राम/दिन)",
+      precautions: [
+        "अधिकतम दैनिक खुराक से अधिक न लें",
+        "शराब के सेवन से बचें",
+        "अन्य दवाओं में पेरासिटामोल सामग्री जांचें",
+        "यदि बुखार बना रहे तो डॉक्टर से सलाह लें",
+      ],
+      sideEffects: "दुर्लभ एलर्जी प्रतिक्रियाएं; ओवरडोज में लीवर क्षति",
+      manufacturer: "क्रोसिन, डोलो 650",
+    },
+    ibuprofen: {
+      name: "आइबुप्रोफेन",
+      disease: "दर्द, सूजन, बुखार",
+      dosage: "200–400 मिलीग्राम हर 6 घंटे (अधिकतम 1200 मिलीग्राम/दिन)",
+      precautions: [
+        "भोजन के बाद लें",
+        "शराब से बचें",
+        "गर्भावस्था के दौरान न लें",
+        "पेट के अल्सर में अनुशंसित नहीं",
+      ],
+      sideEffects: "एसिडिटी, मतली, चक्कर आना",
+      manufacturer: "ब्रूफेन, इबुगेसिक",
+    },
+    aspirin: {
+      name: "एस्पिरिन",
+      disease: "दर्द, बुखार, रक्त पतला करने वाली",
+      dosage: "300–900 मिलीग्राम हर 6 घंटे",
+      precautions: [
+        "16 वर्ष से कम उम्र के बच्चों के लिए नहीं",
+        "रक्तस्राव विकारों में न लें",
+        "सर्जरी से पहले बंद करें",
+        "भोजन के साथ लें",
+      ],
+      sideEffects: "पेट में जलन, रक्तस्राव का जोखिम",
+      manufacturer: "डिस्प्रिन, इकोस्प्रिन",
+    },
   },
   Spanish: {
-    medicine:
-      "Este medicamento se utiliza para tratar las condiciones mencionadas.",
-    dosage:
-      "Siga cuidadosamente las instrucciones de dosificación.",
+    paracetamol: {
+      name: "Paracetamol",
+      disease: "Fiebre, Dolor de cabeza, Dolor leve a moderado",
+      dosage: "500–1000 mg cada 4–6 horas (máximo 4000 mg/día)",
+      precautions: [
+        "No exceder la dosis diaria máxima",
+        "Evitar el consumo de alcohol",
+        "Verificar el contenido de paracetamol en otros medicamentos",
+        "Consulte al médico si la fiebre persiste",
+      ],
+      sideEffects: "Reacciones alérgicas raras; daño hepático en sobredosis",
+      manufacturer: "Crocin, Dolo 650",
+    },
+    ibuprofen: {
+      name: "Ibuprofeno",
+      disease: "Dolor, Inflamación, Fiebre",
+      dosage: "200–400 mg cada 6 horas (máximo 1200 mg/día)",
+      precautions: [
+        "Tomar después de comer",
+        "Evitar alcohol",
+        "Evitar durante el embarazo",
+        "No recomendado en úlceras estomacales",
+      ],
+      sideEffects: "Acidez, náuseas, mareos",
+      manufacturer: "Brufen, Ibugesic",
+    },
+    aspirin: {
+      name: "Aspirina",
+      disease: "Dolor, Fiebre, Diluyente de sangre",
+      dosage: "300–900 mg cada 6 horas",
+      precautions: [
+        "No para niños menores de 16 años",
+        "Evitar en trastornos hemorrágicos",
+        "Suspender antes de la cirugía",
+        "Tomar con alimentos",
+      ],
+      sideEffects: "Irritación estomacal, riesgo de sangrado",
+      manufacturer: "Disprin, Ecosprin",
+    },
   },
   French: {
-    medicine:
-      "Ce médicament est utilisé pour traiter les conditions mentionnées.",
-    dosage:
-      "Veuillez suivre attentivement les instructions de dosage.",
+    paracetamol: {
+      name: "Paracétamol",
+      disease: "Fièvre, Maux de tête, Douleur légère à modérée",
+      dosage: "500–1000 mg toutes les 4–6 heures (max 4000 mg/jour)",
+      precautions: [
+        "Ne pas dépasser la dose quotidienne maximale",
+        "Éviter la consommation d'alcool",
+        "Vérifier la teneur en paracétamol des autres médicaments",
+        "Consulter un médecin si la fièvre persiste",
+      ],
+      sideEffects: "Réactions allergiques rares; dommages au foie en surdose",
+      manufacturer: "Crocin, Dolo 650",
+    },
+    ibuprofen: {
+      name: "Ibuprofène",
+      disease: "Douleur, Inflammation, Fièvre",
+      dosage: "200–400 mg toutes les 6 heures (max 1200 mg/jour)",
+      precautions: [
+        "Prendre après les repas",
+        "Éviter l'alcool",
+        "Éviter pendant la grossesse",
+        "Non recommandé en cas d'ulcères d'estomac",
+      ],
+      sideEffects: "Acidité, nausées, vertiges",
+      manufacturer: "Brufen, Ibugesic",
+    },
+    aspirin: {
+      name: "Aspirine",
+      disease: "Douleur, Fièvre, Fluidifiant sanguin",
+      dosage: "300–900 mg toutes les 6 heures",
+      precautions: [
+        "Non pour les enfants de moins de 16 ans",
+        "Éviter en cas de troubles hémorragiques",
+        "Arrêter avant la chirurgie",
+        "Prendre avec de la nourriture",
+      ],
+      sideEffects: "Irritation de l'estomac, risque de saignement",
+      manufacturer: "Disprin, Ecosprin",
+    },
   },
   German: {
-    medicine:
-      "Dieses Medikament wird zur Behandlung der genannten Beschwerden verwendet.",
-    dosage:
-      "Bitte befolgen Sie die Dosierungsanweisungen genau.",
+    paracetamol: {
+      name: "Paracetamol",
+      disease: "Fieber, Kopfschmerzen, Leichte bis mäßige Schmerzen",
+      dosage: "500–1000 mg alle 4–6 Stunden (max 4000 mg/Tag)",
+      precautions: [
+        "Tägliche Höchstdosis nicht überschreiten",
+        "Alkoholkonsum vermeiden",
+        "Paracetamolgehalt in anderen Medikamenten prüfen",
+        "Arzt konsultieren, wenn Fieber anhält",
+      ],
+      sideEffects: "Seltene allergische Reaktionen; Leberschäden bei Überdosierung",
+      manufacturer: "Crocin, Dolo 650",
+    },
+    ibuprofen: {
+      name: "Ibuprofen",
+      disease: "Schmerzen, Entzündungen, Fieber",
+      dosage: "200–400 mg alle 6 Stunden (max 1200 mg/Tag)",
+      precautions: [
+        "Nach dem Essen einnehmen",
+        "Alkohol vermeiden",
+        "Während der Schwangerschaft vermeiden",
+        "Bei Magengeschwüren nicht empfohlen",
+      ],
+      sideEffects: "Säure, Übelkeit, Schwindel",
+      manufacturer: "Brufen, Ibugesic",
+    },
+    aspirin: {
+      name: "Aspirin",
+      disease: "Schmerzen, Fieber, Blutverdünner",
+      dosage: "300–900 mg alle 6 Stunden",
+      precautions: [
+        "Nicht für Kinder unter 16 Jahren",
+        "Bei Blutungsstörungen vermeiden",
+        "Vor Operationen absetzen",
+        "Mit Nahrung einnehmen",
+      ],
+      sideEffects: "Magenreizung, Blutungsrisiko",
+      manufacturer: "Disprin, Ecosprin",
+    },
   },
   Chinese: {
-    medicine:
-      "该药物用于治疗所列疾病。",
-    dosage:
-      "请严格遵守用药剂量说明。",
+    paracetamol: {
+      name: "扑热息痛",
+      disease: "发烧, 头痛, 轻度至中度疼痛",
+      dosage: "每4-6小时500-1000毫克（最大4000毫克/天）",
+      precautions: [
+        "不要超过每日最大剂量",
+        "避免饮酒",
+        "检查其他药物中对乙酰氨基酚含量",
+        "如果发烧持续请咨询医生",
+      ],
+      sideEffects: "罕见过敏反应; 过量会导致肝损伤",
+      manufacturer: "克罗辛, 多洛650",
+    },
+    ibuprofen: {
+      name: "布洛芬",
+      disease: "疼痛, 炎症, 发烧",
+      dosage: "每6小时200-400毫克（最大1200毫克/天）",
+      precautions: [
+        "饭后服用",
+        "避免酒精",
+        "怀孕期间避免使用",
+        "胃溃疡患者不推荐",
+      ],
+      sideEffects: "胃酸, 恶心, 头晕",
+      manufacturer: "布洛芬, 布洛芬凝胶",
+    },
+    aspirin: {
+      name: "阿司匹林",
+      disease: "疼痛, 发烧, 血液稀释剂",
+      dosage: "每6小时300-900毫克",
+      precautions: [
+        "16岁以下儿童禁用",
+        "出血性疾病患者避免使用",
+        "手术前停用",
+        "随餐服用",
+      ],
+      sideEffects: "胃刺激, 出血风险",
+      manufacturer: "迪斯普林, 埃科斯普林",
+    },
   },
 };
 
@@ -118,7 +328,12 @@ export default function TabletChecker() {
   const [state, setState] = useState<State>("idle");
 
   const key = tablet.toLowerCase().replace(/\s+/g, "");
-  const medicine = MEDICINES[key] || MEDICINES.paracetamol;
+  const baseMedicine = MEDICINES[key] || MEDICINES.paracetamol;
+  
+  // Get translated medicine data for current language
+  const translatedMedicine = medicineTranslations[language]?.[key] || 
+                           medicineTranslations[language]?.paracetamol || 
+                           baseMedicine;
 
   /* ================= TEXT TO SPEECH ================= */
   const getLangCode = () => {
@@ -144,6 +359,21 @@ export default function TabletChecker() {
     u.rate = 0.9;
     window.speechSynthesis.cancel();
     window.speechSynthesis.speak(u);
+  };
+
+  const speakMedicineInfo = () => {
+    speak(
+      `${translatedMedicine.name}. 
+      उपयोग: ${translatedMedicine.disease}. 
+      निर्माता: ${translatedMedicine.manufacturer}.`
+    );
+  };
+
+  const speakDosageInfo = () => {
+    speak(
+      `${translatedMedicine.name}. 
+      खुराक: ${translatedMedicine.dosage}.`
+    );
   };
 
   return (
@@ -254,18 +484,12 @@ export default function TabletChecker() {
                   <h3 className="text-xl font-semibold">Medication Info</h3>
                   <Volume2
                     className="w-5 h-5 text-black cursor-pointer"
-                    onClick={() =>
-                      speak(
-                        `${medicine.name}. 
-                        Uses: ${medicine.disease}. 
-                        Manufacturer: ${medicine.manufacturer}.`
-                      )
-                    }
+                    onClick={speakMedicineInfo}
                   />
                 </div>
-                <p><strong>Name:</strong> {medicine.name}</p>
-                <p><strong>Uses:</strong> {medicine.disease}</p>
-                <p><strong>Manufacturer:</strong> {medicine.manufacturer}</p>
+                <p><strong>Name:</strong> {translatedMedicine.name}</p>
+                <p><strong>Uses:</strong> {translatedMedicine.disease}</p>
+                <p><strong>Manufacturer:</strong> {translatedMedicine.manufacturer}</p>
               </div>
 
               <div className="glass-panel p-8 space-y-4">
@@ -273,15 +497,10 @@ export default function TabletChecker() {
                   <h3 className="text-xl font-semibold">Dosage Information</h3>
                   <Volume2
                     className="w-5 h-5 text-black cursor-pointer"
-                    onClick={() =>
-                      speak(
-                        `${medicine.name}. 
-                        Dosage: ${medicine.dosage}.`
-                      )
-                    }
+                    onClick={speakDosageInfo}
                   />
                 </div>
-                <p>{medicine.dosage}</p>
+                <p>{translatedMedicine.dosage}</p>
               </div>
             </div>
 
@@ -292,7 +511,7 @@ export default function TabletChecker() {
                 Precautions
               </div>
               <ul className="space-y-3">
-                {medicine.precautions.map((p, i) => (
+                {translatedMedicine.precautions.map((p, i) => (
                   <li key={i} className="flex items-start gap-3">
                     <span className="mt-1 h-2 w-2 rounded-full bg-accent" />
                     <span className="text-accent">{p}</span>
@@ -307,7 +526,7 @@ export default function TabletChecker() {
                 <AlertTriangle className="text-yellow-500" />
                 Possible Side Effects
               </div>
-              <p>{medicine.sideEffects}</p>
+              <p>{translatedMedicine.sideEffects}</p>
             </div>
 
             {/* RESET */}
