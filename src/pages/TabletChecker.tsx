@@ -1,8 +1,8 @@
 import { useState, useCallback, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -16,254 +16,77 @@ import {
   Loader2,
   CheckCircle2,
   Volume2,
+  AlertTriangle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-/* -------------------- TYPES -------------------- */
+/* ---------------- TYPES ---------------- */
 type Language = "en" | "es" | "fr" | "de" | "hi" | "zh";
 type VerificationState = "idle" | "analyzing" | "checking" | "verified";
 
-interface Translation {
-  subtitle: string;
-  tabletName: string;
-  tabletPlaceholder: string;
-  language: string;
-  verifyButton: string;
-  verifying: string;
-  analyzingTablet: string;
-  checkingDatabase: string;
-  verifiedAuthentic: string;
-  medicationInfo: string;
-  dosageInfo: string;
-  uses: string;
-  manufacturer: string;
-  dosageAmount: string;
-  frequency: string;
-  speakInfo: string;
-  uploadArea: {
-    click: string;
-    accepts: string;
-  };
-}
-
-/* -------------------- TRANSLATIONS -------------------- */
-const translations: Record<Language, Translation> = {
+/* ---------------- TRANSLATIONS ---------------- */
+const translations = {
   en: {
     subtitle: "Instant AI-based medicine authenticity check",
     tabletName: "Tablet Name",
-    tabletPlaceholder: "e.g. Paracetamol",
+    placeholder: "e.g., Paracetamol",
     language: "Language",
-    verifyButton: "Verify Tablet",
-    verifying: "Verifying...",
-    analyzingTablet: "Analyzing tablet image...",
-    checkingDatabase: "Checking medical database...",
-    verifiedAuthentic: "Verified Authentic",
+    verify: "Verify Tablet",
+    verified: "Verified Authentic",
     medicationInfo: "Medication Info",
     dosageInfo: "Dosage Information",
-    uses: "Uses",
-    manufacturer: "Manufacturer",
-    dosageAmount: "Dosage",
-    frequency: "Frequency",
-    speakInfo: "Speak",
-    uploadArea: {
-      click: "Click to upload",
-      accepts: "Tablet image (optional)",
-    },
-  },
-  es: {
-    subtitle: "Verificación instantánea de medicamentos con IA",
-    tabletName: "Nombre de la Tableta",
-    tabletPlaceholder: "ej. Paracetamol",
-    language: "Idioma",
-    verifyButton: "Verificar Tableta",
-    verifying: "Verificando...",
-    analyzingTablet: "Analizando imagen...",
-    checkingDatabase: "Consultando base médica...",
-    verifiedAuthentic: "Autenticidad Verificada",
-    medicationInfo: "Información del Medicamento",
-    dosageInfo: "Información de Dosis",
-    uses: "Usos",
-    manufacturer: "Fabricante",
-    dosageAmount: "Dosis",
-    frequency: "Frecuencia",
-    speakInfo: "Escuchar",
-    uploadArea: {
-      click: "Subir imagen",
-      accepts: "Imagen opcional",
-    },
-  },
-  fr: {
-    subtitle: "Vérification instantanée par IA",
-    tabletName: "Nom du Comprimé",
-    tabletPlaceholder: "ex. Paracétamol",
-    language: "Langue",
-    verifyButton: "Vérifier",
-    verifying: "Vérification...",
-    analyzingTablet: "Analyse en cours...",
-    checkingDatabase: "Base médicale...",
-    verifiedAuthentic: "Authentifié",
-    medicationInfo: "Infos Médicament",
-    dosageInfo: "Dosage",
-    uses: "Utilisation",
-    manufacturer: "Fabricant",
-    dosageAmount: "Dose",
-    frequency: "Fréquence",
-    speakInfo: "Lire",
-    uploadArea: {
-      click: "Télécharger",
-      accepts: "Image optionnelle",
-    },
-  },
-  de: {
-    subtitle: "KI-gestützte Medikamentenprüfung",
-    tabletName: "Tablettenname",
-    tabletPlaceholder: "z.B. Paracetamol",
-    language: "Sprache",
-    verifyButton: "Überprüfen",
-    verifying: "Überprüfung...",
-    analyzingTablet: "Analyse...",
-    checkingDatabase: "Datenbank...",
-    verifiedAuthentic: "Echt",
-    medicationInfo: "Medikament Info",
-    dosageInfo: "Dosierung",
-    uses: "Anwendung",
-    manufacturer: "Hersteller",
-    dosageAmount: "Menge",
-    frequency: "Häufigkeit",
-    speakInfo: "Sprechen",
-    uploadArea: {
-      click: "Hochladen",
-      accepts: "Optional",
-    },
-  },
-  hi: {
-    subtitle: "एआई द्वारा दवा सत्यापन",
-    tabletName: "टैबलेट नाम",
-    tabletPlaceholder: "जैसे पैरासिटामोल",
-    language: "भाषा",
-    verifyButton: "सत्यापित करें",
-    verifying: "सत्यापन...",
-    analyzingTablet: "विश्लेषण...",
-    checkingDatabase: "डेटाबेस जाँच...",
-    verifiedAuthentic: "प्रमाणित",
-    medicationInfo: "दवा जानकारी",
-    dosageInfo: "खुराक",
-    uses: "उपयोग",
-    manufacturer: "निर्माता",
-    dosageAmount: "मात्रा",
-    frequency: "आवृत्ति",
-    speakInfo: "सुनें",
-    uploadArea: {
-      click: "अपलोड करें",
-      accepts: "वैकल्पिक",
-    },
-  },
-  zh: {
-    subtitle: "AI 即时药物验证",
-    tabletName: "药片名称",
-    tabletPlaceholder: "如：扑热息痛",
-    language: "语言",
-    verifyButton: "验证",
-    verifying: "验证中...",
-    analyzingTablet: "分析中...",
-    checkingDatabase: "查询数据库...",
-    verifiedAuthentic: "已验证",
-    medicationInfo: "药物信息",
-    dosageInfo: "剂量信息",
-    uses: "用途",
-    manufacturer: "生产商",
-    dosageAmount: "剂量",
-    frequency: "频率",
-    speakInfo: "朗读",
-    uploadArea: {
-      click: "上传图片",
-      accepts: "可选",
-    },
+    precautions: "Precautions",
+    sideEffects: "Possible Side Effects",
+    riskLevel: "Risk Level",
   },
 };
 
 const languageNames: Record<Language, string> = {
   en: "English",
-  es: "Español",
-  fr: "Français",
-  de: "Deutsch",
-  hi: "हिन्दी",
-  zh: "中文",
+  es: "Spanish",
+  fr: "French",
+  de: "German",
+  hi: "Hindi",
+  zh: "Chinese",
 };
 
-/* -------------------- MOCK MED DATA -------------------- */
-const getMedicationData = (_: string, __: Language) => ({
-  uses: "Fever, Mild to moderate pain",
+/* ---------------- MOCK MED DATA ---------------- */
+const medication = {
+  uses: "Fever, mild to moderate pain",
   manufacturer: "GSK Pharmaceuticals",
-  dosageAmount: "500–1000mg",
-  frequency: "Every 4–6 hours as needed",
-});
+  dosage: "500–1000mg",
+  frequency: "Every 4–6 hours",
+  precautions: [
+    "Do not exceed recommended dose",
+    "Avoid alcohol",
+    "Consult doctor if pain persists",
+    "Not for children without prescription",
+  ],
+  sideEffects: ["Nausea", "Dizziness", "Stomach upset", "Allergic reaction"],
+};
 
-/* -------------------- TEXT TO SPEECH -------------------- */
-function useTextToSpeech() {
-  const speak = (text: string, lang: Language) => {
-    speechSynthesis.cancel();
+/* ---------------- TTS ---------------- */
+function useTTS() {
+  const speak = (text: string) => {
+    window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    u.lang =
-      lang === "hi" ? "hi-IN" : lang === "zh" ? "zh-CN" : `${lang}-${lang.toUpperCase()}`;
-    speechSynthesis.speak(u);
+    u.rate = 0.9;
+    window.speechSynthesis.speak(u);
   };
-  const stop = () => speechSynthesis.cancel();
-  return { speak, stop };
+  return { speak };
 }
 
-/* -------------------- UPLOAD ZONE -------------------- */
-function UploadZone({
-  t,
-  onImageUpload,
-}: {
-  t: Translation;
-  onImageUpload: (f: File | null) => void;
-}) {
-  const [preview, setPreview] = useState<string | null>(null);
-
-  const handleFile = (file: File | null) => {
-    if (!file) {
-      setPreview(null);
-      onImageUpload(null);
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = () => setPreview(reader.result as string);
-    reader.readAsDataURL(file);
-    onImageUpload(file);
-  };
-
-  return (
-    <label className="flex flex-col items-center justify-center h-[200px] rounded-xl border-2 border-dashed border-border bg-secondary/40 hover:bg-primary/5 transition cursor-pointer">
-      <input type="file" hidden accept="image/*" onChange={(e) => handleFile(e.target.files?.[0] || null)} />
-      {preview ? (
-        <img src={preview} className="max-h-32 rounded-lg" />
-      ) : (
-        <>
-          <div className="h-12 w-12 flex items-center justify-center rounded-full bg-primary/10 mb-3">
-            <Upload className="text-primary" />
-          </div>
-          <p className="font-medium">{t.uploadArea.click}</p>
-          <p className="text-xs text-muted-foreground">{t.uploadArea.accepts}</p>
-        </>
-      )}
-    </label>
-  );
-}
-
-/* -------------------- PAGE -------------------- */
+/* ---------------- COMPONENT ---------------- */
 export default function TabletChecker() {
-  const [tabletName, setTabletName] = useState("");
+  const [tablet, setTablet] = useState("");
   const [language, setLanguage] = useState<Language>("en");
   const [state, setState] = useState<VerificationState>("idle");
-  const { speak, stop } = useTextToSpeech();
 
-  const t = translations[language];
-  const data = getMedicationData(tabletName, language);
+  const t = translations.en;
+  const { speak } = useTTS();
 
-  const verify = async () => {
-    stop();
+  const handleVerify = async () => {
+    if (!tablet) return;
     setState("analyzing");
     await new Promise((r) => setTimeout(r, 1200));
     setState("checking");
@@ -272,84 +95,145 @@ export default function TabletChecker() {
   };
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
+    <div className="min-h-screen bg-background">
       <Navbar />
 
-      {/* Glow */}
-      <div className="absolute inset-0 -z-10">
-        <div className="absolute top-[-200px] left-1/2 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-primary/20 blur-[120px]" />
-      </div>
-
-      <main className="container py-16 space-y-12">
+      <main className="container py-10 space-y-10">
         {/* HEADER */}
-        <div className="text-center space-y-4">
-          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm">
-            <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-            AI-Powered Verification
-          </span>
-          <h1 className="text-4xl md:text-5xl font-bold">Tablet Checker</h1>
-          <p className="max-w-2xl mx-auto text-muted-foreground">{t.subtitle}</p>
+        <div className="text-center space-y-2">
+          <h1 className="text-4xl font-bold">Tablet Checker</h1>
+          <p className="text-muted-foreground">{t.subtitle}</p>
         </div>
 
-        {/* CARD */}
+        {/* INPUT CARD */}
         {state === "idle" && (
-          <div className="max-w-4xl mx-auto glass-card p-8 grid md:grid-cols-2 gap-6">
-            <UploadZone t={t} onImageUpload={() => {}} />
+          <div className="glass-card p-8 max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
+            <label className="upload-zone flex flex-col items-center justify-center">
+              <Upload className="h-8 w-8 text-muted-foreground" />
+              <span className="text-sm mt-2">Click to upload</span>
+            </label>
 
-            <div className="space-y-4">
-              <Label>{t.tabletName}</Label>
-              <Input value={tabletName} onChange={(e) => setTabletName(e.target.value)} placeholder={t.tabletPlaceholder} />
+            <div className="space-y-5">
+              <div>
+                <Label>{t.tabletName}</Label>
+                <Input
+                  placeholder={t.placeholder}
+                  value={tablet}
+                  onChange={(e) => setTablet(e.target.value)}
+                />
+              </div>
 
-              <Label>{t.language}</Label>
-              <Select value={language} onValueChange={(v) => setLanguage(v as Language)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {Object.entries(languageNames).map(([k, v]) => (
-                    <SelectItem key={k} value={k}>{v}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div>
+                <Label>{t.language}</Label>
+                <Select value={language} onValueChange={(v) => setLanguage(v as Language)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(languageNames).map(([k, v]) => (
+                      <SelectItem key={k} value={k}>
+                        {v}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-              <Button className="btn-gradient h-12 mt-2" disabled={!tabletName} onClick={verify}>
-                {t.verifyButton}
+              <Button className="btn-gradient w-full" onClick={handleVerify}>
+                {t.verify}
               </Button>
             </div>
           </div>
         )}
 
+        {/* SCANNING */}
         {(state === "analyzing" || state === "checking") && (
-          <div className="glass-card p-8 flex justify-center gap-4">
+          <div className="glass-card p-8 max-w-xl mx-auto flex items-center gap-4 justify-center">
             <Loader2 className="animate-spin text-primary" />
-            <span>{state === "analyzing" ? t.analyzingTablet : t.checkingDatabase}</span>
+            <span className="font-medium">
+              {state === "analyzing" ? "Analyzing tablet…" : "Checking database…"}
+            </span>
           </div>
         )}
 
+        {/* VERIFIED RESULT */}
         {state === "verified" && (
-          <div className="space-y-8 max-w-5xl mx-auto">
-            <div className="p-6 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-white flex gap-3 justify-center">
-              <CheckCircle2 /> {t.verifiedAuthentic}
+          <div className="max-w-6xl mx-auto space-y-10 animate-fade-in">
+            {/* HOLOGRAM BANNER */}
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-500 to-cyan-500 px-6 py-5 text-white flex items-center justify-center gap-3">
+              <span className="absolute inset-0 animate-pulse bg-white/10" />
+              <CheckCircle2 className="h-6 w-6 z-10" />
+              <span className="text-lg font-semibold z-10">
+                {t.verified}
+              </span>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="info-card">
-                <h3>{t.medicationInfo}</h3>
-                <p>{data.uses}</p>
-                <Button variant="ghost" onClick={() => speak(data.uses, language)}>
+            {/* INFO GRID */}
+            <div className="grid md:grid-cols-2 gap-8">
+              <div className="glass-card p-6">
+                <h3 className="text-xl font-semibold mb-4">{t.medicationInfo}</h3>
+                <p><b>Uses:</b> {medication.uses}</p>
+                <p className="mt-2"><b>Manufacturer:</b> {medication.manufacturer}</p>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => speak(medication.uses)}
+                  className="mt-3"
+                >
                   <Volume2 />
                 </Button>
               </div>
 
-              <div className="info-card">
-                <h3>{t.dosageInfo}</h3>
-                <p>{data.dosageAmount}</p>
-                <Button variant="ghost" onClick={() => speak(data.dosageAmount, language)}>
-                  <Volume2 />
-                </Button>
+              <div className="glass-card p-6">
+                <h3 className="text-xl font-semibold mb-4">{t.dosageInfo}</h3>
+                <p><b>Dosage:</b> {medication.dosage}</p>
+                <p className="mt-2"><b>Frequency:</b> {medication.frequency}</p>
               </div>
             </div>
 
-            <div className="text-center">
-              <Button className="btn-gradient px-8" onClick={() => setState("idle")}>
+            {/* RISK LEVEL */}
+            <div className="glass-card p-6 flex items-center gap-4">
+              <AlertTriangle className="text-yellow-500" />
+              <div>
+                <h3 className="font-semibold">{t.riskLevel}</h3>
+                <div className="h-3 w-full rounded-full bg-muted mt-2">
+                  <div className="h-3 w-[25%] rounded-full bg-emerald-500 animate-pulse" />
+                </div>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Low Risk (Doctor recommended)
+                </p>
+              </div>
+            </div>
+
+            {/* PRECAUTIONS */}
+            <div className="glass-card p-6">
+              <h3 className="text-xl font-semibold mb-4">{t.precautions}</h3>
+              <ul className="list-disc ml-6 space-y-2">
+                {medication.precautions.map((p, i) => (
+                  <li key={i}>{p}</li>
+                ))}
+              </ul>
+            </div>
+
+            {/* SIDE EFFECTS */}
+            <div className="glass-card p-6">
+              <h3 className="text-xl font-semibold mb-4">{t.sideEffects}</h3>
+              <div className="grid sm:grid-cols-2 gap-4">
+                {medication.sideEffects.map((s, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center gap-3 rounded-xl border border-cyan-400/30 bg-cyan-400/10 px-4 py-3"
+                  >
+                    <span className="h-2.5 w-2.5 rounded-full bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.8)] animate-pulse" />
+                    <span>{s}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* RESET */}
+            <div className="flex justify-center">
+              <Button className="btn-gradient px-10" onClick={() => setState("idle")}>
                 Check Another Tablet
               </Button>
             </div>
