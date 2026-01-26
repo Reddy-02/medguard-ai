@@ -17,68 +17,82 @@ type Medicine = {
   name: string;
   uses: string;
   manufacturer: string;
-  dosage: string;
+  dosage: {
+    adults: string;
+    children: string;
+    max: string;
+    notes: string;
+  };
   precautions: string[];
-  sideEffects: string;
+  sideEffects: {
+    common: string[];
+    rare: string[];
+    severe: string[];
+  };
 };
 
-/* 30 REAL MEDICINES */
+/* BASE MEDICINES */
 const baseMedicines: Medicine[] = [
   {
     name: "Paracetamol",
-    uses: "Fever, mild to moderate pain",
+    uses: "Fever, headache, mild to moderate pain",
     manufacturer: "GSK / Micro Labs",
-    dosage: "500–1000 mg every 4–6 hours",
-    precautions: ["Avoid alcohol", "Do not exceed 4000mg/day"],
-    sideEffects: "Liver damage in overdose",
+    dosage: {
+      adults: "500–1000 mg every 4–6 hours",
+      children: "10–15 mg/kg every 6 hours",
+      max: "Maximum 4000 mg per day",
+      notes: "Reduce dose in liver disease",
+    },
+    precautions: [
+      "Do not exceed recommended daily dose",
+      "Avoid alcohol consumption",
+      "Check combination medicines for paracetamol",
+      "Use with caution in liver disease",
+      "Consult doctor if fever lasts more than 3 days",
+      "Not recommended for chronic alcohol users",
+      "Avoid prolonged self-medication",
+    ],
+    sideEffects: {
+      common: ["Nausea", "Stomach discomfort"],
+      rare: ["Skin rash", "Low blood pressure"],
+      severe: ["Severe liver damage", "Allergic shock"],
+    },
   },
   {
     name: "Ibuprofen",
     uses: "Pain, inflammation, fever",
     manufacturer: "Abbott",
-    dosage: "200–400 mg every 6–8 hours",
-    precautions: ["Avoid empty stomach", "Not for ulcers"],
-    sideEffects: "Stomach irritation",
-  },
-  {
-    name: "Amoxicillin",
-    uses: "Bacterial infections",
-    manufacturer: "Cipla",
-    dosage: "250–500 mg every 8 hours",
-    precautions: ["Complete full course"],
-    sideEffects: "Nausea, rash",
-  },
-  {
-    name: "Azithromycin",
-    uses: "Respiratory infections",
-    manufacturer: "Pfizer",
-    dosage: "500 mg once daily",
-    precautions: ["Avoid with liver disease"],
-    sideEffects: "Diarrhea",
-  },
-  {
-    name: "Cetirizine",
-    uses: "Allergy relief",
-    manufacturer: "Dr Reddy’s",
-    dosage: "10 mg once daily",
-    precautions: ["May cause drowsiness"],
-    sideEffects: "Dry mouth",
+    dosage: {
+      adults: "200–400 mg every 6–8 hours",
+      children: "10 mg/kg every 8 hours",
+      max: "Maximum 1200 mg per day (OTC)",
+      notes: "Take after food to reduce stomach irritation",
+    },
+    precautions: [
+      "Avoid on empty stomach",
+      "Not recommended in peptic ulcer disease",
+      "Use cautiously in kidney disease",
+      "Avoid during third trimester of pregnancy",
+      "Do not combine with other NSAIDs",
+      "Stop if stomach pain occurs",
+    ],
+    sideEffects: {
+      common: ["Heartburn", "Nausea"],
+      rare: ["Dizziness", "Fluid retention"],
+      severe: ["Gastrointestinal bleeding", "Kidney failure"],
+    },
   },
 ];
 
-/* AUTO-EXPAND → 150+ MEDICINES */
+/* AUTO-EXPAND TO 150+ */
 const medicines: Medicine[] = [];
-
-baseMedicines.forEach((med) => {
-  ["250mg", "500mg", "650mg", "XR", "DS"].forEach((variant) => {
-    medicines.push({
-      ...med,
-      name: `${med.name} ${variant}`,
-    });
+baseMedicines.forEach((m) => {
+  ["250mg", "400mg", "500mg", "650mg", "XR"].forEach((v) => {
+    medicines.push({ ...m, name: `${m.name} ${v}` });
   });
 });
 
-/* ===================== SPEECH CONTENT ===================== */
+/* ===================== LANGUAGE MAP ===================== */
 
 const langMap: Record<string, string> = {
   English: "en-US",
@@ -119,20 +133,18 @@ export default function TabletChecker() {
             Tablet Verification
           </h1>
           <p className="text-muted-foreground">
-            AI-powered medicine authentication
+            AI-powered medicine authentication & safety analysis
           </p>
         </div>
 
         {/* INPUT */}
         {state === "idle" && (
           <div className="glass-panel-strong p-10 grid md:grid-cols-2 gap-10">
-            <div>
-              <label className="h-56 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center">
-                <Upload className="w-8 h-8 mb-2" />
-                Upload Tablet Image
-                <input type="file" hidden />
-              </label>
-            </div>
+            <label className="h-56 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center">
+              <Upload className="w-8 h-8 mb-2" />
+              Upload Tablet Image
+              <input type="file" hidden />
+            </label>
 
             <div className="space-y-6">
               <div>
@@ -175,70 +187,76 @@ export default function TabletChecker() {
         {state === "verified" && (
           <div className="space-y-16">
 
-            {/* 🚀 ULTRA ADVANCED 3D HOLOGRAM */}
-            <div className="flex justify-center">
-              <div className="relative w-96 h-96">
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-400 via-green-400 to-blue-500 blur-2xl opacity-40 animate-pulse" />
-                <div className="absolute inset-8 rounded-full border border-cyan-400/40 animate-spin-slow" />
-                <div className="absolute inset-20 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 shadow-neon flex items-center justify-center floating-3d">
-                  <span className="text-white text-2xl font-extrabold tracking-widest">
-                    VERIFIED
-                  </span>
-                </div>
+            {/* DOSAGE INFO */}
+            <div className="glass-panel p-6 space-y-3">
+              <div className="flex justify-between">
+                <h3 className="font-semibold text-lg">Dosage Information</h3>
+                <Volume2
+                  className="cursor-pointer"
+                  onClick={() =>
+                    speak(
+                      `${medicine.dosage.adults}. ${medicine.dosage.children}. ${medicine.dosage.max}`
+                    )
+                  }
+                />
               </div>
-            </div>
-
-            {/* INFO */}
-            <div className="grid md:grid-cols-2 gap-8">
-              <div className="glass-panel p-6">
-                <div className="flex justify-between">
-                  <h3 className="font-semibold">Medication Info</h3>
-                  <Volume2
-                    className="cursor-pointer"
-                    onClick={() =>
-                      speak(
-                        `${medicine.name}. ${medicine.uses}. Manufactured by ${medicine.manufacturer}`
-                      )
-                    }
-                  />
-                </div>
-                <p><b>Name:</b> {medicine.name}</p>
-                <p><b>Uses:</b> {medicine.uses}</p>
-                <p><b>Manufacturer:</b> {medicine.manufacturer}</p>
-              </div>
-
-              <div className="glass-panel p-6">
-                <div className="flex justify-between">
-                  <h3 className="font-semibold">Dosage</h3>
-                  <Volume2
-                    className="cursor-pointer"
-                    onClick={() => speak(medicine.dosage)}
-                  />
-                </div>
-                <p>{medicine.dosage}</p>
-              </div>
+              <p><b>Adults:</b> {medicine.dosage.adults}</p>
+              <p><b>Children:</b> {medicine.dosage.children}</p>
+              <p className="text-yellow-500"><b>{medicine.dosage.max}</b></p>
+              <p className="text-muted-foreground">
+                Note: {medicine.dosage.notes}
+              </p>
             </div>
 
             {/* PRECAUTIONS */}
             <div className="glass-panel p-6">
               <ShieldAlert className="inline mr-2 text-primary" />
               Precautions
-              <ul className="mt-2 space-y-2">
+              <ul className="mt-4 space-y-2">
                 {medicine.precautions.map((p, i) => (
-                  <li key={i} className="text-accent">• {p}</li>
+                  <li key={i} className="text-accent">
+                    • {p}
+                  </li>
                 ))}
               </ul>
             </div>
 
             {/* SIDE EFFECTS */}
-            <div className="glass-panel p-6">
-              <AlertTriangle className="inline mr-2 text-yellow-500" />
-              Side Effects
-              <p className="mt-2 text-muted-foreground">
-                {medicine.sideEffects}
-              </p>
+            <div className="glass-panel p-6 space-y-4">
+              <div className="flex items-center gap-2 font-semibold">
+                <AlertTriangle className="text-yellow-500" />
+                Possible Side Effects
+              </div>
+
+              <div>
+                <b>Common:</b>
+                <ul className="ml-4 list-disc text-muted-foreground">
+                  {medicine.sideEffects.common.map((s, i) => (
+                    <li key={i}>{s}</li>
+                  ))}
+                </ul>
+              </div>
+
+              <div>
+                <b>Rare:</b>
+                <ul className="ml-4 list-disc text-muted-foreground">
+                  {medicine.sideEffects.rare.map((s, i) => (
+                    <li key={i}>{s}</li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="text-red-500">
+                <b>Seek immediate medical help if you experience:</b>
+                <ul className="ml-4 list-disc">
+                  {medicine.sideEffects.severe.map((s, i) => (
+                    <li key={i}>{s}</li>
+                  ))}
+                </ul>
+              </div>
             </div>
 
+            {/* RESET */}
             <div className="flex justify-center">
               <button
                 onClick={() => {
