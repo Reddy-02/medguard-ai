@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import {
   Upload,
@@ -17,26 +17,38 @@ export default function TabletChecker() {
   const [language, setLanguage] = useState("English");
   const [state, setState] = useState<State>("idle");
 
-  /* 🔊 TEXT TO SPEECH */
+  /* ---------- TEXT TO SPEECH ---------- */
+  const getLangCode = () => {
+    switch (language) {
+      case "Hindi":
+        return "hi-IN";
+      case "Spanish":
+        return "es-ES";
+      case "French":
+        return "fr-FR";
+      case "German":
+        return "de-DE";
+      case "Chinese":
+        return "zh-CN";
+      default:
+        return "en-US";
+    }
+  };
+
   const speak = (text: string) => {
     const msg = new SpeechSynthesisUtterance(text);
-    msg.lang = language === "Hindi" ? "hi-IN" : "en-US";
+    msg.lang = getLangCode();
     msg.rate = 0.9;
+    msg.pitch = 1;
     window.speechSynthesis.cancel();
     window.speechSynthesis.speak(msg);
   };
-
-  /* AI SCAN */
-  useEffect(() => {
-    if (state === "scanning") {
-      setTimeout(() => setState("verified"), 2500);
-    }
-  }, [state]);
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
 
+      {/* OFFSET FOR FIXED NAVBAR */}
       <main className="container max-w-7xl pt-24 pb-20 space-y-16">
 
         {/* HEADER */}
@@ -49,16 +61,17 @@ export default function TabletChecker() {
           </p>
         </div>
 
-        {/* INPUT */}
-        {state === "idle" && (
+        {/* INPUT CARD */}
+        {state !== "verified" && (
           <div className="glass-panel-strong p-10">
             <div className="grid md:grid-cols-2 gap-10">
 
               {/* UPLOAD */}
-              <div>
-                <div className="flex items-center gap-2 text-primary font-semibold mb-3">
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-primary font-semibold">
                   <Upload /> Upload Tablet Image
                 </div>
+
                 <label className="h-56 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:border-primary transition">
                   <Upload className="w-8 h-8 text-muted-foreground mb-2" />
                   <p className="font-medium">Drop or Click to Upload</p>
@@ -73,9 +86,9 @@ export default function TabletChecker() {
               <div className="flex flex-col justify-between space-y-8">
 
                 <div className="space-y-6">
-                  {/* NAME */}
-                  <div>
-                    <div className="flex items-center gap-2 text-primary font-semibold mb-2">
+                  {/* TABLET NAME */}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-primary font-semibold">
                       <Pill /> Tablet Imprint / Name
                     </div>
                     <input
@@ -86,35 +99,31 @@ export default function TabletChecker() {
                     />
                   </div>
 
-                  {/* PREMIUM LANGUAGE SELECT */}
-                  <div>
-                    <div className="flex items-center gap-2 text-primary font-semibold mb-2">
+                  {/* LANGUAGE */}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-primary font-semibold">
                       <Languages /> Select Language
                     </div>
-                    <div className="relative">
-                      <select
-                        value={language}
-                        onChange={(e) => setLanguage(e.target.value)}
-                        className="appearance-none h-12 w-full rounded-xl border border-input px-4 bg-white dark:bg-background shadow-md focus:ring-2 focus:ring-primary/30"
-                      >
-                        <option>English</option>
-                        <option>Hindi</option>
-                        <option>Spanish</option>
-                        <option>French</option>
-                        <option>German</option>
-                        <option>Chinese</option>
-                      </select>
-                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground">
-                        ▼
-                      </span>
-                    </div>
+                    <select
+                      value={language}
+                      onChange={(e) => setLanguage(e.target.value)}
+                      className="h-12 w-full rounded-xl border border-input px-4 bg-background focus:ring-2 focus:ring-primary/30"
+                    >
+                      <option>English</option>
+                      <option>Hindi</option>
+                      <option>Spanish</option>
+                      <option>French</option>
+                      <option>German</option>
+                      <option>Chinese</option>
+                    </select>
                   </div>
                 </div>
 
+                {/* VERIFY BUTTON */}
                 <button
-                  onClick={() => setState("scanning")}
+                  onClick={() => setState("verified")}
                   disabled={!tablet}
-                  className="h-14 rounded-xl text-lg font-semibold text-white bg-gradient-to-r from-primary to-accent neon-glow-blue hover:scale-[1.02] transition disabled:opacity-50"
+                  className="h-14 w-full rounded-xl text-lg font-semibold text-white bg-gradient-to-r from-primary to-accent neon-glow-blue hover:scale-[1.02] transition disabled:opacity-50"
                 >
                   Verify Tablet
                 </button>
@@ -123,92 +132,94 @@ export default function TabletChecker() {
           </div>
         )}
 
-        {/* SCANNING */}
-        {state === "scanning" && (
-          <div className="glass-panel p-16 text-center">
-            <div className="animate-spin w-12 h-12 mx-auto border-4 border-primary border-t-transparent rounded-full" />
-            <p className="mt-4 font-semibold">AI Scanning Tablet…</p>
-          </div>
-        )}
-
-        {/* VERIFIED */}
+        {/* VERIFIED RESULT */}
         {state === "verified" && (
           <div className="space-y-16">
 
-            {/* 🌈 ADVANCED 3D HOLOGRAM */}
+            {/* FAANG-LEVEL 3D HOLOGRAM */}
             <div className="flex justify-center">
-              <div className="relative w-72 h-72">
-                <div className="absolute inset-0 rounded-full border border-accent/30 animate-spin-slow neon-glow-green" />
-                <div className="absolute inset-4 rounded-full border-2 border-primary/40 animate-spin-reverse" />
-                <div className="absolute inset-10 rounded-full bg-gradient-to-br from-accent to-primary flex items-center justify-center shadow-neon floating-3d">
-                  <span className="text-white font-bold tracking-widest text-lg">
+              <div className="relative w-80 h-80">
+
+                <div className="absolute inset-0 rounded-full border border-accent/30 animate-spin-slow" />
+                <div className="absolute inset-6 rounded-full border border-primary/40 animate-spin-reverse" />
+                <div className="absolute inset-10 rounded-full bg-gradient-to-br from-accent via-cyan-400 to-primary blur-xl opacity-40 animate-pulse-glow" />
+
+                <div className="absolute inset-16 rounded-full bg-gradient-to-br from-accent to-primary shadow-neon flex items-center justify-center floating-3d">
+                  <span className="text-white text-xl font-bold tracking-widest">
                     VERIFIED
                   </span>
+                </div>
+
+                <div className="absolute -bottom-10 w-full text-center text-accent font-semibold">
+                  Authentic Medicine
                 </div>
               </div>
             </div>
 
             {/* INFO GRID */}
             <div className="grid md:grid-cols-2 gap-8">
-
-              {/* MED INFO */}
-              <div className="glass-panel p-6 space-y-2">
-                <div className="flex items-center justify-between">
+              <div className="glass-panel p-6 space-y-3">
+                <div className="flex justify-between items-center">
                   <h3 className="font-semibold text-lg">Medication Info</h3>
-                  <button
+                  <Volume2
+                    className="w-5 h-5 text-black cursor-pointer"
                     onClick={() =>
                       speak(
-                        "Paracetamol is used for fever and mild to moderate pain."
+                        `${tablet}. Used for fever and mild pain. Manufactured by Crocin.`
                       )
                     }
-                  >
-                    <Volume2 className="text-black w-5 h-5" />
-                  </button>
+                  />
                 </div>
                 <p><strong>Name:</strong> {tablet}</p>
                 <p><strong>Uses:</strong> Fever, headache, mild pain</p>
                 <p><strong>Manufacturer:</strong> Crocin / Dolo 650</p>
               </div>
 
-              {/* DOSAGE */}
-              <div className="glass-panel p-6 space-y-2">
-                <div className="flex items-center justify-between">
+              <div className="glass-panel p-6 space-y-3">
+                <div className="flex justify-between items-center">
                   <h3 className="font-semibold text-lg">Dosage Information</h3>
-                  <button
+                  <Volume2
+                    className="w-5 h-5 text-black cursor-pointer"
                     onClick={() =>
                       speak(
-                        "Take 500 to 1000 milligrams every 4 to 6 hours. Do not exceed 4000 milligrams per day."
+                        "Take 500 to 1000 milligrams every 4 to 6 hours. Maximum 4000 milligrams per day."
                       )
                     }
-                  >
-                    <Volume2 className="text-black w-5 h-5" />
-                  </button>
+                  />
                 </div>
                 <p>500–1000 mg every 4–6 hours</p>
-                <p className="text-muted-foreground">Max 4000 mg/day</p>
+                <p className="text-muted-foreground">Max 4000 mg per day</p>
               </div>
             </div>
 
             {/* PRECAUTIONS */}
-            <div className="glass-panel p-6">
+            <div className="glass-panel p-6 space-y-4">
               <div className="flex items-center gap-2 font-semibold">
                 <ShieldAlert className="text-primary" />
                 Precautions
               </div>
-              <ul className="list-disc list-inside text-muted-foreground mt-2">
-                <li>Do not exceed maximum daily dose</li>
-                <li>Avoid alcohol</li>
-                <li>Consult doctor if fever persists</li>
+              <ul className="space-y-2">
+                {[
+                  "Do not exceed maximum daily dose",
+                  "Avoid alcohol consumption",
+                  "Check other medicines for paracetamol",
+                  "Consult doctor if fever persists",
+                ].map((item, i) => (
+                  <li key={i} className="flex items-start gap-2">
+                    <span className="mt-1 h-2 w-2 rounded-full bg-accent shadow-[0_0_10px_hsl(160_100%_50%)]" />
+                    <span className="text-accent">{item}</span>
+                  </li>
+                ))}
               </ul>
             </div>
 
             {/* SIDE EFFECTS */}
-            <div className="glass-panel p-6">
+            <div className="glass-panel p-6 space-y-2">
               <div className="flex items-center gap-2 font-semibold">
                 <AlertTriangle className="text-yellow-500" />
                 Possible Side Effects
               </div>
-              <p className="text-muted-foreground mt-2">
+              <p className="text-muted-foreground">
                 Rare allergic reactions; liver damage in overdose
               </p>
             </div>
@@ -217,10 +228,10 @@ export default function TabletChecker() {
             <div className="flex justify-center">
               <button
                 onClick={() => {
-                  setTablet("");
                   setState("idle");
+                  setTablet("");
                 }}
-                className="px-8 py-3 rounded-xl bg-primary text-white font-semibold hover:scale-105 transition"
+                className="px-10 py-4 rounded-xl bg-primary text-white font-semibold hover:scale-105 transition"
               >
                 Check Another Tablet
               </button>
