@@ -71,50 +71,71 @@ export default function TabletChecker() {
         </div>
 
         {/* ---------- INPUT CARD ---------- */}
-        {state !== "verified" && (
-          <div className="glass-panel-strong max-w-4xl mx-auto p-10 grid md:grid-cols-2 gap-8 hover-lift">
+<div className="glass-panel-strong max-w-5xl mx-auto p-10 hover-lift">
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
 
-            {/* Upload */}
-            <label className="flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-10 cursor-pointer">
-              <Upload className="h-8 w-8 text-muted-foreground mb-3" />
-              <span className="font-medium">Upload Tablet Image</span>
-              <span className="text-xs text-muted-foreground">
-                (optional)
-              </span>
-              <input type="file" className="hidden" />
-            </label>
+    {/* LEFT : Upload */}
+    <label className="flex flex-col items-center justify-center
+      border-2 border-dashed rounded-2xl p-12 h-full
+      text-center cursor-pointer transition hover:bg-secondary/50">
 
-            {/* Inputs */}
-            <div className="space-y-6">
-              <Input
-                placeholder="e.g., IBU 200 or Paracetamol"
-                value={tablet}
-                onChange={(e) => setTablet(e.target.value)}
-              />
+      <Upload className="h-10 w-10 text-muted-foreground mb-4" />
 
-              <Select value={language} onValueChange={(v) => setLanguage(v as Language)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="en">English</SelectItem>
-                  <SelectItem value="es">Spanish</SelectItem>
-                  <SelectItem value="fr">French</SelectItem>
-                  <SelectItem value="de">German</SelectItem>
-                  <SelectItem value="hi">Hindi</SelectItem>
-                  <SelectItem value="zh">Chinese</SelectItem>
-                </SelectContent>
-              </Select>
+      <p className="font-semibold text-lg">
+        Upload Tablet Image
+      </p>
 
-              <Button
-                onClick={verify}
-                className="w-full h-12 bg-[var(--gradient-primary)] text-white neon-glow-blue"
-              >
-                Verify Tablet
-              </Button>
-            </div>
-          </div>
+      <p className="text-sm text-muted-foreground">
+        Optional – helps AI accuracy
+      </p>
+
+      <input type="file" className="hidden" />
+    </label>
+
+    {/* RIGHT : Inputs + CTA */}
+    <div className="flex flex-col justify-between h-full space-y-6">
+
+      <div className="space-y-4">
+        <Input
+          placeholder="e.g., Paracetamol / IBU 200"
+          value={tablet}
+          onChange={(e) => setTablet(e.target.value)}
+          className="h-12 text-base"
+        />
+
+        <Select value={language} onValueChange={(v) => setLanguage(v as any)}>
+          <SelectTrigger className="h-12">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="en">English</SelectItem>
+            <SelectItem value="es">Spanish</SelectItem>
+            <SelectItem value="fr">French</SelectItem>
+            <SelectItem value="de">German</SelectItem>
+            <SelectItem value="hi">Hindi</SelectItem>
+            <SelectItem value="zh">Chinese</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* VERIFY BUTTON (FIXED) */}
+      <Button
+        onClick={verify}
+        disabled={!tablet.trim()}
+        className={cn(
+          "h-14 text-lg font-semibold rounded-xl",
+          "bg-[var(--gradient-primary)] text-white",
+          "neon-glow-blue transition-all",
+          !tablet && "opacity-50 cursor-not-allowed"
         )}
+      >
+        Verify Tablet
+      </Button>
+    </div>
+
+  </div>
+</div>
+
 
         {/* ---------- VERIFIED ---------- */}
         {state === "verified" && (
