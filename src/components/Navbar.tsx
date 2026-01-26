@@ -1,99 +1,148 @@
-import { Link, useLocation } from "react-router-dom";
-import { Shield, Menu, X } from "lucide-react";
 import { useState } from "react";
-import logo from "@/assets/logo.png";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { Navbar } from "@/components/Navbar";
+import { Upload, CheckCircle2 } from "lucide-react";
 
-export const Navbar = () => {
-  const location = useLocation();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+type VerificationState = "idle" | "verified";
 
-  const isActive = (path: string) => location.pathname === path;
-
-  const navLinks = [
-    { path: "/", label: "Home" },
-    { path: "/checker", label: "Tablet Checker" },
-    { path: "/guide", label: "Usage Guide" },
-    { path: "/about", label: "About" },
-  ];
+export default function TabletChecker() {
+  const [tabletName, setTabletName] = useState("");
+  const [language, setLanguage] = useState("English");
+  const [state, setState] = useState<VerificationState>("idle");
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass-panel-strong border-b border-white/20">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 lg:h-20">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="relative">
-              <img src={logo} alt="MedGuard AI" className="w-10 h-10 lg:w-12 lg:h-12" />
-              <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent rounded-full blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-500" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-lg lg:text-xl font-bold holographic-text">
-                MedGuard AI
-              </span>
-              <span className="text-[10px] lg:text-xs text-muted-foreground">
-                Verify Your Medicine
-              </span>
-            </div>
-          </Link>
+    <div className="min-h-screen bg-background">
+      {/* FIXED NAVBAR */}
+      <Navbar />
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                className={`relative px-4 py-2 text-sm lg:text-base font-medium transition-all duration-300 ${
-                  isActive(link.path)
-                    ? "text-primary"
-                    : "text-foreground hover:text-primary"
-                }`}
-              >
-                {link.label}
-                {isActive(link.path) && (
-                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary to-accent neon-glow-blue" />
-                )}
-              </Link>
-            ))}
-            <ThemeToggle />
-          </div>
+      {/* 🔥 MAIN OFFSET FIX (VERY IMPORTANT) */}
+      <main className="container max-w-7xl pt-24 pb-20 space-y-16">
 
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-lg glass-panel hover:neon-glow-blue transition-all"
-          >
-            {mobileMenuOpen ? (
-              <X className="w-6 h-6" />
-            ) : (
-              <Menu className="w-6 h-6" />
-            )}
-          </button>
+        {/* HEADER */}
+        <div className="text-center space-y-4">
+          <h1 className="text-5xl font-bold holographic-text">
+            Tablet Verification
+          </h1>
+          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
+            Upload an image or enter tablet details for instant AI verification.
+            Always consult a licensed doctor or pharmacist before use.
+          </p>
         </div>
 
-        {/* Mobile Navigation */}
-        {mobileMenuOpen && (
-          <div className="md:hidden py-4 space-y-2">
-            {navLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                onClick={() => setMobileMenuOpen(false)}
-                className={`block px-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 ${
-                  isActive(link.path)
-                    ? "glass-panel-strong text-primary neon-glow-blue"
-                    : "hover:glass-panel text-foreground"
-                }`}
+        {/* INPUT CARD */}
+        <div className="glass-panel-strong p-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+
+            {/* UPLOAD AREA */}
+            <label className="flex flex-col items-center justify-center h-56 border-2 border-dashed rounded-2xl cursor-pointer hover:border-primary transition">
+              <Upload className="w-10 h-10 text-muted-foreground mb-3" />
+              <span className="font-medium text-lg">
+                Upload Tablet Image
+              </span>
+              <span className="text-sm text-muted-foreground">
+                Optional – improves AI accuracy
+              </span>
+              <input type="file" className="hidden" />
+            </label>
+
+            {/* FORM */}
+            <div className="space-y-6">
+              <input
+                value={tabletName}
+                onChange={(e) => setTabletName(e.target.value)}
+                placeholder="e.g., Paracetamol / IBU 200"
+                className="w-full h-12 rounded-xl border border-input px-4 bg-background"
+              />
+
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                className="w-full h-12 rounded-xl border border-input px-4 bg-background"
               >
-                {link.label}
-              </Link>
-            ))}
-            <div className="px-4 py-3">
-              <ThemeToggle />
+                <option>English</option>
+                <option>Hindi</option>
+                <option>Spanish</option>
+                <option>French</option>
+                <option>German</option>
+                <option>Chinese</option>
+              </select>
+
+              <button
+                onClick={() => setState("verified")}
+                className="w-full h-12 rounded-xl font-semibold text-white bg-gradient-to-r from-primary to-accent neon-glow-blue hover:scale-[1.02] transition"
+              >
+                Verify Tablet
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* VERIFIED RESULT */}
+        {state === "verified" && (
+          <div className="space-y-10">
+
+            {/* VERIFIED BANNER */}
+            <div className="glass-panel p-6 flex items-center justify-center gap-4 neon-glow-green animate-pulse-glow">
+              <CheckCircle2 className="w-8 h-8 text-accent" />
+              <span className="text-2xl font-bold text-accent">
+                VERIFIED AUTHENTIC
+              </span>
+            </div>
+
+            {/* INFO GRID */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+              {/* MEDICATION INFO */}
+              <div className="glass-panel p-6 space-y-3 hover-lift">
+                <h3 className="text-xl font-semibold">Medication Info</h3>
+                <p><strong>Name:</strong> Paracetamol</p>
+                <p><strong>Uses:</strong> Fever, Headache, Mild pain</p>
+                <p><strong>Manufacturer:</strong> Crocin / Dolo 650</p>
+              </div>
+
+              {/* DOSAGE INFO */}
+              <div className="glass-panel p-6 space-y-3 hover-lift">
+                <h3 className="text-xl font-semibold">Dosage Information</h3>
+                <p>500–1000 mg every 4–6 hours</p>
+                <p className="text-muted-foreground">
+                  Max 4000 mg per day
+                </p>
+              </div>
+            </div>
+
+            {/* PRECAUTIONS */}
+            <div className="glass-panel p-6 space-y-4">
+              <h3 className="text-xl font-semibold">Precautions</h3>
+              <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                <li>Do not exceed maximum daily dose</li>
+                <li>Avoid alcohol consumption</li>
+                <li>Check other medicines for paracetamol content</li>
+                <li>Consult doctor if fever persists</li>
+              </ul>
+            </div>
+
+            {/* SIDE EFFECTS */}
+            <div className="glass-panel p-6 space-y-3">
+              <h3 className="text-xl font-semibold">Possible Side Effects</h3>
+              <p className="text-muted-foreground">
+                Rare allergic reactions; liver damage in overdose
+              </p>
+            </div>
+
+            {/* RESET */}
+            <div className="flex justify-center">
+              <button
+                onClick={() => {
+                  setState("idle");
+                  setTabletName("");
+                }}
+                className="px-8 py-3 rounded-xl bg-primary text-white font-semibold hover:scale-105 transition"
+              >
+                Check Another Tablet
+              </button>
             </div>
           </div>
         )}
-      </div>
-    </nav>
+      </main>
+    </div>
   );
-};
+}
