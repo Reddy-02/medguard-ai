@@ -33,11 +33,11 @@ const MEDICINES: Record<string, Medicine> = {
       "Do not exceed maximum daily dose",
       "Avoid alcohol consumption",
       "Check other medicines for paracetamol content",
-      "Consult doctor if fever persists",
+      "Consult doctor if fever persists"
     ],
     sideEffects: "Rare allergic reactions; liver damage in overdose",
     manufacturer: "Crocin, Dolo 650",
-    verified: true,
+    verified: true
   },
 
   ibuprofen: {
@@ -48,11 +48,11 @@ const MEDICINES: Record<string, Medicine> = {
       "Take after food",
       "Avoid alcohol",
       "Avoid during pregnancy",
-      "Not recommended in stomach ulcers",
+      "Not recommended in stomach ulcers"
     ],
     sideEffects: "Acidity, nausea, dizziness",
     manufacturer: "Brufen, Ibugesic",
-    verified: true,
+    verified: true
   },
 
   aspirin: {
@@ -61,13 +61,202 @@ const MEDICINES: Record<string, Medicine> = {
     dosage: "300–900 mg every 6 hours",
     precautions: [
       "Not for children below 16",
-      "Avoid in bleeding disorders",
+      "Avoid bleeding disorders",
       "Stop before surgery",
-      "Take with food",
+      "Take with food"
     ],
     sideEffects: "Stomach irritation, bleeding risk",
     manufacturer: "Disprin, Ecosprin",
-    verified: true,
+    verified: true
+  },
+
+  diclofenac: {
+    name: "Diclofenac",
+    disease: "Joint pain, Muscle pain, Arthritis",
+    dosage: "50 mg 2–3 times daily",
+    precautions: [
+      "Short-term use only",
+      "Avoid heart disease",
+      "Take after meals"
+    ],
+    sideEffects: "Gastric pain, nausea",
+    manufacturer: "Voveran",
+    verified: true
+  },
+
+  naproxen: {
+    name: "Naproxen",
+    disease: "Inflammation, Muscle pain",
+    dosage: "250–500 mg twice daily",
+    precautions: ["Avoid prolonged use", "Take with food"],
+    sideEffects: "Heartburn, dizziness",
+    manufacturer: "Naprosyn",
+    verified: true
+  },
+
+  amoxicillin: {
+    name: "Amoxicillin",
+    disease: "Bacterial infections",
+    dosage: "500 mg every 8 hours",
+    precautions: [
+      "Complete full antibiotic course",
+      "Avoid if penicillin allergy"
+    ],
+    sideEffects: "Diarrhea, rash",
+    manufacturer: "Mox, Novamox",
+    verified: true
+  },
+
+  azithromycin: {
+    name: "Azithromycin",
+    disease: "Respiratory and throat infections",
+    dosage: "500 mg once daily for 3–5 days",
+    precautions: [
+      "Avoid unnecessary antibiotic use",
+      "Take after food"
+    ],
+    sideEffects: "Nausea, loose stools",
+    manufacturer: "Azee, Azithral",
+    verified: true
+  },
+
+  ciprofloxacin: {
+    name: "Ciprofloxacin",
+    disease: "UTI, GI infections",
+    dosage: "500 mg twice daily",
+    precautions: [
+      "Avoid during pregnancy",
+      "Drink plenty of fluids"
+    ],
+    sideEffects: "Dizziness, tendon pain",
+    manufacturer: "Ciplox",
+    verified: true
+  },
+
+  metronidazole: {
+    name: "Metronidazole",
+    disease: "Amoebiasis, Anaerobic infections",
+    dosage: "400–500 mg 2–3 times daily",
+    precautions: ["Avoid alcohol", "Complete course"],
+    sideEffects: "Metallic taste, nausea",
+    manufacturer: "Metrogyl",
+    verified: true
+  },
+
+  doxycycline: {
+    name: "Doxycycline",
+    disease: "Acne, Respiratory infections",
+    dosage: "100 mg once or twice daily",
+    precautions: [
+      "Avoid sunlight exposure",
+      "Not for pregnancy"
+    ],
+    sideEffects: "Photosensitivity",
+    manufacturer: "Doxy-1",
+    verified: true
+  },
+
+  metformin: {
+    name: "Metformin",
+    disease: "Type 2 Diabetes",
+    dosage: "500 mg twice daily after meals",
+    precautions: [
+      "Monitor kidney function",
+      "Avoid alcohol"
+    ],
+    sideEffects: "Diarrhea",
+    manufacturer: "Glycomet",
+    verified: true
+  },
+
+  amlodipine: {
+    name: "Amlodipine",
+    disease: "High Blood Pressure",
+    dosage: "5–10 mg once daily",
+    precautions: ["Do not stop suddenly"],
+    sideEffects: "Ankle swelling",
+    manufacturer: "Amlodac",
+    verified: true
+  },
+
+  losartan: {
+    name: "Losartan",
+    disease: "Hypertension",
+    dosage: "50 mg once daily",
+    precautions: ["Avoid during pregnancy"],
+    sideEffects: "Dizziness",
+    manufacturer: "Losar",
+    verified: true
+  },
+
+  atenolol: {
+    name: "Atenolol",
+    disease: "Hypertension, Heart disease",
+    dosage: "25–50 mg once daily",
+    precautions: ["Do not stop abruptly"],
+    sideEffects: "Slow heart rate",
+    manufacturer: "Tenormin",
+    verified: true
+  },
+
+  cetirizine: {
+    name: "Cetirizine",
+    disease: "Allergy, Cold",
+    dosage: "10 mg once daily",
+    precautions: ["May cause drowsiness"],
+    sideEffects: "Sleepiness",
+    manufacturer: "Zyrtec",
+    verified: true
+  },
+
+  levocetirizine: {
+    name: "Levocetirizine",
+    disease: "Allergy",
+    dosage: "5 mg once daily",
+    precautions: ["Avoid driving if sleepy"],
+    sideEffects: "Mild drowsiness",
+    manufacturer: "Xyzal",
+    verified: true
+  },
+
+  omeprazole: {
+    name: "Omeprazole",
+    disease: "Acidity, GERD",
+    dosage: "20 mg before breakfast",
+    precautions: ["Avoid long-term use"],
+    sideEffects: "Headache",
+    manufacturer: "Omez",
+    verified: true
+  },
+
+  pantoprazole: {
+    name: "Pantoprazole",
+    disease: "Acid reflux",
+    dosage: "40 mg once daily",
+    precautions: ["Long-term caution"],
+    sideEffects: "Nausea",
+    manufacturer: "Pantocid",
+    verified: true
+  },
+
+  vitaminD3: {
+    name: "Vitamin D3",
+    disease: "Vitamin D deficiency",
+    dosage: "60,000 IU once weekly",
+    precautions: ["Avoid overdose"],
+    sideEffects: "Rare hypercalcemia",
+    manufacturer: "Calcirol",
+    verified: true
+  },
+
+  iron: {
+    name: "Ferrous Sulfate",
+    disease: "Iron deficiency anemia",
+    dosage: "Once daily after meals",
+    precautions: ["May cause constipation"],
+    sideEffects: "Black stools",
+    manufacturer: "Livogen",
+    verified: true
   },
 };
 
