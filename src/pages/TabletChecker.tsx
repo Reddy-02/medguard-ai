@@ -11,47 +11,149 @@ import {
 
 type State = "idle" | "verified";
 
-/* ================== SPEECH TEXT ================== */
-const speechText: Record<
-  string,
-  { medicine: string; dosage: string }
-> = {
-  English: {
-    medicine:
-      "This medicine is used for fever, headache and mild to moderate pain. Manufactured by reputed pharmaceutical companies.",
-    dosage:
-      "Adults may take 500 to 1000 milligrams every four to six hours. Children require weight based dosing. Do not exceed four thousand milligrams per day.",
+/* ================= MEDICINES DATASET ================= */
+const MEDICINES: Record<string, {
+  name: string;
+  disease: string;
+  dosage: string;
+  precautions: string[];
+  sideEffects: string;
+  manufacturer: string;
+  verified: boolean;
+}> = {
+  paracetamol: {
+    name: "Paracetamol",
+    disease: "Fever, Headache, Mild to moderate pain",
+    dosage: "500–1000 mg every 4–6 hours (max 4000 mg/day)",
+    precautions: [
+      "Do not exceed maximum daily dose",
+      "Avoid alcohol consumption",
+      "Check other medicines for paracetamol content",
+      "Consult doctor if fever persists",
+    ],
+    sideEffects: "Rare allergic reactions; liver damage in overdose",
+    manufacturer: "Crocin, Dolo 650",
+    verified: true,
   },
-  Hindi: {
-    medicine:
-      "यह दवा बुखार, सिरदर्द और हल्के से मध्यम दर्द के लिए उपयोग की जाती है।",
-    dosage:
-      "वयस्क 500 से 1000 मिलीग्राम हर चार से छह घंटे में ले सकते हैं। दिन में 4000 मिलीग्राम से अधिक न लें।",
+
+  ibuprofen: {
+    name: "Ibuprofen",
+    disease: "Pain, Inflammation, Fever",
+    dosage: "200–400 mg every 6 hours (max 1200 mg/day)",
+    precautions: [
+      "Take after food",
+      "Avoid alcohol",
+      "Avoid during pregnancy",
+      "Not recommended in stomach ulcers",
+    ],
+    sideEffects: "Acidity, nausea, dizziness",
+    manufacturer: "Brufen, Ibugesic",
+    verified: true,
   },
-  Spanish: {
-    medicine:
-      "Este medicamento se utiliza para la fiebre y el dolor leve a moderado.",
-    dosage:
-      "Los adultos pueden tomar de 500 a 1000 miligramos cada cuatro a seis horas.",
+
+  aspirin: {
+    name: "Aspirin",
+    disease: "Pain, Fever, Blood thinning",
+    dosage: "300–900 mg every 6 hours",
+    precautions: [
+      "Not for children below 16",
+      "Avoid in bleeding disorders",
+      "Stop before surgery",
+      "Take with food",
+    ],
+    sideEffects: "Stomach irritation, bleeding risk",
+    manufacturer: "Disprin, Ecosprin",
+    verified: true,
   },
-  French: {
-    medicine:
-      "Ce médicament est utilisé pour la fièvre et les douleurs légères à modérées.",
-    dosage:
-      "Les adultes peuvent prendre 500 à 1000 milligrammes toutes les quatre à six heures.",
+
+  diclofenac: {
+    name: "Diclofenac",
+    disease: "Joint pain, Muscle pain, Arthritis",
+    dosage: "50 mg up to 2–3 times daily",
+    precautions: [
+      "Short-term use only",
+      "Avoid in heart disease",
+      "Take after meals",
+    ],
+    sideEffects: "Gastric pain, nausea",
+    manufacturer: "Voveran",
+    verified: true,
   },
-  German: {
-    medicine:
-      "Dieses Medikament wird gegen Fieber und leichte bis mäßige Schmerzen verwendet.",
-    dosage:
-      "Erwachsene können alle vier bis sechs Stunden 500 bis 1000 Milligramm einnehmen.",
+
+  amoxicillin: {
+    name: "Amoxicillin",
+    disease: "Bacterial infections",
+    dosage: "500 mg every 8 hours",
+    precautions: [
+      "Complete full antibiotic course",
+      "Avoid if penicillin allergy",
+    ],
+    sideEffects: "Diarrhea, rash",
+    manufacturer: "Mox, Novamox",
+    verified: true,
   },
-  Chinese: {
-    medicine:
-      "该药物用于治疗发烧和轻度至中度疼痛。",
-    dosage:
-      "成人每四到六小时可服用500至1000毫克。",
+
+  azithromycin: {
+    name: "Azithromycin",
+    disease: "Respiratory and throat infections",
+    dosage: "500 mg once daily for 3–5 days",
+    precautions: [
+      "Avoid unnecessary antibiotic use",
+      "Take after food",
+    ],
+    sideEffects: "Nausea, loose stools",
+    manufacturer: "Azee, Azithral",
+    verified: true,
   },
+
+  metformin: {
+    name: "Metformin",
+    disease: "Type 2 Diabetes",
+    dosage: "500 mg twice daily after meals",
+    precautions: [
+      "Monitor kidney function",
+      "Avoid alcohol",
+    ],
+    sideEffects: "Diarrhea, abdominal discomfort",
+    manufacturer: "Glycomet",
+    verified: true,
+  },
+
+  amlodipine: {
+    name: "Amlodipine",
+    disease: "High Blood Pressure",
+    dosage: "5–10 mg once daily",
+    precautions: [
+      "Do not stop suddenly",
+    ],
+    sideEffects: "Ankle swelling",
+    manufacturer: "Amlodac",
+    verified: true,
+  },
+
+  cetirizine: {
+    name: "Cetirizine",
+    disease: "Allergy, Cold",
+    dosage: "10 mg once daily",
+    precautions: [
+      "May cause drowsiness",
+    ],
+    sideEffects: "Sleepiness",
+    manufacturer: "Zyrtec",
+    verified: true,
+  },
+};
+
+/* ================= SPEECH ================= */
+const speechLang = (lang: string) => {
+  switch (lang) {
+    case "Hindi": return "hi-IN";
+    case "Spanish": return "es-ES";
+    case "French": return "fr-FR";
+    case "German": return "de-DE";
+    case "Chinese": return "zh-CN";
+    default: return "en-US";
+  }
 };
 
 export default function TabletChecker() {
@@ -59,29 +161,13 @@ export default function TabletChecker() {
   const [language, setLanguage] = useState("English");
   const [state, setState] = useState<State>("idle");
 
-  /* ================== TEXT TO SPEECH ================== */
-  const getLangCode = () => {
-    switch (language) {
-      case "Hindi":
-        return "hi-IN";
-      case "Spanish":
-        return "es-ES";
-      case "French":
-        return "fr-FR";
-      case "German":
-        return "de-DE";
-      case "Chinese":
-        return "zh-CN";
-      default:
-        return "en-US";
-    }
-  };
+  const key = tablet.toLowerCase().replace(/\s+/g, "");
+  const medicine = MEDICINES[key] || MEDICINES.paracetamol;
 
   const speak = (text: string) => {
     const u = new SpeechSynthesisUtterance(text);
-    u.lang = getLangCode();
+    u.lang = speechLang(language);
     u.rate = 0.9;
-    u.pitch = 1;
     window.speechSynthesis.cancel();
     window.speechSynthesis.speak(u);
   };
@@ -90,183 +176,134 @@ export default function TabletChecker() {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      {/* OFFSET FOR FIXED NAVBAR */}
       <main className="container max-w-7xl pt-24 pb-20 space-y-20">
 
         {/* HEADER */}
-        <div className="text-center space-y-3">
+        <div className="text-center">
           <h1 className="text-5xl font-bold holographic-text">
             Tablet Verification
           </h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            AI-powered medicine authentication with real-time safety analysis
+          <p className="text-muted-foreground">
+            AI-powered medicine authentication with safety analysis
           </p>
         </div>
 
-        {/* ================= INPUT CARD ================= */}
+        {/* INPUT */}
         {state === "idle" && (
-          <div className="glass-panel-strong p-10">
-            <div className="grid md:grid-cols-2 gap-10">
+          <div className="glass-panel-strong p-10 grid md:grid-cols-2 gap-10">
+            <label className="h-56 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center cursor-pointer">
+              <Upload className="w-8 h-8 text-muted-foreground mb-2" />
+              <p>Upload Tablet Image (Optional)</p>
+              <input type="file" className="hidden" />
+            </label>
 
-              {/* UPLOAD */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 text-primary font-semibold">
-                  <Upload /> Upload Tablet Image
+            <div className="space-y-6">
+              <div>
+                <div className="flex gap-2 text-primary font-semibold">
+                  <Pill /> Tablet Name
                 </div>
-                <label className="h-56 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:border-primary transition">
-                  <Upload className="w-8 h-8 text-muted-foreground mb-2" />
-                  <p className="font-medium">Drop or Click to Upload</p>
-                  <p className="text-xs text-muted-foreground">
-                    Optional – improves AI accuracy
-                  </p>
-                  <input type="file" className="hidden" />
-                </label>
+                <input
+                  value={tablet}
+                  onChange={(e) => setTablet(e.target.value)}
+                  placeholder="Paracetamol / Ibuprofen"
+                  className="h-12 w-full rounded-xl border px-4"
+                />
               </div>
 
-              {/* FORM */}
-              <div className="flex flex-col justify-between space-y-8">
-
-                <div className="space-y-6">
-                  {/* TABLET */}
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-primary font-semibold">
-                      <Pill /> Tablet Imprint / Name
-                    </div>
-                    <input
-                      value={tablet}
-                      onChange={(e) => setTablet(e.target.value)}
-                      placeholder="e.g., Dolo 650 / Paracetamol"
-                      className="h-12 w-full rounded-xl border border-input px-4 bg-background focus:ring-2 focus:ring-primary/30"
-                    />
-                  </div>
-
-                  {/* LANGUAGE */}
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-primary font-semibold">
-                      <Languages /> Select Language
-                    </div>
-                    <select
-                      value={language}
-                      onChange={(e) => setLanguage(e.target.value)}
-                      className="h-12 w-full rounded-xl border border-input px-4 bg-background focus:ring-2 focus:ring-primary/30"
-                    >
-                      <option>English</option>
-                      <option>Hindi</option>
-                      <option>Spanish</option>
-                      <option>French</option>
-                      <option>German</option>
-                      <option>Chinese</option>
-                    </select>
-                  </div>
+              <div>
+                <div className="flex gap-2 text-primary font-semibold">
+                  <Languages /> Language
                 </div>
-
-                {/* VERIFY BUTTON */}
-                <button
-                  onClick={() => setState("verified")}
-                  disabled={!tablet}
-                  className="h-14 w-full rounded-xl text-lg font-semibold text-white bg-gradient-to-r from-primary to-accent neon-glow-blue hover:scale-[1.02] transition disabled:opacity-50"
+                <select
+                  value={language}
+                  onChange={(e) => setLanguage(e.target.value)}
+                  className="h-12 w-full rounded-xl border px-4"
                 >
-                  Verify Tablet
-                </button>
+                  <option>English</option>
+                  <option>Hindi</option>
+                  <option>Spanish</option>
+                  <option>French</option>
+                  <option>German</option>
+                  <option>Chinese</option>
+                </select>
               </div>
+
+              <button
+                onClick={() => setState("verified")}
+                disabled={!tablet}
+                className="h-14 w-full bg-gradient-to-r from-primary to-accent text-white rounded-xl font-semibold"
+              >
+                Verify Tablet
+              </button>
             </div>
           </div>
         )}
 
-        {/* ================= VERIFIED STATE ================= */}
+        {/* VERIFIED */}
         {state === "verified" && (
-          <div className="space-y-20">
+          <div className="space-y-16">
 
-            {/* 🔮 ADVANCED 3D HOLOGRAM VERIFIED */}
+            {/* 3D HOLOGRAM */}
             <div className="flex justify-center">
-              <div className="relative w-96 h-96">
-                <div className="absolute inset-0 rounded-full border border-primary/30 animate-spin-slow" />
-                <div className="absolute inset-8 rounded-full border border-accent/40 animate-spin-reverse" />
-                <div className="absolute inset-16 rounded-full bg-gradient-to-br from-accent via-cyan-400 to-primary blur-2xl opacity-40 animate-pulse-glow" />
-                <div className="absolute inset-24 rounded-full bg-gradient-to-br from-primary to-accent shadow-neon flex items-center justify-center floating-3d">
-                  <span className="text-white text-2xl font-bold tracking-[0.3em]">
+              <div className="relative w-80 h-80">
+                <div className="absolute inset-0 rounded-full border animate-spin-slow" />
+                <div className="absolute inset-12 rounded-full bg-gradient-to-br from-accent to-primary blur-xl animate-pulse-glow" />
+                <div className="absolute inset-24 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center floating-3d shadow-neon">
+                  <span className="text-white tracking-widest font-bold">
                     VERIFIED
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* INFO GRID */}
+            {/* INFO */}
             <div className="grid md:grid-cols-2 gap-10">
-
-              {/* MEDICINE INFO */}
-              <div className="glass-panel p-8 space-y-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="font-semibold text-xl">Medication Info</h3>
-                  <Volume2
-                    className="w-5 h-5 text-black cursor-pointer"
-                    onClick={() =>
-                      speak(speechText[language].medicine)
-                    }
+              <div className="glass-panel p-8">
+                <div className="flex justify-between">
+                  <h3 className="font-semibold">Medication Info</h3>
+                  <Volume2 className="text-black cursor-pointer"
+                    onClick={() => speak(`${medicine.name}. ${medicine.disease}`)}
                   />
                 </div>
-                <p><strong>Name:</strong> {tablet}</p>
-                <p><strong>Uses:</strong> Fever, headache, mild to moderate pain</p>
-                <p><strong>Manufacturer:</strong> Approved Pharmaceutical Company</p>
+                <p><b>Name:</b> {medicine.name}</p>
+                <p><b>Uses:</b> {medicine.disease}</p>
+                <p><b>Manufacturer:</b> {medicine.manufacturer}</p>
               </div>
 
-              {/* DOSAGE INFO */}
-              <div className="glass-panel p-8 space-y-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="font-semibold text-xl">Dosage Information</h3>
-                  <Volume2
-                    className="w-5 h-5 text-black cursor-pointer"
-                    onClick={() =>
-                      speak(speechText[language].dosage)
-                    }
+              <div className="glass-panel p-8">
+                <div className="flex justify-between">
+                  <h3 className="font-semibold">Dosage</h3>
+                  <Volume2 className="text-black cursor-pointer"
+                    onClick={() => speak(medicine.dosage)}
                   />
                 </div>
-                <p><strong>Adults:</strong> 500–1000 mg every 4–6 hours</p>
-                <p><strong>Children:</strong> 10–15 mg/kg every 6 hours</p>
-                <p className="text-yellow-500 font-semibold">
-                  Maximum 4000 mg per day
-                </p>
-                <p className="text-muted-foreground text-sm">
-                  Reduce dose in liver disease. Take with water.
-                </p>
+                <p>{medicine.dosage}</p>
               </div>
             </div>
 
             {/* PRECAUTIONS */}
             <div className="glass-panel p-8">
-              <div className="flex items-center gap-2 font-semibold mb-4">
-                <ShieldAlert className="text-primary" />
-                Precautions
+              <div className="flex gap-2 font-semibold">
+                <ShieldAlert /> Precautions
               </div>
-              <ul className="space-y-3">
-                {[
-                  "Do not exceed maximum daily dose",
-                  "Avoid alcohol consumption",
-                  "Check other medicines for paracetamol",
-                  "Use cautiously in liver disease",
-                  "Avoid prolonged self-medication",
-                  "Consult doctor if fever lasts more than 3 days",
-                ].map((item, i) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <span className="mt-1 h-2 w-2 rounded-full bg-accent shadow-[0_0_12px_hsl(160_100%_50%)]" />
-                    <span className="text-accent">{item}</span>
+              <ul className="space-y-2 mt-3">
+                {medicine.precautions.map((p, i) => (
+                  <li key={i} className="flex gap-3">
+                    <span className="h-2 w-2 rounded-full bg-accent mt-2" />
+                    <span className="text-accent">{p}</span>
                   </li>
                 ))}
               </ul>
             </div>
 
             {/* SIDE EFFECTS */}
-            <div className="glass-panel p-8 space-y-4">
-              <div className="flex items-center gap-2 font-semibold">
+            <div className="glass-panel p-8">
+              <div className="flex gap-2 font-semibold">
                 <AlertTriangle className="text-yellow-500" />
-                Possible Side Effects
+                Side Effects
               </div>
-
-              <p><strong>Common:</strong> Nausea, stomach discomfort</p>
-              <p><strong>Rare:</strong> Skin rash, dizziness</p>
-              <p className="text-red-500">
-                <strong>Emergency:</strong> Severe allergy, breathing difficulty,
-                yellowing of eyes or skin
+              <p className="mt-2 text-muted-foreground">
+                {medicine.sideEffects}
               </p>
             </div>
 
@@ -277,7 +314,7 @@ export default function TabletChecker() {
                   setTablet("");
                   setState("idle");
                 }}
-                className="px-10 py-4 rounded-xl bg-primary text-white font-semibold hover:scale-105 transition"
+                className="px-10 py-4 bg-primary text-white rounded-xl font-semibold"
               >
                 Check Another Tablet
               </button>
