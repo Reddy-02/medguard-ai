@@ -11,16 +11,8 @@ import {
 
 type State = "idle" | "verified";
 
-/* ================= MEDICINES DATASET ================= */
-const MEDICINES: Record<string, {
-  name: string;
-  disease: string;
-  dosage: string;
-  precautions: string[];
-  sideEffects: string;
-  manufacturer: string;
-  verified: boolean;
-}> = {
+/* ================== MEDICINES DATA ================== */
+const MEDICINES: Record<string, any> = {
   paracetamol: {
     name: "Paracetamol",
     disease: "Fever, Headache, Mild to moderate pain",
@@ -30,10 +22,11 @@ const MEDICINES: Record<string, {
       "Avoid alcohol consumption",
       "Check other medicines for paracetamol content",
       "Consult doctor if fever persists",
+      "Use cautiously in liver disease",
     ],
-    sideEffects: "Rare allergic reactions; liver damage in overdose",
+    sideEffects:
+      "Rare allergic reactions; liver damage in overdose",
     manufacturer: "Crocin, Dolo 650",
-    verified: true,
   },
 
   ibuprofen: {
@@ -48,7 +41,6 @@ const MEDICINES: Record<string, {
     ],
     sideEffects: "Acidity, nausea, dizziness",
     manufacturer: "Brufen, Ibugesic",
-    verified: true,
   },
 
   aspirin: {
@@ -63,21 +55,6 @@ const MEDICINES: Record<string, {
     ],
     sideEffects: "Stomach irritation, bleeding risk",
     manufacturer: "Disprin, Ecosprin",
-    verified: true,
-  },
-
-  diclofenac: {
-    name: "Diclofenac",
-    disease: "Joint pain, Muscle pain, Arthritis",
-    dosage: "50 mg up to 2–3 times daily",
-    precautions: [
-      "Short-term use only",
-      "Avoid in heart disease",
-      "Take after meals",
-    ],
-    sideEffects: "Gastric pain, nausea",
-    manufacturer: "Voveran",
-    verified: true,
   },
 
   amoxicillin: {
@@ -90,7 +67,6 @@ const MEDICINES: Record<string, {
     ],
     sideEffects: "Diarrhea, rash",
     manufacturer: "Mox, Novamox",
-    verified: true,
   },
 
   azithromycin: {
@@ -103,7 +79,6 @@ const MEDICINES: Record<string, {
     ],
     sideEffects: "Nausea, loose stools",
     manufacturer: "Azee, Azithral",
-    verified: true,
   },
 
   metformin: {
@@ -116,44 +91,67 @@ const MEDICINES: Record<string, {
     ],
     sideEffects: "Diarrhea, abdominal discomfort",
     manufacturer: "Glycomet",
-    verified: true,
   },
 
   amlodipine: {
     name: "Amlodipine",
     disease: "High Blood Pressure",
     dosage: "5–10 mg once daily",
-    precautions: [
-      "Do not stop suddenly",
-    ],
+    precautions: ["Do not stop suddenly"],
     sideEffects: "Ankle swelling",
     manufacturer: "Amlodac",
-    verified: true,
   },
 
   cetirizine: {
     name: "Cetirizine",
     disease: "Allergy, Cold",
     dosage: "10 mg once daily",
-    precautions: [
-      "May cause drowsiness",
-    ],
+    precautions: ["May cause drowsiness"],
     sideEffects: "Sleepiness",
     manufacturer: "Zyrtec",
-    verified: true,
   },
+
+  // 👉 You can continue adding till 150+ SAME FORMAT
 };
 
-/* ================= SPEECH ================= */
-const speechLang = (lang: string) => {
-  switch (lang) {
-    case "Hindi": return "hi-IN";
-    case "Spanish": return "es-ES";
-    case "French": return "fr-FR";
-    case "German": return "de-DE";
-    case "Chinese": return "zh-CN";
-    default: return "en-US";
-  }
+/* ================== SPEECH TEXT ================== */
+const speechText: Record<string, { medicine: string; dosage: string }> = {
+  English: {
+    medicine:
+      "This medicine is used for treating the mentioned condition. Always follow prescribed dosage.",
+    dosage:
+      "Please follow the recommended dosage instructions. Do not exceed limits.",
+  },
+  Hindi: {
+    medicine:
+      "यह दवा बताए गए रोग के लिए उपयोग की जाती है।",
+    dosage:
+      "निर्धारित खुराक का पालन करें।",
+  },
+  Spanish: {
+    medicine:
+      "Este medicamento se utiliza para tratar la enfermedad indicada.",
+    dosage:
+      "Siga la dosis recomendada.",
+  },
+  French: {
+    medicine:
+      "Ce médicament est utilisé pour traiter la maladie indiquée.",
+    dosage:
+      "Veuillez suivre la posologie recommandée.",
+  },
+  German: {
+    medicine:
+      "Dieses Medikament wird zur Behandlung der angegebenen Krankheit verwendet.",
+    dosage:
+      "Bitte halten Sie sich an die empfohlene Dosierung.",
+  },
+  Chinese: {
+    medicine:
+      "该药物用于治疗相关疾病。",
+    dosage:
+      "请遵循推荐剂量。",
+  },
 };
 
 export default function TabletChecker() {
@@ -166,8 +164,18 @@ export default function TabletChecker() {
 
   const speak = (text: string) => {
     const u = new SpeechSynthesisUtterance(text);
-    u.lang = speechLang(language);
-    u.rate = 0.9;
+    u.lang =
+      language === "Hindi"
+        ? "hi-IN"
+        : language === "Spanish"
+        ? "es-ES"
+        : language === "French"
+        ? "fr-FR"
+        : language === "German"
+        ? "de-DE"
+        : language === "Chinese"
+        ? "zh-CN"
+        : "en-US";
     window.speechSynthesis.cancel();
     window.speechSynthesis.speak(u);
   };
@@ -177,148 +185,126 @@ export default function TabletChecker() {
       <Navbar />
 
       <main className="container max-w-7xl pt-24 pb-20 space-y-20">
-
-        {/* HEADER */}
-        <div className="text-center">
+        <div className="text-center space-y-3">
           <h1 className="text-5xl font-bold holographic-text">
             Tablet Verification
           </h1>
           <p className="text-muted-foreground">
-            AI-powered medicine authentication with safety analysis
+            AI-powered medicine authentication
           </p>
         </div>
 
-        {/* INPUT */}
         {state === "idle" && (
-          <div className="glass-panel-strong p-10 grid md:grid-cols-2 gap-10">
-            <label className="h-56 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center cursor-pointer">
-              <Upload className="w-8 h-8 text-muted-foreground mb-2" />
-              <p>Upload Tablet Image (Optional)</p>
-              <input type="file" className="hidden" />
-            </label>
-
-            <div className="space-y-6">
+          <div className="glass-panel-strong p-10">
+            <div className="grid md:grid-cols-2 gap-10">
               <div>
-                <div className="flex gap-2 text-primary font-semibold">
-                  <Pill /> Tablet Name
+                <div className="flex items-center gap-2 text-primary font-semibold">
+                  <Upload /> Upload Tablet Image
                 </div>
-                <input
-                  value={tablet}
-                  onChange={(e) => setTablet(e.target.value)}
-                  placeholder="Paracetamol / Ibuprofen"
-                  className="h-12 w-full rounded-xl border px-4"
-                />
+                <label className="h-56 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center cursor-pointer">
+                  <Upload className="w-8 h-8 text-muted-foreground mb-2" />
+                  <input type="file" className="hidden" />
+                </label>
               </div>
 
-              <div>
-                <div className="flex gap-2 text-primary font-semibold">
-                  <Languages /> Language
+              <div className="flex flex-col justify-between space-y-8">
+                <div>
+                  <div className="flex items-center gap-2 text-primary font-semibold">
+                    <Pill /> Tablet Imprint / Name
+                  </div>
+                  <input
+                    value={tablet}
+                    onChange={(e) => setTablet(e.target.value)}
+                    className="h-12 w-full rounded-xl border px-4"
+                  />
+
+                  <div className="mt-6 flex items-center gap-2 text-primary font-semibold">
+                    <Languages /> Select Language
+                  </div>
+                  <select
+                    value={language}
+                    onChange={(e) => setLanguage(e.target.value)}
+                    className="h-12 w-full rounded-xl border px-4"
+                  >
+                    <option>English</option>
+                    <option>Hindi</option>
+                    <option>Spanish</option>
+                    <option>French</option>
+                    <option>German</option>
+                    <option>Chinese</option>
+                  </select>
                 </div>
-                <select
-                  value={language}
-                  onChange={(e) => setLanguage(e.target.value)}
-                  className="h-12 w-full rounded-xl border px-4"
+
+                <button
+                  onClick={() => setState("verified")}
+                  className="h-14 w-full rounded-xl text-white bg-gradient-to-r from-primary to-accent"
                 >
-                  <option>English</option>
-                  <option>Hindi</option>
-                  <option>Spanish</option>
-                  <option>French</option>
-                  <option>German</option>
-                  <option>Chinese</option>
-                </select>
+                  Verify Tablet
+                </button>
               </div>
-
-              <button
-                onClick={() => setState("verified")}
-                disabled={!tablet}
-                className="h-14 w-full bg-gradient-to-r from-primary to-accent text-white rounded-xl font-semibold"
-              >
-                Verify Tablet
-              </button>
             </div>
           </div>
         )}
 
-        {/* VERIFIED */}
         {state === "verified" && (
           <div className="space-y-16">
-
-            {/* 3D HOLOGRAM */}
-            <div className="flex justify-center">
-              <div className="relative w-80 h-80">
-                <div className="absolute inset-0 rounded-full border animate-spin-slow" />
-                <div className="absolute inset-12 rounded-full bg-gradient-to-br from-accent to-primary blur-xl animate-pulse-glow" />
-                <div className="absolute inset-24 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center floating-3d shadow-neon">
-                  <span className="text-white tracking-widest font-bold">
-                    VERIFIED
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* INFO */}
             <div className="grid md:grid-cols-2 gap-10">
               <div className="glass-panel p-8">
                 <div className="flex justify-between">
-                  <h3 className="font-semibold">Medication Info</h3>
-                  <Volume2 className="text-black cursor-pointer"
-                    onClick={() => speak(`${medicine.name}. ${medicine.disease}`)}
+                  <h3>Medication Info</h3>
+                  <Volume2
+                    className="cursor-pointer"
+                    onClick={() =>
+                      speak(speechText[language].medicine)
+                    }
                   />
                 </div>
-                <p><b>Name:</b> {medicine.name}</p>
-                <p><b>Uses:</b> {medicine.disease}</p>
-                <p><b>Manufacturer:</b> {medicine.manufacturer}</p>
+                <p><strong>Name:</strong> {medicine.name}</p>
+                <p><strong>Uses:</strong> {medicine.disease}</p>
+                <p><strong>Manufacturer:</strong> {medicine.manufacturer}</p>
               </div>
 
               <div className="glass-panel p-8">
                 <div className="flex justify-between">
-                  <h3 className="font-semibold">Dosage</h3>
-                  <Volume2 className="text-black cursor-pointer"
-                    onClick={() => speak(medicine.dosage)}
+                  <h3>Dosage</h3>
+                  <Volume2
+                    className="cursor-pointer"
+                    onClick={() =>
+                      speak(speechText[language].dosage)
+                    }
                   />
                 </div>
                 <p>{medicine.dosage}</p>
               </div>
             </div>
 
-            {/* PRECAUTIONS */}
             <div className="glass-panel p-8">
-              <div className="flex gap-2 font-semibold">
+              <div className="flex items-center gap-2">
                 <ShieldAlert /> Precautions
               </div>
-              <ul className="space-y-2 mt-3">
-                {medicine.precautions.map((p, i) => (
-                  <li key={i} className="flex gap-3">
-                    <span className="h-2 w-2 rounded-full bg-accent mt-2" />
-                    <span className="text-accent">{p}</span>
-                  </li>
+              <ul>
+                {medicine.precautions.map((p: string, i: number) => (
+                  <li key={i} className="text-accent">• {p}</li>
                 ))}
               </ul>
             </div>
 
-            {/* SIDE EFFECTS */}
             <div className="glass-panel p-8">
-              <div className="flex gap-2 font-semibold">
-                <AlertTriangle className="text-yellow-500" />
-                Side Effects
+              <div className="flex items-center gap-2">
+                <AlertTriangle /> Side Effects
               </div>
-              <p className="mt-2 text-muted-foreground">
-                {medicine.sideEffects}
-              </p>
+              <p>{medicine.sideEffects}</p>
             </div>
 
-            {/* RESET */}
-            <div className="flex justify-center">
-              <button
-                onClick={() => {
-                  setTablet("");
-                  setState("idle");
-                }}
-                className="px-10 py-4 bg-primary text-white rounded-xl font-semibold"
-              >
-                Check Another Tablet
-              </button>
-            </div>
+            <button
+              onClick={() => {
+                setTablet("");
+                setState("idle");
+              }}
+              className="mx-auto block px-10 py-4 bg-primary text-white rounded-xl"
+            >
+              Check Another Tablet
+            </button>
           </div>
         )}
       </main>
