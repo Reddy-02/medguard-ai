@@ -10,15 +10,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Upload,
-  CheckCircle2,
-  Volume2,
-} from "lucide-react";
+import { Upload, Volume2 } from "lucide-react";
 
 /* ---------------- TYPES ---------------- */
 type Language = "en" | "es" | "fr" | "de" | "hi" | "zh";
-type State = "idle" | "verified";
+type PageState = "idle" | "verified";
 
 /* ---------------- STATIC DATA ---------------- */
 const languageNames: Record<Language, string> = {
@@ -44,21 +40,20 @@ const medicine = {
   sideEffects: "Rare allergic reactions; liver damage in overdose",
 };
 
-/* ---------------- COMPONENT ---------------- */
+/* ---------------- PAGE ---------------- */
 export default function TabletChecker() {
   const [tablet, setTablet] = useState("");
   const [language, setLanguage] = useState<Language>("en");
-  const [state, setState] = useState<State>("idle");
+  const [state, setState] = useState<PageState>("idle");
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      {/* PAGE CONTAINER */}
-      <main className="max-w-6xl mx-auto px-6 py-12 space-y-12">
+      <main className="max-w-6xl mx-auto px-6 py-12 space-y-14">
 
         {/* HEADER */}
-        <div className="text-center space-y-4">
+        <section className="text-center space-y-4">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-500 to-emerald-500 bg-clip-text text-transparent">
             Tablet Verification
           </h1>
@@ -67,10 +62,10 @@ export default function TabletChecker() {
             MedGuard AI is for informational purposes only. Always consult a
             licensed doctor or pharmacist before medication use.
           </p>
-        </div>
+        </section>
 
         {/* INPUT CARD */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 space-y-6">
+        <section className="bg-white rounded-2xl shadow-xl p-8 space-y-6">
           <h3 className="font-semibold text-lg">Upload Tablet Image</h3>
 
           <div className="border-2 border-dashed rounded-xl p-10 flex flex-col items-center justify-center gap-3 text-muted-foreground">
@@ -95,9 +90,9 @@ export default function TabletChecker() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {Object.entries(languageNames).map(([k, v]) => (
-                  <SelectItem key={k} value={k}>
-                    {v}
+                {Object.entries(languageNames).map(([key, value]) => (
+                  <SelectItem key={key} value={key}>
+                    {value}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -110,30 +105,37 @@ export default function TabletChecker() {
           >
             Verify Tablet
           </Button>
-        </div>
+        </section>
 
-        {/* VERIFIED RESULT */}
+        {/* VERIFIED SECTION */}
         {state === "verified" && (
-          <div className="space-y-10">
+          <section className="space-y-12">
 
-            {/* VERIFIED BANNER */}
-            <div className="rounded-xl bg-emerald-50 border border-emerald-200 px-6 py-4 flex items-center gap-3">
-              <CheckCircle2 className="text-emerald-500" />
-              <div>
-                <p className="font-semibold">Verified Authentic</p>
-                <p className="text-sm text-muted-foreground">
-                  This tablet has been successfully verified
-                </p>
-              </div>
-            </div>
+            {/* 3D HOLOGRAM VERIFICATION */}
+            <div className="flex justify-center py-10">
+              <div className="relative w-72 h-72 perspective-[1200px]">
 
-            {/* HOLOGRAM */}
-            <div className="flex justify-center">
-              <div className="w-64 h-64 rounded-full border-4 border-emerald-300/40 flex items-center justify-center relative">
-                <div className="absolute inset-0 rounded-full animate-pulse bg-emerald-300/10" />
-                <span className="text-emerald-500 font-semibold tracking-wide">
-                  VERIFIED
-                </span>
+                <div className="absolute inset-0 rounded-full border border-emerald-400/40 animate-spin-slow" />
+                <div className="absolute inset-0 rounded-full border-2 border-emerald-400/20 animate-ping" />
+                <div className="absolute inset-6 rounded-full border border-cyan-400/30 animate-pulse" />
+
+                <div className="absolute inset-12 rounded-full bg-gradient-to-br from-emerald-400 via-cyan-400 to-blue-500 shadow-[0_0_80px_rgba(34,211,238,0.6)] flex items-center justify-center transform-gpu rotate-x-12 rotate-y-12 animate-float">
+                  <div className="text-center text-white">
+                    <div className="text-6xl font-extrabold drop-shadow-xl">✓</div>
+                    <p className="mt-2 text-sm tracking-widest font-semibold">
+                      VERIFIED
+                    </p>
+                  </div>
+                </div>
+
+                <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-center">
+                  <p className="text-emerald-500 font-semibold">
+                    Verified Authentic
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    AI security seal confirmed
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -188,9 +190,10 @@ export default function TabletChecker() {
                 Check Another Tablet
               </Button>
             </div>
-          </div>
+          </section>
         )}
       </main>
     </div>
   );
 }
+
