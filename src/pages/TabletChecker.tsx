@@ -255,13 +255,13 @@ export default function TabletChecker() {
                   <Volume2
                     className="w-5 h-5 text-black cursor-pointer"
                     onClick={() =>
-                           speak(
-                             `${medicine.name}. 
-                             Uses: ${medicine.disease}. 
-                             Manufacturer: ${medicine.manufacturer}.`
-                          )
-                        }
-
+                      speak(
+                        `${medicine.name}. 
+                        Uses: ${medicine.disease}. 
+                        Manufacturer: ${medicine.manufacturer}.`
+                      )
+                    }
+                  />
                 </div>
                 <p><strong>Name:</strong> {medicine.name}</p>
                 <p><strong>Uses:</strong> {medicine.disease}</p>
@@ -273,13 +273,12 @@ export default function TabletChecker() {
                   <h3 className="text-xl font-semibold">Dosage Information</h3>
                   <Volume2
                     className="w-5 h-5 text-black cursor-pointer"
-                   onClick={() =>
-                            speak(
-                              `${medicine.name}. 
-                              Dosage: ${medicine.dosage}.`
-                          )
-                       }
-
+                    onClick={() =>
+                      speak(
+                        `${medicine.name}. 
+                        Dosage: ${medicine.dosage}.`
+                      )
+                    }
                   />
                 </div>
                 <p>{medicine.dosage}</p>
