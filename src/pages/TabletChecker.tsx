@@ -905,19 +905,68 @@ const MEDICINES: Record<string, Medicine> = {
   },
 };
 
-/* ================= MULTILINGUAL MEDICINE DATA ================= */
-// For brevity, I'll show the structure. In production, you would expand this
-const medicineTranslations: Record<string, Record<string, any>> = {
-  English: {
-    // English translations here (same as above)
-  },
-  Hindi: {
-    // Hindi translations here
-  },
-  Spanish: {
-    // Spanish translations here
-  },
-  // Add other languages
+// Brand name to medicine key mapping
+const BRAND_NAME_MAP: Record<string, string> = {
+  "crocin": "paracetamol",
+  "dolo": "paracetamol",
+  "calpol": "paracetamol",
+  "brufen": "ibuprofen",
+  "ibugesic": "ibuprofen",
+  "advil": "ibuprofen",
+  "disprin": "aspirin",
+  "ecosprin": "aspirin",
+  "voveran": "diclofenac",
+  "diclofenac sodium": "diclofenac",
+  "naprosyn": "naproxen",
+  "aleve": "naproxen",
+  "celebrex": "celecoxib",
+  "ultram": "tramadol",
+  "tramal": "tramadol",
+  "amoxil": "amoxicillin",
+  "mox": "amoxicillin",
+  "zithromax": "azithromycin",
+  "azee": "azithromycin",
+  "cipro": "ciprofloxacin",
+  "flagyl": "metronidazole",
+  "metrogyl": "metronidazole",
+  "lipitor": "atorvastatin",
+  "norvasc": "amlodipine",
+  "cozaar": "losartan",
+  "lopressor": "metoprolol",
+  "zestril": "lisinopril",
+  "lasix": "furosemide",
+  "glucophage": "metformin",
+  "glycomet": "metformin",
+  "amaryl": "glimepiride",
+  "januvia": "sitagliptin",
+  "jardiance": "empagliflozin",
+  "zoloft": "sertraline",
+  "prozac": "fluoxetine",
+  "xanax": "alprazolam",
+  "klonopin": "clonazepam",
+  "risperdal": "risperidone",
+  "prilosec": "omeprazole",
+  "ome": "omeprazole",
+  "protonix": "pantoprazole",
+  "zantac": "ranitidine",
+  "motilium": "domperidone",
+  "zofran": "ondansetron",
+  "ventolin": "salbutamol",
+  "asthalin": "salbutamol",
+  "singulair": "montelukast",
+  "xyzal": "levocetirizine",
+  "synthroid": "levothyroxine",
+  "eltroxin": "levothyroxine",
+  "tegretol": "carbamazepine",
+  "dilantin": "phenytoin",
+  "zyloprim": "allopurinol",
+  "propecia": "finasteride",
+  "proscar": "finasteride",
+  "viagra": "sildenafil",
+  "cialis": "tadalafil",
+  "accutane": "isotretinoin",
+  "isotroin": "isotretinoin",
+  "acnetrex": "isotretinoin",
 };
 
 /* ================= COMPONENT ================= */
@@ -925,14 +974,63 @@ export default function TabletChecker() {
   const [tablet, setTablet] = useState("");
   const [language, setLanguage] = useState("English");
   const [state, setState] = useState<State>("idle");
+  const [foundMedicine, setFoundMedicine] = useState<Medicine | null>(null);
 
-  const key = tablet.toLowerCase().replace(/\s+/g, "");
-  const baseMedicine = MEDICINES[key] || MEDICINES.paracetamol;
-  
-  // Get translated medicine data for current language
-  const translatedMedicine = medicineTranslations[language]?.[key] || 
-                           medicineTranslations[language]?.paracetamol || 
-                           baseMedicine;
+  // Function to find medicine by input (case-insensitive, supports brand names)
+  const findMedicine = (input: string): Medicine | null => {
+    if (!input.trim()) return null;
+    
+    const normalizedInput = input.toLowerCase().trim();
+    
+    // 1. Try direct key match
+    const directKey = normalizedInput.replace(/\s+/g, "");
+    if (MEDICINES[directKey]) {
+      return MEDICINES[directKey];
+    }
+    
+    // 2. Try brand name mapping
+    if (BRAND_NAME_MAP[normalizedInput]) {
+      const medicineKey = BRAND_NAME_MAP[normalizedInput];
+      return MEDICINES[medicineKey];
+    }
+    
+    // 3. Try partial match in medicine names
+    for (const medicine of Object.values(MEDICINES)) {
+      if (medicine.name.toLowerCase().includes(normalizedInput)) {
+        return medicine;
+      }
+    }
+    
+    // 4. Try partial match in brand names
+    for (const [brand, medicineKey] of Object.entries(BRAND_NAME_MAP)) {
+      if (brand.includes(normalizedInput)) {
+        return MEDICINES[medicineKey];
+      }
+    }
+    
+    return null;
+  };
+
+  const handleVerify = () => {
+    if (!tablet.trim()) return;
+    
+    const medicine = findMedicine(tablet);
+    
+    if (medicine) {
+      setFoundMedicine(medicine);
+      setState("verified");
+    } else {
+      // If medicine not found, show default with warning
+      setFoundMedicine({
+        ...MEDICINES.paracetamol,
+        name: `Medicine Not Found: ${tablet}`,
+        verified: false,
+      });
+      setState("verified");
+    }
+  };
+
+  const medicine = foundMedicine || MEDICINES.paracetamol;
 
   /* ================= TEXT TO SPEECH ================= */
   const getLangCode = () => {
@@ -962,16 +1060,16 @@ export default function TabletChecker() {
 
   const speakMedicineInfo = () => {
     speak(
-      `${translatedMedicine.name}. 
-      Uses: ${translatedMedicine.disease}. 
-      Manufacturer: ${translatedMedicine.manufacturer}.`
+      `${medicine.name}. 
+      Uses: ${medicine.disease}. 
+      Manufacturer: ${medicine.manufacturer}.`
     );
   };
 
   const speakDosageInfo = () => {
     speak(
-      `${translatedMedicine.name}. 
-      Dosage: ${translatedMedicine.dosage}.`
+      `${medicine.name}. 
+      Dosage: ${medicine.dosage}.`
     );
   };
 
@@ -1027,7 +1125,7 @@ export default function TabletChecker() {
                     <input
                       value={tablet}
                       onChange={(e) => setTablet(e.target.value)}
-                      placeholder="e.g., Paracetamol, Ibuprofen, Amoxicillin"
+                      placeholder="e.g., Paracetamol, Ibuprofen, Isotretinoin, Accutane"
                       className="h-12 w-full rounded-xl border px-4"
                       list="medicine-suggestions"
                     />
@@ -1037,7 +1135,7 @@ export default function TabletChecker() {
                       ))}
                     </datalist>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Start typing medicine name for suggestions
+                      Enter medicine name or brand name (e.g., "Isotretinoin" or "Accutane")
                     </p>
                   </div>
 
@@ -1061,11 +1159,11 @@ export default function TabletChecker() {
                 </div>
 
                 <button
-                  onClick={() => setState("verified")}
+                  onClick={handleVerify}
                   disabled={!tablet}
-                  className="h-14 w-full rounded-xl text-lg font-semibold text-white bg-gradient-to-r from-primary to-accent neon-glow-blue"
+                  className="h-14 w-full rounded-xl text-lg font-semibold text-white bg-gradient-to-r from-primary to-accent neon-glow-blue disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Verify Tablet
+                  {!tablet ? "Enter Medicine Name" : "Verify Tablet"}
                 </button>
               </div>
             </div>
@@ -1084,11 +1182,25 @@ export default function TabletChecker() {
                 <div className="absolute inset-20 rounded-full bg-gradient-to-br from-accent to-primary blur-2xl opacity-40 animate-pulse-glow" />
                 <div className="absolute inset-28 rounded-full bg-gradient-to-br from-primary to-accent shadow-neon flex items-center justify-center floating-3d">
                   <span className="text-white text-2xl font-bold tracking-widest">
-                    VERIFIED
+                    {medicine.verified ? "VERIFIED" : "NOT FOUND"}
                   </span>
                 </div>
               </div>
             </div>
+
+            {/* WARNING FOR UNKNOWN MEDICINES */}
+            {!medicine.verified && (
+              <div className="glass-panel p-6 border-2 border-yellow-500">
+                <div className="flex items-center gap-3 text-yellow-600">
+                  <AlertTriangle className="w-6 h-6" />
+                  <h3 className="text-lg font-semibold">Warning: Medicine Not Found</h3>
+                </div>
+                <p className="mt-2">
+                  "{tablet}" was not found in our verified database. Please check the spelling or try a different name.
+                  Always consult a healthcare professional.
+                </p>
+              </div>
+            )}
 
             {/* INFO GRID */}
             <div className="grid md:grid-cols-2 gap-10">
@@ -1101,12 +1213,12 @@ export default function TabletChecker() {
                     onClick={speakMedicineInfo}
                   />
                 </div>
-                <p><strong>Name:</strong> {translatedMedicine.name}</p>
-                <p><strong>Uses:</strong> {translatedMedicine.disease}</p>
-                <p><strong>Manufacturer:</strong> {translatedMedicine.manufacturer}</p>
+                <p><strong>Name:</strong> {medicine.name}</p>
+                <p><strong>Uses:</strong> {medicine.disease}</p>
+                <p><strong>Manufacturer:</strong> {medicine.manufacturer}</p>
                 <p><strong>Status:</strong> 
-                  <span className={`ml-2 ${translatedMedicine.verified ? 'text-green-500' : 'text-red-500'}`}>
-                    {translatedMedicine.verified ? '✓ Verified' : '✗ Unverified'}
+                  <span className={`ml-2 ${medicine.verified ? 'text-green-500' : 'text-red-500'}`}>
+                    {medicine.verified ? '✓ Verified' : '✗ Not Found in Database'}
                   </span>
                 </p>
               </div>
@@ -1119,7 +1231,7 @@ export default function TabletChecker() {
                     onClick={speakDosageInfo}
                   />
                 </div>
-                <p>{translatedMedicine.dosage}</p>
+                <p>{medicine.dosage}</p>
                 <p className="text-sm text-muted-foreground">
                   Always follow your doctor's prescription
                 </p>
@@ -1133,7 +1245,7 @@ export default function TabletChecker() {
                 Precautions & Warnings
               </div>
               <ul className="space-y-3">
-                {translatedMedicine.precautions.map((p, i) => (
+                {medicine.precautions.map((p, i) => (
                   <li key={i} className="flex items-start gap-3">
                     <span className="mt-1 h-2 w-2 rounded-full bg-accent" />
                     <span className="text-accent">{p}</span>
@@ -1148,7 +1260,7 @@ export default function TabletChecker() {
                 <AlertTriangle className="text-yellow-500" />
                 Possible Side Effects
               </div>
-              <p>{translatedMedicine.sideEffects}</p>
+              <p>{medicine.sideEffects}</p>
               <p className="text-sm text-muted-foreground">
                 Contact your doctor if side effects are severe or persistent
               </p>
@@ -1161,7 +1273,7 @@ export default function TabletChecker() {
                 Medicine Category
               </div>
               <p className="text-accent">
-                {getMedicineCategory(translatedMedicine.name)}
+                {getMedicineCategory(medicine.name)}
               </p>
             </div>
 
@@ -1171,6 +1283,7 @@ export default function TabletChecker() {
                 onClick={() => {
                   setTablet("");
                   setState("idle");
+                  setFoundMedicine(null);
                 }}
                 className="px-10 py-4 rounded-xl bg-primary text-white font-semibold hover:opacity-90 transition"
               >
