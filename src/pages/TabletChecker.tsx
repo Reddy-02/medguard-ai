@@ -10,7 +10,47 @@ import {
   Volume2,
 } from "lucide-react";
 
-type State = "idle" | "scanning" | "verified";
+type State = "idle" | "verified";
+
+/* ---------- MULTI-LANGUAGE SPEECH CONTENT ---------- */
+const speechText: Record<string, { medicine: string; dosage: string }> = {
+  English: {
+    medicine:
+      "This medicine is used for fever, headache and mild pain. Manufactured by Crocin or Dolo 650.",
+    dosage:
+      "Take 500 to 1000 milligrams every four to six hours. Maximum four thousand milligrams per day.",
+  },
+  Hindi: {
+    medicine:
+      "यह दवा बुखार, सिरदर्द और हल्के दर्द के लिए उपयोग की जाती है। निर्माता क्रोसिन या डोलो 650 है।",
+    dosage:
+      "हर चार से छह घंटे में 500 से 1000 मिलीग्राम लें। दिन में अधिकतम 4000 मिलीग्राम।",
+  },
+  Spanish: {
+    medicine:
+      "Este medicamento se usa para fiebre, dolor de cabeza y dolor leve. Fabricado por Crocin o Dolo 650.",
+    dosage:
+      "Tome de 500 a 1000 miligramos cada cuatro a seis horas. Máximo cuatro mil miligramos por día.",
+  },
+  French: {
+    medicine:
+      "Ce médicament est utilisé pour la fièvre, les maux de tête et les douleurs légères. Fabriqué par Crocin ou Dolo 650.",
+    dosage:
+      "Prenez 500 à 1000 milligrammes toutes les quatre à six heures. Maximum quatre mille milligrammes par jour.",
+  },
+  German: {
+    medicine:
+      "Dieses Medikament wird gegen Fieber, Kopfschmerzen und leichte Schmerzen verwendet. Hergestellt von Crocin oder Dolo 650.",
+    dosage:
+      "Nehmen Sie 500 bis 1000 Milligramm alle vier bis sechs Stunden ein. Maximal 4000 Milligramm pro Tag.",
+  },
+  Chinese: {
+    medicine:
+      "该药物用于治疗发烧、头痛和轻度疼痛。由 Crocin 或 Dolo 650 生产。",
+    dosage:
+      "每四到六小时服用 500 到 1000 毫克。每天最多 4000 毫克。",
+  },
+};
 
 export default function TabletChecker() {
   const [tablet, setTablet] = useState("");
@@ -36,19 +76,19 @@ export default function TabletChecker() {
   };
 
   const speak = (text: string) => {
-    const msg = new SpeechSynthesisUtterance(text);
-    msg.lang = getLangCode();
-    msg.rate = 0.9;
-    msg.pitch = 1;
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = getLangCode();
+    utterance.rate = 0.9;
+    utterance.pitch = 1;
     window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(msg);
+    window.speechSynthesis.speak(utterance);
   };
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      {/* OFFSET FOR FIXED NAVBAR */}
+      {/* FIXED NAVBAR OFFSET */}
       <main className="container max-w-7xl pt-24 pb-20 space-y-16">
 
         {/* HEADER */}
@@ -62,7 +102,7 @@ export default function TabletChecker() {
         </div>
 
         {/* INPUT CARD */}
-        {state !== "verified" && (
+        {state === "idle" && (
           <div className="glass-panel-strong p-10">
             <div className="grid md:grid-cols-2 gap-10">
 
@@ -71,7 +111,6 @@ export default function TabletChecker() {
                 <div className="flex items-center gap-2 text-primary font-semibold">
                   <Upload /> Upload Tablet Image
                 </div>
-
                 <label className="h-56 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:border-primary transition">
                   <Upload className="w-8 h-8 text-muted-foreground mb-2" />
                   <p className="font-medium">Drop or Click to Upload</p>
@@ -86,7 +125,6 @@ export default function TabletChecker() {
               <div className="flex flex-col justify-between space-y-8">
 
                 <div className="space-y-6">
-                  {/* TABLET NAME */}
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-primary font-semibold">
                       <Pill /> Tablet Imprint / Name
@@ -99,7 +137,6 @@ export default function TabletChecker() {
                     />
                   </div>
 
-                  {/* LANGUAGE */}
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-primary font-semibold">
                       <Languages /> Select Language
@@ -119,7 +156,6 @@ export default function TabletChecker() {
                   </div>
                 </div>
 
-                {/* VERIFY BUTTON */}
                 <button
                   onClick={() => setState("verified")}
                   disabled={!tablet}
@@ -132,31 +168,25 @@ export default function TabletChecker() {
           </div>
         )}
 
-        {/* VERIFIED RESULT */}
+        {/* VERIFIED STATE */}
         {state === "verified" && (
           <div className="space-y-16">
 
-            {/* FAANG-LEVEL 3D HOLOGRAM */}
+            {/* 3D HOLOGRAM VERIFIED */}
             <div className="flex justify-center">
               <div className="relative w-80 h-80">
-
                 <div className="absolute inset-0 rounded-full border border-accent/30 animate-spin-slow" />
                 <div className="absolute inset-6 rounded-full border border-primary/40 animate-spin-reverse" />
                 <div className="absolute inset-10 rounded-full bg-gradient-to-br from-accent via-cyan-400 to-primary blur-xl opacity-40 animate-pulse-glow" />
-
                 <div className="absolute inset-16 rounded-full bg-gradient-to-br from-accent to-primary shadow-neon flex items-center justify-center floating-3d">
                   <span className="text-white text-xl font-bold tracking-widest">
                     VERIFIED
                   </span>
                 </div>
-
-                <div className="absolute -bottom-10 w-full text-center text-accent font-semibold">
-                  Authentic Medicine
-                </div>
               </div>
             </div>
 
-            {/* INFO GRID */}
+            {/* INFO */}
             <div className="grid md:grid-cols-2 gap-8">
               <div className="glass-panel p-6 space-y-3">
                 <div className="flex justify-between items-center">
@@ -164,9 +194,7 @@ export default function TabletChecker() {
                   <Volume2
                     className="w-5 h-5 text-black cursor-pointer"
                     onClick={() =>
-                      speak(
-                        `${tablet}. Used for fever and mild pain. Manufactured by Crocin.`
-                      )
+                      speak(speechText[language].medicine)
                     }
                   />
                 </div>
@@ -181,9 +209,7 @@ export default function TabletChecker() {
                   <Volume2
                     className="w-5 h-5 text-black cursor-pointer"
                     onClick={() =>
-                      speak(
-                        "Take 500 to 1000 milligrams every 4 to 6 hours. Maximum 4000 milligrams per day."
-                      )
+                      speak(speechText[language].dosage)
                     }
                   />
                 </div>
@@ -193,7 +219,7 @@ export default function TabletChecker() {
             </div>
 
             {/* PRECAUTIONS */}
-            <div className="glass-panel p-6 space-y-4">
+            <div className="glass-panel p-6 space-y-3">
               <div className="flex items-center gap-2 font-semibold">
                 <ShieldAlert className="text-primary" />
                 Precautions
@@ -228,8 +254,8 @@ export default function TabletChecker() {
             <div className="flex justify-center">
               <button
                 onClick={() => {
-                  setState("idle");
                   setTablet("");
+                  setState("idle");
                 }}
                 className="px-10 py-4 rounded-xl bg-primary text-white font-semibold hover:scale-105 transition"
               >
