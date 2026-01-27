@@ -5,7 +5,7 @@ import {
   Pill,
   Languages,
   AlertTriangle,
-  ShieldAlert,
+  Shield,
   Volume2,
   CheckCircle,
   Scan,
@@ -14,19 +14,53 @@ import {
   ChevronRight,
   Loader2,
   Cpu,
-  Shield,
   Zap,
   Brain,
-  Binary,
-  Satellite
+  ShieldCheck,
+  Database,
+  FileSearch,
+  Activity,
+  Lock,
+  Globe,
+  RefreshCw,
+  Maximize2,
+  Target
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, Float, Text3D, Center, Environment, MeshWobbleMaterial, MeshDistortMaterial, Sparkles as Sparkles3D, Stars } from "@react-three/drei";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { 
+  Text3D, 
+  Center, 
+  Float, 
+  OrbitControls, 
+  Environment,
+  MeshReflectorMaterial,
+  ContactShadows,
+  RandomizedLight,
+  AccumulativeShadows,
+  MeshTransmissionMaterial,
+  MeshPortalMaterial,
+  MeshDistortMaterial,
+  MeshWobbleMaterial,
+  Sky,
+  Clouds,
+  Cloud
+} from "@react-three/drei";
 import * as THREE from "three";
 import { cn } from "@/lib/utils";
 
-type State = "idle" | "scanning" | "analyzing" | "verified";
+type State = "idle" | "scanning" | "analyzing" | "verified" | "details";
+type TabletType = "pill" | "capsule" | "tablet";
+
+interface TabletData {
+  id: string;
+  name: string;
+  type: TabletType;
+  imprint: string;
+  color: string;
+  verified: boolean;
+  lastVerified: Date;
+}
 
 const speechText: Record<string, { medicine: string; dosage: string }> = {
   English: {
@@ -55,73 +89,156 @@ const speechText: Record<string, { medicine: string; dosage: string }> = {
   },
 };
 
-// 3D Tablet Component
-const Tablet3D = ({ isScanning }: { isScanning: boolean }) => {
+// Modern 3D Tablet Model
+const ModernTablet3D = ({ type = "pill", isActive = false, isVerified = false }: { 
+  type: TabletType, 
+  isActive: boolean, 
+  isVerified: boolean 
+}) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const groupRef = useRef<THREE.Group>(null);
-
+  
   useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    
     if (meshRef.current) {
-      meshRef.current.rotation.y = state.clock.elapsedTime * 0.5;
-      if (isScanning) {
-        meshRef.current.scale.x = 1 + Math.sin(state.clock.elapsedTime * 2) * 0.1;
-        meshRef.current.scale.y = 1 + Math.sin(state.clock.elapsedTime * 2) * 0.1;
+      // Smooth floating animation
+      meshRef.current.position.y = Math.sin(t * 0.8) * 0.1;
+      
+      // Gentle rotation
+      if (isActive) {
+        meshRef.current.rotation.y = t * 0.5;
+        meshRef.current.rotation.x = Math.sin(t * 0.3) * 0.1;
       }
     }
-    if (groupRef.current) {
-      groupRef.current.rotation.y = state.clock.elapsedTime * 0.2;
+    
+    if (groupRef.current && isVerified) {
+      // Celebration animation for verified state
+      groupRef.current.rotation.y += 0.01;
     }
   });
 
+  const getTabletGeometry = () => {
+    switch(type) {
+      case "capsule":
+        return <capsuleGeometry args={[0.5, 1, 16]} />;
+      case "tablet":
+        return <boxGeometry args={[1, 0.2, 0.6]} />;
+      default: // pill
+        return <sphereGeometry args={[0.5, 32, 16]} />;
+    }
+  };
+
   return (
     <group ref={groupRef}>
-      <Float speed={2} rotationIntensity={1} floatIntensity={2}>
-        <mesh ref={meshRef} position={[0, 0, 0]}>
-          <boxGeometry args={[1.5, 0.2, 0.8]} />
-          <MeshWobbleMaterial
-            color="#3b82f6"
-            speed={isScanning ? 2 : 0.5}
-            factor={isScanning ? 0.3 : 0.1}
+      <Float
+        speed={2}
+        rotationIntensity={isActive ? 1 : 0.3}
+        floatIntensity={isActive ? 0.6 : 0.2}
+      >
+        <mesh ref={meshRef} castShadow receiveShadow>
+          {getTabletGeometry()}
+          <MeshTransmissionMaterial
+            color={isVerified ? "#10b981" : "#3b82f6"}
+            transmission={0.95}
+            thickness={0.5}
+            roughness={0.1}
+            chromaticAberration={0.05}
+            anisotropy={0.3}
+            distortionScale={0.3}
+            temporalDistortion={0.2}
           />
         </mesh>
         
-        {/* Pill imprint */}
-        <mesh position={[0, 0.11, 0]}>
-          <planeGeometry args={[0.8, 0.1]} />
-          <meshBasicMaterial color="white" transparent opacity={0.9} />
-        </mesh>
+        {/* Glow effect */}
+        {isActive && (
+          <pointLight
+            position={[0, 0, 2]}
+            intensity={2}
+            color="#60a5fa"
+            distance={5}
+          />
+        )}
         
-        {/* Scanning beams */}
-        {isScanning && (
+        {/* Scanning rings */}
+        {isActive && (
           <>
-            <mesh position={[0, 0.3, 0]} rotation={[Math.PI / 2, 0, 0]}>
-              <ringGeometry args={[0.5, 0.7, 32]} />
-              <meshBasicMaterial color="#60a5fa" transparent opacity={0.3} side={THREE.DoubleSide} />
+            <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, -0.3, 0]}>
+              <ringGeometry args={[0.7, 0.8, 64]} />
+              <meshBasicMaterial
+                color="#3b82f6"
+                transparent
+                opacity={0.3}
+                side={THREE.DoubleSide}
+              />
             </mesh>
-            <Sparkles3D count={20} scale={2} size={2} speed={0.3} />
+            <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, -0.5, 0]}>
+              <ringGeometry args={[0.9, 1, 64]} />
+              <meshBasicMaterial
+                color="#60a5fa"
+                transparent
+                opacity={0.2}
+                side={THREE.DoubleSide}
+              />
+            </mesh>
           </>
         )}
       </Float>
+      
+      {/* Verified badge */}
+      {isVerified && (
+        <mesh position={[0, 0.8, 0]}>
+          <sphereGeometry args={[0.15, 16, 16]} />
+          <meshBasicMaterial color="#10b981" />
+        </mesh>
+      )}
     </group>
   );
 };
 
-// Data Stream Particles
-const DataStream = () => {
-  const pointsRef = useRef<THREE.Points>(null);
-  const count = 200;
-  const positions = new Float32Array(count * 3);
+// Verification Scan Beam
+const ScanBeam = ({ isScanning }: { isScanning: boolean }) => {
+  const beamRef = useRef<THREE.Mesh>(null);
   
-  for (let i = 0; i < count * 3; i++) {
-    positions[i] = (Math.random() - 0.5) * 10;
-  }
-
   useFrame((state) => {
-    if (pointsRef.current) {
-      pointsRef.current.rotation.y = state.clock.elapsedTime * 0.1;
-      pointsRef.current.position.y = Math.sin(state.clock.elapsedTime) * 0.2;
+    if (beamRef.current && isScanning) {
+      const t = state.clock.elapsedTime;
+      beamRef.current.position.y = Math.sin(t * 3) * 2;
+      beamRef.current.scale.y = 1 + Math.sin(t * 5) * 0.5;
     }
   });
+
+  if (!isScanning) return null;
+
+  return (
+    <mesh ref={beamRef} position={[0, 0, 0]}>
+      <cylinderGeometry args={[0.05, 0.1, 3, 8]} />
+      <meshBasicMaterial
+        color="#3b82f6"
+        transparent
+        opacity={0.6}
+      />
+    </mesh>
+  );
+};
+
+// Data Particles
+const DataParticles = ({ count = 100 }: { count?: number }) => {
+  const pointsRef = useRef<THREE.Points>(null);
+  
+  useFrame((state) => {
+    if (pointsRef.current) {
+      pointsRef.current.rotation.x = state.clock.elapsedTime * 0.1;
+      pointsRef.current.rotation.y = state.clock.elapsedTime * 0.15;
+    }
+  });
+
+  const positions = new Float32Array(count * 3);
+  for (let i = 0; i < count * 3; i += 3) {
+    positions[i] = (Math.random() - 0.5) * 10;
+    positions[i + 1] = (Math.random() - 0.5) * 10;
+    positions[i + 2] = (Math.random() - 0.5) * 10;
+  }
 
   return (
     <points ref={pointsRef}>
@@ -134,8 +251,8 @@ const DataStream = () => {
         />
       </bufferGeometry>
       <pointsMaterial
-        color="#60a5fa"
         size={0.05}
+        color="#60a5fa"
         transparent
         opacity={0.6}
         sizeAttenuation
@@ -144,66 +261,102 @@ const DataStream = () => {
   );
 };
 
-// Holographic Interface Panel
-const HologramPanel = ({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) => (
+// Floating Dashboard Card
+const DashboardCard = ({ 
+  children, 
+  title, 
+  icon: Icon, 
+  color = "primary",
+  delay = 0 
+}: { 
+  children: React.ReactNode; 
+  title: string; 
+  icon: React.ComponentType<any>;
+  color?: string;
+  delay?: number;
+}) => (
   <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay, duration: 0.5 }}
+    initial={{ opacity: 0, y: 20, scale: 0.95 }}
+    animate={{ opacity: 1, y: 0, scale: 1 }}
+    transition={{ delay, duration: 0.4 }}
+    whileHover={{ y: -5, scale: 1.02 }}
     className="relative group"
   >
-    <div className="absolute -inset-1 bg-gradient-to-r from-primary via-accent to-primary rounded-2xl blur-xl opacity-30 group-hover:opacity-50 transition-opacity" />
-    <div className="relative bg-gray-900/80 backdrop-blur-xl rounded-xl border border-primary/30 p-8 shadow-2xl">
+    <div className={`absolute -inset-1 bg-gradient-to-r from-${color} to-${color}/30 rounded-2xl blur-xl opacity-20 group-hover:opacity-30 transition-opacity`} />
+    <div className="relative bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 p-6 shadow-2xl">
+      <div className="flex items-center gap-3 mb-4">
+        <div className={`p-2 rounded-lg bg-${color}/10`}>
+          <Icon className={`w-5 h-5 text-${color}`} />
+        </div>
+        <h3 className="font-semibold text-white">{title}</h3>
+      </div>
       {children}
     </div>
   </motion.div>
 );
 
-// Neural Network Visualization
-const NeuralNetwork = ({ active }: { active: boolean }) => {
-  const groupRef = useRef<THREE.Group>(null);
-  const nodes = Array.from({ length: 12 }, (_, i) => ({
-    position: new THREE.Vector3(
-      (Math.random() - 0.5) * 4,
-      (Math.random() - 0.5) * 4,
-      (Math.random() - 0.5) * 4
-    ),
-    scale: Math.random() * 0.3 + 0.2
-  }));
-
-  useFrame((state) => {
-    if (groupRef.current && active) {
-      groupRef.current.rotation.y = state.clock.elapsedTime * 0.1;
-    }
-  });
+// Glowing Button Component
+const GlowButton = ({ 
+  children, 
+  onClick, 
+  variant = "primary",
+  disabled = false,
+  loading = false
+}: { 
+  children: React.ReactNode;
+  onClick: () => void;
+  variant?: "primary" | "secondary" | "success";
+  disabled?: boolean;
+  loading?: boolean;
+}) => {
+  const colors = {
+    primary: "from-blue-500 to-cyan-500",
+    secondary: "from-purple-500 to-pink-500",
+    success: "from-emerald-500 to-teal-500"
+  };
 
   return (
-    <group ref={groupRef}>
-      {nodes.map((node, i) => (
-        <mesh key={i} position={node.position} scale={node.scale}>
-          <sphereGeometry />
-          <meshBasicMaterial color="#60a5fa" />
-          {active && (
-            <pointLight
-              color="#60a5fa"
-              intensity={1}
-              distance={5}
-            />
-          )}
-        </mesh>
-      ))}
-    </group>
+    <motion.button
+      whileHover={{ scale: disabled ? 1 : 1.02 }}
+      whileTap={{ scale: disabled ? 1 : 0.98 }}
+      onClick={onClick}
+      disabled={disabled}
+      className="relative px-8 py-4 rounded-xl font-semibold overflow-hidden group"
+    >
+      <div className={`absolute inset-0 bg-gradient-to-r ${colors[variant]} opacity-${disabled ? "30" : "100"}`} />
+      <div className={`absolute inset-0 bg-gradient-to-l ${colors[variant]} opacity-0 group-hover:opacity-100 transition-opacity`} />
+      <span className="relative flex items-center justify-center gap-3">
+        {loading && <Loader2 className="w-5 h-5 animate-spin" />}
+        {children}
+        <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+      </span>
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+        initial={{ x: "-100%" }}
+        whileHover={{ x: "100%" }}
+        transition={{ duration: 0.6 }}
+      />
+    </motion.button>
   );
 };
 
-export default function TabletChecker3D() {
-  const [tablet, setTablet] = useState("");
-  const [language, setLanguage] = useState("English");
+export default function ProfessionalTabletChecker() {
   const [state, setState] = useState<State>("idle");
-  const [isDragging, setIsDragging] = useState(false);
-  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [tabletName, setTabletName] = useState("");
+  const [language, setLanguage] = useState("English");
+  const [tabletType, setTabletType] = useState<TabletType>("pill");
   const [scanProgress, setScanProgress] = useState(0);
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Mock tablet database
+  const [verifiedTablets, setVerifiedTablets] = useState<TabletData[]>([
+    { id: "1", name: "Paracetamol 500mg", type: "pill", imprint: "P500", color: "white", verified: true, lastVerified: new Date() },
+    { id: "2", name: "Ibuprofen 200mg", type: "tablet", imprint: "I200", color: "white", verified: true, lastVerified: new Date() },
+    { id: "3", name: "Amoxicillin 250mg", type: "capsule", imprint: "A250", color: "red/white", verified: true, lastVerified: new Date() },
+  ]);
 
   useEffect(() => {
     if (state === "scanning") {
@@ -211,318 +364,371 @@ export default function TabletChecker3D() {
         setScanProgress(prev => {
           if (prev >= 100) {
             clearInterval(interval);
-            setTimeout(() => setState("analyzing"), 500);
+            setTimeout(() => setState("analyzing"), 300);
             return 100;
           }
-          return prev + 2;
+          return prev + 1;
         });
-      }, 50);
+      }, 20);
       return () => clearInterval(interval);
     }
   }, [state]);
 
-  const speak = (text: string) => {
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = language === "Hindi" ? "hi-IN" : language === "Spanish" ? "es-ES" : "en-US";
-    u.rate = 0.9;
-    window.speechSynthesis.speak(u);
-  };
-
   const handleVerify = () => {
+    if (!tabletName.trim()) return;
     setState("scanning");
     setScanProgress(0);
+    
+    // Simulate complete verification process
     setTimeout(() => {
       setState("verified");
-    }, 3500);
+      
+      // Add to verified tablets
+      const newTablet: TabletData = {
+        id: Date.now().toString(),
+        name: tabletName,
+        type: tabletType,
+        imprint: tabletName.split(" ")[0].toUpperCase(),
+        color: "white",
+        verified: true,
+        lastVerified: new Date()
+      };
+      
+      setVerifiedTablets(prev => [newTablet, ...prev.slice(0, 2)]);
+    }, 3000);
+  };
+
+  const handleReset = () => {
+    setState("idle");
+    setTabletName("");
+    setUploadedImage(null);
+    setScanProgress(0);
+  };
+
+  const handleFileUpload = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setUploadedImage(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const speak = (text: string) => {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = language === "Hindi" ? "hi-IN" : "en-US";
+    utterance.rate = 0.9;
+    speechSynthesis.speak(utterance);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-black to-gray-900 text-white overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 text-white overflow-hidden">
       {/* Animated Background */}
-      <div className="fixed inset-0">
+      <div className="fixed inset-0 overflow-hidden">
         <Canvas camera={{ position: [0, 0, 10], fov: 50 }}>
-          <color attach="background" args={["#000000"]} />
-          <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade />
-          <DataStream />
-          <NeuralNetwork active={state === "analyzing"} />
-          <Environment preset="city" />
-          <OrbitControls enableZoom={false} enablePan={false} autoRotate autoRotateSpeed={0.5} />
+          <color attach="background" args={["#030712"]} />
+          <ambientLight intensity={0.3} />
+          <directionalLight position={[10, 10, 5]} intensity={1} />
+          
+          <DataParticles count={150} />
+          
+          <Environment preset="studio" />
+          
+          {/* Floating tablets in background */}
+          {[-3, 0, 3].map((x, i) => (
+            <group key={i} position={[x, -2 + Math.sin(Date.now() * 0.001 + i) * 0.5, -5]}>
+              <mesh>
+                <sphereGeometry args={[0.3, 16, 16]} />
+                <meshBasicMaterial color="#1e40af" transparent opacity={0.1} />
+              </mesh>
+            </group>
+          ))}
         </Canvas>
       </div>
 
       <Navbar />
 
-      <main ref={containerRef} className="container max-w-7xl mx-auto px-4 pt-24 pb-20 relative z-10">
-        {/* Hero Section with 3D */}
+      <main className="container max-w-7xl mx-auto px-4 pt-24 pb-20 relative z-10">
+        {/* Header Section */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-16"
         >
-          <div className="flex items-center justify-center gap-4 mb-6">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            >
-              <Satellite className="w-12 h-12 text-primary" />
-            </motion.div>
-            <h1 className="text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary via-accent to-cyan-400">
-              Tablet<span className="text-white">AI</span>
-            </h1>
+          <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 mb-6">
+            <ShieldCheck className="w-5 h-5 text-emerald-400" />
+            <span className="text-sm font-medium text-emerald-400">PharmaSecure Verification</span>
           </div>
+          
+          <h1 className="text-5xl md:text-6xl font-bold mb-6">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500">
+              Medical Authenticity
+            </span>
+            <br />
+            <span className="text-white">Platform</span>
+          </h1>
+          
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Advanced neural network powered medicine verification with real-time 3D analysis
+            Advanced AI-powered verification ensuring medication safety through 3D molecular analysis
           </p>
         </motion.div>
 
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="grid lg:grid-cols-3 gap-8">
           {/* Left Panel - 3D Visualization */}
-          <div className="h-[600px] rounded-2xl overflow-hidden border border-primary/30 backdrop-blur-xl bg-gray-900/30">
-            <Canvas>
-              <color attach="background" args={["#0a0a0a"]} />
-              <ambientLight intensity={0.5} />
-              <pointLight position={[10, 10, 10]} intensity={1} color="#3b82f6" />
-              <spotLight position={[5, 5, 5]} angle={0.3} penumbra={1} intensity={2} />
-              
-              <Tablet3D isScanning={state === "scanning" || state === "analyzing"} />
-              
-              {state === "verified" && (
-                <Float speed={5} rotationIntensity={2}>
-                  <Text3D
-                    font="/fonts/helvetiker_regular.typeface.json"
-                    size={0.5}
-                    height={0.2}
-                    curveSegments={12}
-                    position={[-2, 2, 0]}
-                  >
-                    VERIFIED
-                    <meshNormalMaterial />
-                  </Text3D>
-                </Float>
-              )}
-
-              <OrbitControls
-                enableZoom={true}
-                enablePan={false}
-                minDistance={5}
-                maxDistance={15}
-                autoRotate={state === "idle"}
-                autoRotateSpeed={0.5}
-              />
-              <Environment preset="studio" />
-            </Canvas>
-
-            {/* Scanning Progress */}
-            {state === "scanning" && (
-              <div className="absolute bottom-8 left-8 right-8">
-                <div className="flex items-center gap-3 mb-2">
-                  <Cpu className="w-5 h-5 text-primary animate-pulse" />
-                  <span className="text-sm font-medium">3D Molecular Scan</span>
-                  <span className="ml-auto text-sm">{scanProgress}%</span>
-                </div>
-                <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
-                  <motion.div
-                    className="h-full bg-gradient-to-r from-primary to-accent"
-                    initial={{ width: "0%" }}
-                    animate={{ width: `${scanProgress}%` }}
-                    transition={{ duration: 0.1 }}
+          <div className="lg:col-span-2">
+            <div className="h-[500px] rounded-2xl overflow-hidden border border-white/10 bg-gradient-to-br from-gray-900/50 to-gray-950/50 backdrop-blur-xl">
+              <Canvas shadows camera={{ position: [0, 2, 8], fov: 60 }}>
+                <color attach="background" args={["#0f172a"]} />
+                
+                {/* Lights */}
+                <ambientLight intensity={0.3} />
+                <directionalLight
+                  position={[5, 5, 5]}
+                  intensity={1}
+                  castShadow
+                  shadow-mapSize={[1024, 1024]}
+                />
+                <pointLight position={[-5, 5, 5]} intensity={0.5} color="#60a5fa" />
+                
+                {/* Main tablet */}
+                <Center>
+                  <ModernTablet3D 
+                    type={tabletType}
+                    isActive={state === "scanning" || state === "analyzing"}
+                    isVerified={state === "verified"}
                   />
+                </Center>
+                
+                {/* Scan beam */}
+                <ScanBeam isScanning={state === "scanning"} />
+                
+                {/* Environment */}
+                <Environment preset="studio" />
+                <ContactShadows
+                  position={[0, -1, 0]}
+                  opacity={0.5}
+                  scale={10}
+                  blur={2}
+                />
+                
+                {/* Orbit controls */}
+                <OrbitControls
+                  enableZoom={true}
+                  enablePan={true}
+                  minDistance={3}
+                  maxDistance={15}
+                  autoRotate={state === "idle"}
+                  autoRotateSpeed={0.5}
+                  enableDamping
+                />
+              </Canvas>
+              
+              {/* Controls overlay */}
+              <div className="absolute bottom-6 left-6 right-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {["pill", "tablet", "capsule"].map((type) => (
+                      <motion.button
+                        key={type}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => setTabletType(type as TabletType)}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium capitalize ${
+                          tabletType === type
+                            ? "bg-blue-500 text-white"
+                            : "bg-white/5 text-gray-400 hover:bg-white/10"
+                        }`}
+                      >
+                        {type}
+                      </motion.button>
+                    ))}
+                  </div>
+                  
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    className="p-3 rounded-full bg-white/10 hover:bg-white/20"
+                  >
+                    <Maximize2 className="w-4 h-4" />
+                  </motion.button>
                 </div>
               </div>
-            )}
+              
+              {/* Progress indicator */}
+              {(state === "scanning" || state === "analyzing") && (
+                <div className="absolute top-6 left-6 right-6">
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-blue-400 font-medium">
+                        {state === "scanning" ? "3D Scanning" : "AI Analysis"}
+                      </span>
+                      <span className="text-white">{scanProgress}%</span>
+                    </div>
+                    <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                      <motion.div
+                        className="h-full bg-gradient-to-r from-blue-500 to-cyan-500"
+                        initial={{ width: "0%" }}
+                        animate={{ width: `${scanProgress}%` }}
+                        transition={{ duration: 0.1 }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            {/* Recent Verifications */}
+            <div className="mt-8">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">Recent Verifications</h3>
+                <button className="text-sm text-blue-400 hover:text-blue-300 flex items-center gap-1">
+                  <RefreshCw className="w-4 h-4" />
+                  Refresh
+                </button>
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                {verifiedTablets.map((tablet) => (
+                  <motion.div
+                    key={tablet.id}
+                    whileHover={{ y: -4 }}
+                    className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10 hover:border-blue-500/30 transition-colors"
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                        <Pill className="w-4 h-4 text-blue-400" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm">{tablet.name}</p>
+                        <p className="text-xs text-gray-400">{tablet.type}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-emerald-400 font-medium">
+                        Verified
+                      </span>
+                      <span className="text-xs text-gray-400">
+                        {tablet.lastVerified.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
           </div>
 
-          {/* Right Panel - Interface */}
+          {/* Right Panel - Control Interface */}
           <div className="space-y-8">
             <AnimatePresence mode="wait">
               {state === "idle" && (
                 <motion.div
-                  key="input"
+                  key="idle"
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
                   className="space-y-8"
                 >
-                  <HologramPanel>
-                    <div className="flex items-center gap-3 mb-6">
-                      <Binary className="w-8 h-8 text-primary" />
-                      <h2 className="text-2xl font-bold">Input Parameters</h2>
-                    </div>
-
-                    {/* Tablet Name */}
+                  <DashboardCard title="Tablet Identification" icon={FileSearch}>
                     <div className="space-y-4">
-                      <label className="flex items-center gap-2 text-gray-300">
-                        <Pill className="w-5 h-5" />
-                        <span className="font-medium">Tablet Identification</span>
-                      </label>
-                      <div className="relative">
-                        <motion.input
-                          whileFocus={{ scale: 1.02 }}
-                          value={tablet}
-                          onChange={(e) => setTablet(e.target.value)}
-                          placeholder="Enter tablet name or code..."
-                          className="w-full px-6 py-4 rounded-xl bg-gray-800/50 border border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/30 outline-none transition-all"
-                        />
-                        {tablet && (
-                          <motion.div
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            className="absolute right-3 top-1/2 -translate-y-1/2"
-                          >
-                            <Brain className="w-5 h-5 text-accent" />
-                          </motion.div>
-                        )}
+                      <div className="space-y-2">
+                        <label className="text-sm text-gray-300">Tablet Name / Code</label>
+                        <div className="relative">
+                          <input
+                            type="text"
+                            value={tabletName}
+                            onChange={(e) => setTabletName(e.target.value)}
+                            placeholder="Enter tablet identifier..."
+                            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                          />
+                          {tabletName && (
+                            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                              <CheckCircle className="w-4 h-4 text-emerald-400" />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <label className="text-sm text-gray-300">Select Language</label>
+                        <select
+                          value={language}
+                          onChange={(e) => setLanguage(e.target.value)}
+                          className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none appearance-none"
+                        >
+                          {["English", "Hindi", "Spanish", "French", "German", "Chinese"].map((lang) => (
+                            <option key={lang} value={lang}>{lang}</option>
+                          ))}
+                        </select>
                       </div>
                     </div>
+                  </DashboardCard>
 
-                    {/* Language Selector */}
-                    <div className="space-y-4 mt-8">
-                      <label className="flex items-center gap-2 text-gray-300">
-                        <Languages className="w-5 h-5" />
-                        <span className="font-medium">Analysis Language</span>
-                      </label>
-                      <div className="grid grid-cols-3 gap-2">
-                        {["English", "Hindi", "Spanish", "French", "German", "Chinese"].map((lang) => (
-                          <motion.button
-                            key={lang}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => setLanguage(lang)}
-                            className={cn(
-                              "px-4 py-3 rounded-lg text-sm font-medium transition-all",
-                              language === lang
-                                ? "bg-primary text-white shadow-lg shadow-primary/30"
-                                : "bg-gray-800/50 hover:bg-gray-700/50"
-                            )}
-                          >
-                            {lang}
-                          </motion.button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Upload Area */}
-                    <div className="space-y-4 mt-8">
-                      <label className="flex items-center gap-2 text-gray-300">
-                        <Upload className="w-5 h-5" />
-                        <span className="font-medium">Visual Scan (Optional)</span>
-                      </label>
-                      <motion.div
-                        whileHover={{ scale: 1.02 }}
-                        className="relative h-40 border-2 border-dashed border-gray-700 rounded-xl flex items-center justify-center cursor-pointer hover:border-primary transition-colors"
-                        onDrop={(e) => {
-                          e.preventDefault();
-                          setIsDragging(false);
+                  <DashboardCard title="Image Upload" icon={Upload} color="purple">
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      className="relative h-40 border-2 border-dashed border-white/20 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-purple-500 transition-colors"
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        setIsDragging(true);
+                      }}
+                      onDragLeave={() => setIsDragging(false)}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        setIsDragging(false);
+                        const file = e.dataTransfer.files[0];
+                        if (file) handleFileUpload(file);
+                      }}
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleFileUpload(file);
                         }}
-                        onDragOver={(e) => e.preventDefault()}
-                      >
+                      />
+                      
+                      {uploadedImage ? (
+                        <div className="relative w-full h-full rounded-lg overflow-hidden">
+                          <img
+                            src={uploadedImage}
+                            alt="Uploaded"
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setUploadedImage(null);
+                            }}
+                            className="absolute top-2 right-2 p-1.5 bg-black/50 rounded-full hover:bg-black/70"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ) : (
                         <div className="text-center space-y-3">
                           <Upload className="w-10 h-10 mx-auto text-gray-500" />
-                          <p className="text-gray-400">Drag & drop tablet image</p>
-                          <p className="text-sm text-gray-500">AI-enhanced visual recognition</p>
+                          <div>
+                            <p className="font-medium">Drop or click to upload</p>
+                            <p className="text-sm text-gray-400">Supports JPG, PNG, WEBP</p>
+                          </div>
                         </div>
-                      </motion.div>
-                    </div>
+                      )}
+                    </motion.div>
+                  </DashboardCard>
 
-                    {/* Verify Button */}
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={handleVerify}
-                      disabled={!tablet}
-                      className="w-full mt-8 px-8 py-4 rounded-xl text-lg font-bold relative overflow-hidden group"
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-r from-primary via-accent to-cyan-500" />
-                      <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-accent to-primary opacity-0 group-hover:opacity-100 transition-opacity" />
-                      <span className="relative flex items-center justify-center gap-3">
-                        <Zap className="w-5 h-5" />
-                        Initiate Deep Scan
-                      </span>
-                      <motion.div
-                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
-                        initial={{ x: "-100%" }}
-                        whileHover={{ x: "100%" }}
-                        transition={{ duration: 0.6 }}
-                      />
-                    </motion.button>
-                  </HologramPanel>
+                  <GlowButton
+                    onClick={handleVerify}
+                    disabled={!tabletName.trim()}
+                    variant="primary"
+                  >
+                    <Scan className="w-5 h-5" />
+                    Start Verification
+                  </GlowButton>
                 </motion.div>
               )}
 
-              {/* Analyzing State */}
-              {(state === "scanning" || state === "analyzing") && (
-                <motion.div
-                  key="analyzing"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="space-y-8"
-                >
-                  <HologramPanel>
-                    <div className="flex items-center gap-3 mb-6">
-                      <Cpu className="w-8 h-8 text-primary animate-pulse" />
-                      <h2 className="text-2xl font-bold">Neural Analysis</h2>
-                    </div>
-
-                    <div className="space-y-6">
-                      <div className="space-y-2">
-                        <div className="flex justify-between">
-                          <span className="text-gray-300">Molecular Structure</span>
-                          <span className="text-primary">Analyzing...</span>
-                        </div>
-                        <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
-                          <motion.div
-                            className="h-full bg-gradient-to-r from-primary to-accent"
-                            animate={{ width: ["0%", "100%"] }}
-                            transition={{ duration: 2, repeat: Infinity }}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <div className="flex justify-between">
-                          <span className="text-gray-300">Chemical Composition</span>
-                          <span className="text-primary">Validating...</span>
-                        </div>
-                        <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
-                          <motion.div
-                            className="h-full bg-gradient-to-r from-accent to-cyan-500"
-                            animate={{ width: ["0%", "100%"] }}
-                            transition={{ duration: 2, repeat: Infinity, delay: 0.3 }}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <div className="flex justify-between">
-                          <span className="text-gray-300">Safety Database</span>
-                          <span className="text-primary">Cross-referencing...</span>
-                        </div>
-                        <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
-                          <motion.div
-                            className="h-full bg-gradient-to-r from-cyan-500 to-primary"
-                            animate={{ width: ["0%", "100%"] }}
-                            transition={{ duration: 2, repeat: Infinity, delay: 0.6 }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="mt-8 p-4 bg-gray-800/30 rounded-lg border border-primary/20">
-                      <div className="flex items-center gap-3">
-                        <Loader2 className="w-5 h-5 text-primary animate-spin" />
-                        <span className="text-sm text-gray-300">
-                          {state === "scanning" 
-                            ? "Scanning molecular structure with quantum sensors..." 
-                            : "Analyzing chemical composition with neural networks..."}
-                        </span>
-                      </div>
-                    </div>
-                  </HologramPanel>
-                </motion.div>
-              )}
-
-              {/* Verified State */}
               {state === "verified" && (
                 <motion.div
                   key="verified"
@@ -531,132 +737,137 @@ export default function TabletChecker3D() {
                   exit={{ opacity: 0, x: -20 }}
                   className="space-y-8"
                 >
-                  {/* Verification Result */}
-                  <HologramPanel>
-                    <div className="flex items-center justify-between mb-6">
-                      <div className="flex items-center gap-3">
-                        <motion.div
-                          animate={{ scale: [1, 1.2, 1] }}
-                          transition={{ duration: 2, repeat: Infinity }}
-                        >
-                          <CheckCircle className="w-10 h-10 text-green-400" />
-                        </motion.div>
-                        <div>
-                          <h2 className="text-2xl font-bold">Verification Complete</h2>
-                          <p className="text-green-400">✓ Authentic Pharmaceutical</p>
-                        </div>
-                      </div>
-                      <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={() => speak(`${tablet} is authentic. ${speechText[language].medicine}`)}
-                        className="p-3 rounded-full bg-primary/20 hover:bg-primary/30"
+                  <DashboardCard title="Verification Complete" icon={ShieldCheck} color="success">
+                    <div className="text-center space-y-4">
+                      <motion.div
+                        animate={{ scale: [1, 1.1, 1] }}
+                        transition={{ duration: 2, repeat: Infinity }}
                       >
-                        <Volume2 className="w-5 h-5" />
-                      </motion.button>
-                    </div>
-
-                    <div className="space-y-4">
-                      <div className="p-4 bg-gray-800/30 rounded-lg">
-                        <p className="font-semibold mb-2">Identified Substance</p>
-                        <p className="text-2xl font-bold text-primary">{tablet}</p>
-                      </div>
-                    </div>
-                  </HologramPanel>
-
-                  {/* Safety Information */}
-                  <HologramPanel delay={0.1}>
-                    <div className="flex items-center gap-3 mb-6">
-                      <ShieldAlert className="w-8 h-8 text-yellow-400" />
-                      <h3 className="text-xl font-bold">Safety Profile</h3>
-                    </div>
-                    
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div className="p-4 bg-yellow-500/10 rounded-lg border border-yellow-500/20">
-                        <p className="font-semibold text-yellow-400 mb-2">Precautions</p>
-                        <ul className="space-y-2 text-sm">
-                          <li className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse" />
-                            Do not exceed 4000mg/day
-                          </li>
-                          <li className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse" />
-                            Avoid with alcohol
-                          </li>
-                        </ul>
+                        <CheckCircle className="w-16 h-16 text-emerald-400 mx-auto" />
+                      </motion.div>
+                      
+                      <div>
+                        <h4 className="text-xl font-bold text-white mb-2">Authentic Medication</h4>
+                        <p className="text-emerald-400 font-medium">{tabletName}</p>
                       </div>
                       
-                      <div className="p-4 bg-red-500/10 rounded-lg border border-red-500/20">
-                        <p className="font-semibold text-red-400 mb-2">Side Effects</p>
-                        <ul className="space-y-2 text-sm">
-                          <li className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                            Nausea (Common)
-                          </li>
-                          <li className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                            Severe Allergy (Rare)
-                          </li>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="p-3 bg-emerald-500/10 rounded-lg">
+                          <p className="text-xs text-gray-300">Manufacturer</p>
+                          <p className="font-semibold">PharmaCorp Inc.</p>
+                        </div>
+                        <div className="p-3 bg-emerald-500/10 rounded-lg">
+                          <p className="text-xs text-gray-300">Batch No.</p>
+                          <p className="font-semibold">PC-2024-001</p>
+                        </div>
+                      </div>
+                    </div>
+                  </DashboardCard>
+
+                  <DashboardCard title="Safety Information" icon={AlertTriangle} color="yellow">
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Activity className="w-4 h-4 text-yellow-400" />
+                        <span className="font-medium">Recommended Dosage</span>
+                      </div>
+                      <p className="text-sm text-gray-300">
+                        500-1000mg every 4-6 hours. Max 4000mg per day.
+                      </p>
+                      
+                      <div className="pt-3 border-t border-white/10">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Lock className="w-4 h-4 text-red-400" />
+                          <span className="font-medium">Precautions</span>
+                        </div>
+                        <ul className="space-y-1 text-sm text-gray-300">
+                          <li>• Avoid alcohol consumption</li>
+                          <li>• Not for prolonged use</li>
+                          <li>• Consult doctor if symptoms persist</li>
                         </ul>
                       </div>
                     </div>
-                  </HologramPanel>
+                  </DashboardCard>
 
-                  {/* Reset Button */}
-                  <motion.button
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => {
-                      setState("idle");
-                      setTablet("");
-                      setUploadedImage(null);
-                    }}
-                    className="w-full px-8 py-4 rounded-xl bg-gradient-to-r from-gray-800 to-gray-900 border border-gray-700 text-lg font-bold hover:border-primary transition-all group"
-                  >
-                    <span className="flex items-center justify-center gap-3">
-                      <Scan className="w-5 h-5 group-hover:rotate-180 transition-transform" />
-                      Analyze Another Tablet
-                    </span>
-                  </motion.button>
+                  <div className="flex gap-4">
+                    <GlowButton
+                      onClick={() => speak(`${tabletName} verification complete. ${speechText[language].medicine}`)}
+                      variant="secondary"
+                    >
+                      <Volume2 className="w-5 h-5" />
+                      Hear Details
+                    </GlowButton>
+                    
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={handleReset}
+                      className="flex-1 px-6 py-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 font-semibold transition-colors"
+                    >
+                      Scan Another
+                    </motion.button>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
+
+            {/* Stats Panel */}
+            <DashboardCard title="System Status" icon={Activity}>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-300">AI Accuracy</span>
+                    <span className="text-emerald-400">99.8%</span>
+                  </div>
+                  <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                    <div className="h-full bg-emerald-500 w-[99.8%]" />
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-300">Database</span>
+                    <span className="text-blue-400">50,412</span>
+                  </div>
+                  <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                    <div className="h-full bg-blue-500 w-[85%]" />
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-300">Response Time</span>
+                    <span className="text-cyan-400">2.3s</span>
+                  </div>
+                  <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                    <div className="h-full bg-cyan-500 w-[95%]" />
+                  </div>
+                </div>
+              </div>
+            </DashboardCard>
           </div>
         </div>
 
-        {/* Floating Stats Bar */}
+        {/* Floating Action Button */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-gray-900/80 backdrop-blur-xl border border-gray-800 rounded-2xl px-8 py-4 shadow-2xl"
+          className="fixed bottom-8 right-8 z-50"
         >
-          <div className="flex items-center gap-8">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary">99.8%</div>
-              <div className="text-sm text-gray-400">Accuracy</div>
-            </div>
-            <div className="h-8 w-px bg-gray-700" />
-            <div className="text-center">
-              <div className="text-2xl font-bold text-accent">2.4s</div>
-              <div className="text-sm text-gray-400">Avg Scan Time</div>
-            </div>
-            <div className="h-8 w-px bg-gray-700" />
-            <div className="text-center">
-              <div className="text-2xl font-bold text-cyan-400">50K+</div>
-              <div className="text-sm text-gray-400">Database</div>
-            </div>
-          </div>
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            className="p-4 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 shadow-2xl shadow-blue-500/30"
+          >
+            <Target className="w-6 h-6" />
+          </motion.button>
         </motion.div>
       </main>
 
       {/* Ambient Effects */}
-      <div className="fixed top-0 left-0 w-full h-full pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/10 rounded-full blur-[100px]" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-[120px]" />
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-[120px]" />
+        <div className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-cyan-500/5 rounded-full blur-[140px]" />
       </div>
     </div>
   );
